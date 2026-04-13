@@ -26,8 +26,10 @@ node_modules/
 **/out/
 
 # Env
-.env*
-**/.env*
+.env.local
+.env
+**/.env
+**/.env.local
 
 # Misc
 .DS_Store
@@ -38,7 +40,4 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # Docker
-.dockerignore
-**/Dockerfile*
-**/docker-compose*.yml
-!docker-compose.yml
+# (Dockerfile and docker-compose.yml should be tracked by Git)

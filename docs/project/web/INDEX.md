@@ -1,0 +1,26 @@
+# 📚 Indice - Documentacao Web
+
+## Leitura Inicial
+
+1. [00-START-HERE.md](00-START-HERE.md)
+2. [README.md](README.md)
+3. [ARCHITECTURE.md](ARCHITECTURE.md)
+
+## Modulos Funcionais
+
+- [AUTHENTICATION.md](AUTHENTICATION.md)
+- [AUTHORIZATION-RBAC.md](AUTHORIZATION-RBAC.md)
+- [ROUTES.md](ROUTES.md)
+- [ENDPOINTS.md](ENDPOINTS.md)
+- [MODELS.md](MODELS.md)
+- [SERVICES.md](SERVICES.md)
+- [COMPONENTS.md](COMPONENTS.md)
+- [DATABASE.md](DATABASE.md)
+
+## Operacao
+
+- [DEPLOYMENT.md](DEPLOYMENT.md)
+- [TESTING.md](TESTING.md)
+- [ERROR-HANDLING.md](ERROR-HANDLING.md)
+- [MAINTENANCE.md](MAINTENANCE.md)
+- [SUMMARY.md](SUMMARY.md)

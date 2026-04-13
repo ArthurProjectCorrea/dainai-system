@@ -11,9 +11,10 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
-    "format": "prettier --write . && dotnet format apps/api/api.csproj",
+    "test": "turbo run test",
+    "format": "prettier --write . && dotnet format apps/api/Api.sln",
     "prepare": "husky",
-    "postinstall": "dotnet restore apps/api/api.csproj"
+    "postinstall": "dotnet restore apps/api/Api.sln"
   },
   "keywords": [],
   "author": "",
@@ -24,7 +25,7 @@
       "prettier --write"
     ],
     "apps/api/**/*.cs": [
-      "dotnet format apps/api/api.csproj --include"
+      "dotnet format apps/api/Api.sln --include"
     ]
   },
   "devDependencies": {

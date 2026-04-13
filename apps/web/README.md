@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Web App (Next.js)
 
-## Getting Started
+Aplicacao web em Next.js App Router para o sistema Dainai.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js 16 (App Router)
+- React 19
+- TypeScript strict
+- Server Actions para fluxo de autenticacao
+- Middleware/Proxy (`proxy.ts`) para protecao de rotas e integracao com API
+
+## Modulo Auth (implementado)
+
+Fluxo entregue sem alterar a UI existente:
+
+1. Login (`/auth/login`)
+2. Forgot password (`/auth/forgot-password`)
+3. Verify OTP (`/auth/verify-otp`)
+4. Reset password (`/auth/reset-password`)
+5. Logout
+
+### Componentes utilizados
+
+Ja existentes e reaproveitados:
+
+- `components/form/login-form.tsx`
+- `components/form/forgot-password-form.tsx`
+- `components/form/verify-otp-form.tsx`
+- `components/form/reset-password-form.tsx`
+- `components/providers/auth-provider.tsx`
+
+Nenhum novo componente de UI foi necessario para concluir o modulo auth.
+
+## Variaveis de ambiente
+
+Arquivo: `.env.local`
+
+```env
+BACKEND_API_URL=http://localhost:5000/api/v1
+NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Requisitos da API para funcionar com o Web
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. CORS habilitado com credenciais para `http://localhost:3000`
+2. API rodando em `http://localhost:5000`
+3. Cookie auth ativo no backend (`AuthToken`)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Configuracao de CORS na API foi aplicada em:
 
-## Learn More
+- `apps/api/Api.Web/Program.cs`
+- origem configuravel via `App__WebClientUrl` (default `http://localhost:3000`)
 
-To learn more about Next.js, take a look at the following resources:
+## Como rodar local
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+No root do monorepo:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+docker compose up -d db redis mailhog api
+```
 
-## Deploy on Vercel
+No web:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+cd apps/web
+npm install
+npm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Abrir:
+
+- Web: `http://localhost:3000`
+- API Swagger: `http://localhost:5000/swagger`
+- Mailhog: `http://localhost:8025`
+
+## Testes manuais do modulo auth
+
+1. Login
+   - Ir para `/auth/login`
+   - Usar usuario seed: `admin@empresa.com` / `Admin123!`
+   - Esperado: redireciona para `/{client}/dashboard`
+
+2. Sessao
+   - `GET /api/v1/auth/me` no web deve retornar 200 apos login
+
+3. Forgot password
+   - Solicitar codigo em `/auth/forgot-password`
+   - Verificar email no Mailhog
+
+4. Verify OTP
+   - Inserir codigo em `/auth/verify-otp`
+   - Esperado: vai para reset com token
+
+5. Reset password
+   - Redefinir senha em `/auth/reset-password`
+   - Esperado: retorno para login com mensagem de sucesso
+
+6. Logout
+   - Acionar logout no menu do usuario
+   - Esperado: volta para `/auth/login`
+
+## Validacao executada
+
+- `npm run lint` (sem erros, apenas warnings nao relacionados ao auth)
+- `docker compose build api`
+- `docker compose up -d api`
+- CORS preflight validado (`Access-Control-Allow-Origin` e `Allow-Credentials`)
+- Login + `/auth/me` validados na API com sessao HTTP
+
+## Observacoes de seguranca
+
+- Sem armazenamento de senha/token em localStorage
+- Sessao principal baseada em cookie do backend
+- Rota privada protegida no `proxy.ts`
+- Multi-tenant validado por `client_domain`

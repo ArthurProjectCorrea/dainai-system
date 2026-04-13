@@ -1,11 +1,13 @@
 {
   "name": "api",
-  "version": "1.0.0",
   "private": true,
+  "version": "0.1.0",
   "scripts": {
-    "dev": "dotnet watch run",
-    "build": "dotnet build",
-    "lint": "dotnet format --verify-no-changes",
-    "format": "dotnet format"
+    "dev": "dotnet watch run --project Api.Web/Api.Web.csproj",
+    "build": "dotnet build Api.sln -c Release",
+    "lint": "dotnet format Api.sln --verify-no-changes",
+    "test": "dotnet test Api.Tests/Api.Tests.csproj --filter \"Category!=E2E\"",
+    "test:e2e": "dotnet test Api.Tests/Api.Tests.csproj --filter Category=E2E",
+    "format": "dotnet format Api.sln"
   }
 }

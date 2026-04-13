@@ -16,7 +16,7 @@ const eslintConfig = defineConfig([
   {
     settings: {
       next: {
-        rootDir: 'apps/web/',
+        rootDir: '.',
       },
     },
   },

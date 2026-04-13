@@ -6,6 +6,10 @@
       "outputs": [".next/**", "!.next/cache/**", "bin/**", "obj/**"]
     },
     "lint": {},
+    "test": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
     "dev": {
       "cache": false,
       "persistent": true
