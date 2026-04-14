@@ -6,22 +6,22 @@ description: Configure Sass options.
 `sassOptions` allow you to configure the Sass compiler.
 
 ```ts filename="next.config.ts" switcher
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const sassOptions = {
   additionalData: `
     $var: red;
   `,
-};
+}
 
 const nextConfig: NextConfig = {
   sassOptions: {
     ...sassOptions,
     implementation: 'sass-embedded',
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
 ```
 
 ```js filename="next.config.js" switcher
@@ -31,16 +31,16 @@ const sassOptions = {
   additionalData: `
     $var: red;
   `,
-};
+}
 
 const nextConfig = {
   sassOptions: {
     ...sassOptions,
     implementation: 'sass-embedded',
   },
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
 ```
 
 > **Good to know:**

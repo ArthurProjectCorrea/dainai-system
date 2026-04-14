@@ -18,12 +18,12 @@ You can use the `metadata` object or the `generateMetadata` function to define m
 To define static metadata, export a [`Metadata` object](#metadata-fields) from a `layout.js` or `page.js` file.
 
 ```tsx filename="layout.tsx | page.tsx" switcher
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: '...',
   description: '...',
-};
+}
 
 export default function Page() {}
 ```
@@ -32,7 +32,7 @@ export default function Page() {}
 export const metadata = {
   title: '...',
   description: '...',
-};
+}
 
 export default function Page() {}
 ```
@@ -48,32 +48,32 @@ Resolving `generateMetadata` is part of rendering the page. If the page can be p
 Otherwise the metadata resolved from `generateMetadata` [can be streamed](/docs/app/api-reference/functions/generate-metadata#streaming-metadata) after sending the initial UI.
 
 ```tsx filename="app/products/[id]/page.tsx" switcher
-import type { Metadata, ResolvingMetadata } from 'next';
+import type { Metadata, ResolvingMetadata } from 'next'
 
 type Props = {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-};
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
 
 export async function generateMetadata(
   { params, searchParams }: Props,
-  parent: ResolvingMetadata
+  parent: ResolvingMetadata,
 ): Promise<Metadata> {
   // read route params
-  const { id } = await params;
+  const { id } = await params
 
   // fetch data
-  const product = await fetch(`https://.../${id}`).then((res) => res.json());
+  const product = await fetch(`https://.../${id}`).then(res => res.json())
 
   // optionally access and extend (rather than replace) parent metadata
-  const previousImages = (await parent).openGraph?.images || [];
+  const previousImages = (await parent).openGraph?.images || []
 
   return {
     title: product.title,
     openGraph: {
       images: ['/some-specific-page-image.jpg', ...previousImages],
     },
-  };
+  }
 }
 
 export default function Page({ params, searchParams }: Props) {}
@@ -82,20 +82,20 @@ export default function Page({ params, searchParams }: Props) {}
 ```jsx filename="app/products/[id]/page.js" switcher
 export async function generateMetadata({ params, searchParams }, parent) {
   // read route params
-  const { id } = await params;
+  const { id } = await params
 
   // fetch data
-  const product = await fetch(`https://.../${id}`).then((res) => res.json());
+  const product = await fetch(`https://.../${id}`).then(res => res.json())
 
   // optionally access and extend (rather than replace) parent metadata
-  const previousImages = (await parent).openGraph?.images || [];
+  const previousImages = (await parent).openGraph?.images || []
 
   return {
     title: product.title,
     openGraph: {
       images: ['/some-specific-page-image.jpg', ...previousImages],
     },
-  };
+  }
 }
 
 export default function Page({ params, searchParams }) {}
@@ -120,32 +120,32 @@ For type completion of `params` and `searchParams`, you can type the first argum
 If you need to use Client Component features, keep your `page.tsx` as a Server Component and move the Client Component logic to a separate file:
 
 ```tsx filename="app/page.tsx" switcher
-import type { Metadata } from 'next';
-import { InteractiveComponent } from './interactive-component';
+import type { Metadata } from 'next'
+import { InteractiveComponent } from './interactive-component'
 
 export const metadata: Metadata = {
   title: 'My Page',
-};
+}
 
 export default function Page() {
-  return <InteractiveComponent />;
+  return <InteractiveComponent />
 }
 ```
 
 ```jsx filename="app/page.js" switcher
-import { InteractiveComponent } from './interactive-component';
+import { InteractiveComponent } from './interactive-component'
 
 export const metadata = {
   title: 'My Page',
-};
+}
 
 export default function Page() {
-  return <InteractiveComponent />;
+  return <InteractiveComponent />
 }
 ```
 
 ```tsx filename="app/interactive-component.tsx" switcher
-'use client';
+'use client'
 
 export function InteractiveComponent() {
   // Client-side interactivity (hooks, event handlers, etc.)
@@ -153,7 +153,7 @@ export function InteractiveComponent() {
 ```
 
 ```jsx filename="app/interactive-component.js" switcher
-'use client';
+'use client'
 
 export function InteractiveComponent() {
   // Client-side interactivity (hooks, event handlers, etc.)
@@ -209,7 +209,7 @@ The `title` attribute is used to set the title of the document. It can be define
 ```jsx filename="layout.js | page.js"
 export const metadata = {
   title: 'Next.js',
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -221,19 +221,19 @@ export const metadata = {
 `title.default` can be used to provide a **fallback title** to child route segments that don't define a `title`.
 
 ```tsx filename="app/layout.tsx"
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: {
     default: 'Acme',
   },
-};
+}
 ```
 
 ```tsx filename="app/about/page.tsx"
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 
-export const metadata: Metadata = {};
+export const metadata: Metadata = {}
 
 // Output: <title>Acme</title>
 ```
@@ -243,14 +243,14 @@ export const metadata: Metadata = {};
 `title.template` can be used to add a prefix or a suffix to `titles` defined in **child** route segments.
 
 ```tsx filename="app/layout.tsx" switcher
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: {
     template: '%s | Acme',
     default: 'Acme', // a default is required when creating a template
   },
-};
+}
 ```
 
 ```jsx filename="app/layout.js" switcher
@@ -259,15 +259,15 @@ export const metadata = {
     template: '%s | Acme',
     default: 'Acme', // a default is required when creating a template
   },
-};
+}
 ```
 
 ```tsx filename="app/about/page.tsx" switcher
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'About',
-};
+}
 
 // Output: <title>About | Acme</title>
 ```
@@ -275,7 +275,7 @@ export const metadata: Metadata = {
 ```jsx filename="app/about/page.js" switcher
 export const metadata = {
   title: 'About',
-};
+}
 
 // Output: <title>About | Acme</title>
 ```
@@ -293,13 +293,13 @@ export const metadata = {
 `title.absolute` can be used to provide a title that **ignores** `title.template` set in parent segments.
 
 ```tsx filename="app/layout.tsx" switcher
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: {
     template: '%s | Acme',
   },
-};
+}
 ```
 
 ```jsx filename="app/layout.js" switcher
@@ -307,17 +307,17 @@ export const metadata = {
   title: {
     template: '%s | Acme',
   },
-};
+}
 ```
 
 ```tsx filename="app/about/page.tsx" switcher
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: {
     absolute: 'About',
   },
-};
+}
 
 // Output: <title>About</title>
 ```
@@ -327,7 +327,7 @@ export const metadata = {
   title: {
     absolute: 'About',
   },
-};
+}
 
 // Output: <title>About</title>
 ```
@@ -349,7 +349,7 @@ export const metadata = {
 ```jsx filename="layout.js | page.js"
 export const metadata = {
   description: 'The React Framework for the Web',
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -372,7 +372,7 @@ export const metadata = {
     address: false,
     telephone: false,
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -409,7 +409,7 @@ export const metadata = {
   openGraph: {
     images: '/og-image.png',
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -438,17 +438,17 @@ URL composition favors developer intent over default directory traversal semanti
 For example, given the following `metadataBase`:
 
 ```tsx filename="app/layout.tsx" switcher
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://acme.com'),
-};
+}
 ```
 
 ```jsx filename="app/layout.js" switcher
 export const metadata = {
   metadataBase: new URL('https://acme.com'),
-};
+}
 ```
 
 Any `metadata` fields that inherit the above `metadataBase` and set their own value will be resolved as follows:
@@ -500,7 +500,7 @@ export const metadata = {
     locale: 'en_US',
     type: 'website',
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -532,7 +532,7 @@ export const metadata = {
     publishedTime: '2023-01-01T00:00:00.000Z',
     authors: ['Seb', 'Josh'],
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -551,7 +551,7 @@ export const metadata = {
 ### `robots`
 
 ```tsx filename="layout.tsx | page.tsx"
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   robots: {
@@ -567,7 +567,7 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -593,17 +593,14 @@ export const metadata = {
       url: '/apple-touch-icon-precomposed.png',
     },
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
 <link rel="shortcut icon" href="/shortcut-icon.png" />
 <link rel="icon" href="/icon.png" />
 <link rel="apple-touch-icon" href="/apple-icon.png" />
-<link
-  rel="apple-touch-icon-precomposed"
-  href="/apple-touch-icon-precomposed.png"
-/>
+<link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png" />
 ```
 
 ```jsx filename="layout.js | page.js"
@@ -626,7 +623,7 @@ export const metadata = {
       },
     ],
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -635,16 +632,8 @@ export const metadata = {
 <link rel="icon" href="https://example.com/icon.png" />
 <link rel="icon" href="/icon-dark.png" media="(prefers-color-scheme: dark)" />
 <link rel="apple-touch-icon" href="/apple-icon.png" />
-<link
-  rel="apple-touch-icon-precomposed"
-  href="/apple-touch-icon-precomposed.png"
-/>
-<link
-  rel="apple-touch-icon"
-  href="/apple-icon-x3.png"
-  sizes="180x180"
-  type="image/png"
-/>
+<link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png" />
+<link rel="apple-touch-icon" href="/apple-icon-x3.png" sizes="180x180" type="image/png" />
 ```
 
 > **Good to know**: The `msapplication-*` meta tags are no longer supported in Chromium builds of Microsoft Edge, and thus no longer needed.
@@ -664,7 +653,7 @@ A web application manifest, as defined in the [Web Application Manifest specific
 ```jsx filename="layout.js | page.js"
 export const metadata = {
   manifest: 'https://nextjs.org/manifest.json',
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -688,7 +677,7 @@ export const metadata = {
     creatorId: '1467726470533754880',
     images: ['https://nextjs.org/og.png'], // Must be an absolute URL
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -727,7 +716,7 @@ export const metadata = {
       },
     },
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -765,7 +754,7 @@ export const metadata = {
       me: ['my-email', 'my-link'],
     },
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -795,14 +784,11 @@ export const metadata = {
       },
     ],
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
-<meta
-  name="apple-itunes-app"
-  content="app-id=myAppStoreID, app-argument=myAppArgument"
-/>
+<meta name="apple-itunes-app" content="app-id=myAppStoreID, app-argument=myAppArgument" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="Apple Web App" />
 <link
@@ -814,10 +800,7 @@ export const metadata = {
   media="(device-width: 768px) and (device-height: 1024px)"
   rel="apple-touch-startup-image"
 />
-<meta
-  name="apple-mobile-web-app-status-bar-style"
-  content="black-translucent"
-/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 ```
 
 ### `alternates`
@@ -837,23 +820,15 @@ export const metadata = {
       'application/rss+xml': 'https://nextjs.org/rss',
     },
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
 <link rel="canonical" href="https://nextjs.org" />
 <link rel="alternate" hreflang="en-US" href="https://nextjs.org/en-US" />
 <link rel="alternate" hreflang="de-DE" href="https://nextjs.org/de-DE" />
-<link
-  rel="alternate"
-  media="only screen and (max-width: 600px)"
-  href="https://nextjs.org/mobile"
-/>
-<link
-  rel="alternate"
-  type="application/rss+xml"
-  href="https://nextjs.org/rss"
-/>
+<link rel="alternate" media="only screen and (max-width: 600px)" href="https://nextjs.org/mobile" />
+<link rel="alternate" type="application/rss+xml" href="https://nextjs.org/rss" />
 ```
 
 ### `appLinks`
@@ -874,7 +849,7 @@ export const metadata = {
       should_fallback: true,
     },
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -893,7 +868,7 @@ Describes a collection of records, documents, or other materials of historical i
 ```jsx filename="layout.js | page.js"
 export const metadata = {
   archives: ['https://nextjs.org/13'],
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -905,7 +880,7 @@ export const metadata = {
 ```jsx filename="layout.js | page.js"
 export const metadata = {
   assets: ['https://nextjs.org/assets'],
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -917,7 +892,7 @@ export const metadata = {
 ```jsx filename="layout.js | page.js"
 export const metadata = {
   bookmarks: ['https://nextjs.org/13'],
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -929,7 +904,7 @@ export const metadata = {
 ```jsx filename="layout.js | page.js"
 export const metadata = {
   category: 'technology',
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -947,7 +922,7 @@ export const metadata = {
   facebook: {
     appId: '12345678',
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -959,7 +934,7 @@ export const metadata = {
   facebook: {
     admins: '12345678',
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -973,12 +948,11 @@ export const metadata = {
   facebook: {
     admins: ['12345678', '87654321'],
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
-<meta property="fb:admins" content="12345678" />
-<meta property="fb:admins" content="87654321" />
+<meta property="fb:admins" content="12345678" /> <meta property="fb:admins" content="87654321" />
 ```
 
 ### `pinterest`
@@ -990,7 +964,7 @@ export const metadata = {
   pinterest: {
     richPin: true,
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -1006,7 +980,7 @@ export const metadata = {
   other: {
     custom: 'meta',
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -1020,7 +994,7 @@ export const metadata = {
   other: {
     custom: ['meta1', 'meta2'],
   },
-};
+}
 ```
 
 ```html filename="<head> output" hideLineNumbers
@@ -1034,11 +1008,11 @@ You can add type safety to your metadata by using the `Metadata` type. If you ar
 #### `metadata` object
 
 ```tsx filename="layout.tsx | page.tsx"
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Next.js',
-};
+}
 ```
 
 #### `generateMetadata` function
@@ -1046,41 +1020,41 @@ export const metadata: Metadata = {
 ##### Regular function
 
 ```tsx filename="layout.tsx | page.tsx"
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 
 export function generateMetadata(): Metadata {
   return {
     title: 'Next.js',
-  };
+  }
 }
 ```
 
 ##### Async function
 
 ```tsx filename="layout.tsx | page.tsx"
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: 'Next.js',
-  };
+  }
 }
 ```
 
 ##### With segment props
 
 ```tsx filename="layout.tsx | page.tsx"
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 
 type Props = {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-};
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
 
 export function generateMetadata({ params, searchParams }: Props): Metadata {
   return {
     title: 'Next.js',
-  };
+  }
 }
 
 export default function Page({ params, searchParams }: Props) {}
@@ -1089,15 +1063,15 @@ export default function Page({ params, searchParams }: Props) {}
 ##### With parent metadata
 
 ```tsx filename="layout.tsx | page.tsx"
-import type { Metadata, ResolvingMetadata } from 'next';
+import type { Metadata, ResolvingMetadata } from 'next'
 
 export async function generateMetadata(
   { params, searchParams }: Props,
-  parent: ResolvingMetadata
+  parent: ResolvingMetadata,
 ): Promise<Metadata> {
   return {
     title: 'Next.js',
-  };
+  }
 }
 ```
 
@@ -1109,7 +1083,7 @@ For JavaScript projects, you can use JSDoc to add type safety.
 /** @type {import("next").Metadata} */
 export const metadata = {
   title: 'Next.js',
-};
+}
 ```
 
 ### Unsupported Metadata
@@ -1135,30 +1109,30 @@ The `<link>` element has a number of `rel` keywords that can be used to hint to 
 While the Metadata API doesn't directly support these hints, you can use new [`ReactDOM` methods](https://github.com/facebook/react/pull/26237) to safely insert them into the `<head>` of the document.
 
 ```tsx filename="app/preload-resources.tsx" switcher
-'use client';
+'use client'
 
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom'
 
 export function PreloadResources() {
-  ReactDOM.preload('...', { as: '...' });
-  ReactDOM.preconnect('...', { crossOrigin: '...' });
-  ReactDOM.prefetchDNS('...');
+  ReactDOM.preload('...', { as: '...' })
+  ReactDOM.preconnect('...', { crossOrigin: '...' })
+  ReactDOM.prefetchDNS('...')
 
-  return '...';
+  return '...'
 }
 ```
 
 ```jsx filename="app/preload-resources.js" switcher
-'use client';
+'use client'
 
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom'
 
 export function PreloadResources() {
-  ReactDOM.preload('...', { as: '...' });
-  ReactDOM.preconnect('...', { crossOrigin: '...' });
-  ReactDOM.prefetchDNS('...');
+  ReactDOM.preload('...', { as: '...' })
+  ReactDOM.preconnect('...', { crossOrigin: '...' })
+  ReactDOM.prefetchDNS('...')
 
-  return '...';
+  return '...'
 }
 ```
 
@@ -1213,8 +1187,7 @@ There are two default `meta` tags that are always added even if a route doesn't 
 - The [meta viewport tag](https://developer.mozilla.org/docs/Web/HTML/Viewport_meta_tag) sets the viewport width and scale for the website to adjust for different devices.
 
 ```html
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8" /> <meta name="viewport" content="width=device-width, initial-scale=1" />
 ```
 
 > **Good to know**: You can overwrite the default [`viewport`](/docs/app/api-reference/functions/generate-metadata#viewport) meta tag.
@@ -1232,19 +1205,19 @@ Next.js automatically detects **HTML-limited bots** by looking at the User Agent
 To fully disable streaming metadata:
 
 ```ts filename="next.config.ts" switcher
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const config: NextConfig = {
   htmlLimitedBots: /.*/,
-};
+}
 
-export default config;
+export default config
 ```
 
 ```js filename="next.config.js" switcher
 module.exports = {
   htmlLimitedBots: /.*/,
-};
+}
 ```
 
 Streaming metadata improves perceived performance by reducing [TTFB](https://developer.mozilla.org/docs/Glossary/Time_to_first_byte) and can help lowering [LCP](https://developer.mozilla.org/docs/Glossary/Largest_contentful_paint) time.
@@ -1266,36 +1239,36 @@ To resolve this, you have two options. If metadata depends on external data but 
 
 ```tsx filename="app/page.tsx" highlight={2}
 export async function generateMetadata() {
-  'use cache';
-  const { title, description } = await db.query('site-metadata');
-  return { title, description };
+  'use cache'
+  const { title, description } = await db.query('site-metadata')
+  return { title, description }
 }
 ```
 
 If metadata genuinely requires runtime data, add a dynamic marker component to your page:
 
 ```tsx filename="app/page.tsx" highlight={11-14,19,31}
-import { Suspense } from 'react';
-import { cookies } from 'next/headers';
-import { connection } from 'next/server';
+import { Suspense } from 'react'
+import { cookies } from 'next/headers'
+import { connection } from 'next/server'
 
 export async function generateMetadata() {
-  const token = (await cookies()).get('token')?.value;
+  const token = (await cookies()).get('token')?.value
   // ... use token to fetch personalized metadata
-  return { title: 'Personalized Title' };
+  return { title: 'Personalized Title' }
 }
 
 const Connection = async () => {
-  await connection();
-  return null;
-};
+  await connection()
+  return null
+}
 
 async function DynamicMarker() {
   return (
     <Suspense>
       <Connection />
     </Suspense>
-  );
+  )
 }
 
 export default function Page() {
@@ -1307,7 +1280,7 @@ export default function Page() {
       <article>Static content</article>
       <DynamicMarker />
     </>
-  );
+  )
 }
 ```
 
@@ -1336,7 +1309,7 @@ export const metadata = {
     title: 'Acme',
     description: 'Acme is a...',
   },
-};
+}
 ```
 
 ```jsx filename="app/blog/page.js"
@@ -1345,7 +1318,7 @@ export const metadata = {
   openGraph: {
     title: 'Blog',
   },
-};
+}
 
 // Output:
 // <title>Blog</title>
@@ -1360,29 +1333,29 @@ In the example above:
 If you'd like to share some nested fields between segments while overwriting others, you can pull them out into a separate variable:
 
 ```jsx filename="app/shared-metadata.js"
-export const openGraphImage = { images: ['http://...'] };
+export const openGraphImage = { images: ['http://...'] }
 ```
 
 ```jsx filename="app/page.js"
-import { openGraphImage } from './shared-metadata';
+import { openGraphImage } from './shared-metadata'
 
 export const metadata = {
   openGraph: {
     ...openGraphImage,
     title: 'Home',
   },
-};
+}
 ```
 
 ```jsx filename="app/about/page.js"
-import { openGraphImage } from '../shared-metadata';
+import { openGraphImage } from '../shared-metadata'
 
 export const metadata = {
   openGraph: {
     ...openGraphImage,
     title: 'About',
   },
-};
+}
 ```
 
 In the example above, the OG image is shared between `app/layout.js` and `app/about/page.js` while the titles are different.
@@ -1396,13 +1369,13 @@ export const metadata = {
     title: 'Acme',
     description: 'Acme is a...',
   },
-};
+}
 ```
 
 ```jsx filename="app/about/page.js"
 export const metadata = {
   title: 'About',
-};
+}
 
 // Output:
 // <title>About</title>

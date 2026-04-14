@@ -21,11 +21,7 @@ The following registry item is a custom style that extends shadcn/ui. On `npx sh
   "name": "example-style",
   "type": "registry:style",
   "dependencies": ["@tabler/icons-react"],
-  "registryDependencies": [
-    "login-01",
-    "calendar",
-    "https://example.com/r/editor.json"
-  ],
+  "registryDependencies": ["login-01", "calendar", "https://example.com/r/editor.json"],
   "cssVars": {
     "theme": {
       "font-sans": "Inter, sans-serif"
@@ -439,11 +435,7 @@ When you add multiple plugins, they are automatically grouped together and dedup
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "multiple-plugins",
   "type": "registry:item",
-  "dependencies": [
-    "@tailwindcss/typography",
-    "@tailwindcss/forms",
-    "tw-animate-css"
-  ],
+  "dependencies": ["@tailwindcss/typography", "@tailwindcss/forms", "tw-animate-css"],
   "css": {
     "@plugin \"@tailwindcss/typography\"": {},
     "@plugin \"@tailwindcss/forms\"": {},

@@ -9,15 +9,15 @@ version: experimental
 Experimental support for inlining CSS in the `<head>`. When this flag is enabled, all places where we normally generate a `<link>` tag will instead have a generated `<style>` tag.
 
 ```ts filename="next.config.ts" switcher
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   experimental: {
     inlineCss: true,
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
 ```
 
 ```js filename="next.config.js" switcher
@@ -26,9 +26,9 @@ const nextConfig = {
   experimental: {
     inlineCss: true,
   },
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
 ```
 
 ## Trade-Offs

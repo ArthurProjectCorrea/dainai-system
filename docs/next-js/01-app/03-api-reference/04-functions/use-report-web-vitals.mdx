@@ -12,16 +12,16 @@ New functions passed to `useReportWebVitals` are called with the available metri
 <PagesOnly>
 
 ```jsx filename="pages/_app.js"
-import { useReportWebVitals } from 'next/web-vitals';
+import { useReportWebVitals } from 'next/web-vitals'
 
-const logWebVitals = (metric) => {
-  console.log(metric);
-};
+const logWebVitals = metric => {
+  console.log(metric)
+}
 
 function MyApp({ Component, pageProps }) {
-  useReportWebVitals(logWebVitals);
+  useReportWebVitals(logWebVitals)
 
-  return <Component {...pageProps} />;
+  return <Component {...pageProps} />
 }
 ```
 
@@ -30,23 +30,23 @@ function MyApp({ Component, pageProps }) {
 <AppOnly>
 
 ```jsx filename="app/_components/web-vitals.js"
-'use client';
+'use client'
 
-import { useReportWebVitals } from 'next/web-vitals';
+import { useReportWebVitals } from 'next/web-vitals'
 
-const logWebVitals = (metric) => {
-  console.log(metric);
-};
+const logWebVitals = metric => {
+  console.log(metric)
+}
 
 export function WebVitals() {
-  useReportWebVitals(logWebVitals);
+  useReportWebVitals(logWebVitals)
 
-  return null;
+  return null
 }
 ```
 
 ```jsx filename="app/layout.js"
-import { WebVitals } from './_components/web-vitals';
+import { WebVitals } from './_components/web-vitals'
 
 export default function Layout({ children }) {
   return (
@@ -56,7 +56,7 @@ export default function Layout({ children }) {
         {children}
       </body>
     </html>
-  );
+  )
 }
 ```
 
@@ -93,9 +93,9 @@ You can handle all the results of these metrics using the `name` property.
 <PagesOnly>
 
 ```jsx filename="pages/_app.js"
-import { useReportWebVitals } from 'next/web-vitals';
+import { useReportWebVitals } from 'next/web-vitals'
 
-const handleWebVitals = (metric) => {
+const handleWebVitals = metric => {
   switch (metric.name) {
     case 'FCP': {
       // handle FCP results
@@ -105,12 +105,12 @@ const handleWebVitals = (metric) => {
     }
     // ...
   }
-};
+}
 
 function MyApp({ Component, pageProps }) {
-  useReportWebVitals(handleWebVitals);
+  useReportWebVitals(handleWebVitals)
 
-  return <Component {...pageProps} />;
+  return <Component {...pageProps} />
 }
 ```
 
@@ -119,13 +119,13 @@ function MyApp({ Component, pageProps }) {
 <AppOnly>
 
 ```tsx filename="app/components/web-vitals.tsx" switcher
-'use client';
+'use client'
 
-import { useReportWebVitals } from 'next/web-vitals';
+import { useReportWebVitals } from 'next/web-vitals'
 
-type ReportWebVitalsCallback = Parameters<typeof useReportWebVitals>[0];
+type ReportWebVitalsCallback = Parameters<typeof useReportWebVitals>[0]
 
-const handleWebVitals: ReportWebVitalsCallback = (metric) => {
+const handleWebVitals: ReportWebVitalsCallback = metric => {
   switch (metric.name) {
     case 'FCP': {
       // handle FCP results
@@ -135,19 +135,19 @@ const handleWebVitals: ReportWebVitalsCallback = (metric) => {
     }
     // ...
   }
-};
+}
 
 export function WebVitals() {
-  useReportWebVitals(handleWebVitals);
+  useReportWebVitals(handleWebVitals)
 }
 ```
 
 ```jsx filename="app/components/web-vitals.js" switcher
-'use client';
+'use client'
 
-import { useReportWebVitals } from 'next/web-vitals';
+import { useReportWebVitals } from 'next/web-vitals'
 
-const handleWebVitals = (metric) => {
+const handleWebVitals = metric => {
   switch (metric.name) {
     case 'FCP': {
       // handle FCP results
@@ -157,10 +157,10 @@ const handleWebVitals = (metric) => {
     }
     // ...
   }
-};
+}
 
 export function WebVitals() {
-  useReportWebVitals(handleWebVitals);
+  useReportWebVitals(handleWebVitals)
 }
 ```
 
@@ -181,28 +181,28 @@ measure the time it takes for the page to hydrate and render:
 You can handle all the results of these metrics separately:
 
 ```jsx filename="pages/_app.js"
-import { useReportWebVitals } from 'next/web-vitals';
+import { useReportWebVitals } from 'next/web-vitals'
 
 function handleCustomMetrics(metrics) {
   switch (metric.name) {
     case 'Next.js-hydration':
       // handle hydration results
-      break;
+      break
     case 'Next.js-route-change-to-render':
       // handle route-change to render results
-      break;
+      break
     case 'Next.js-render':
       // handle render results
-      break;
+      break
     default:
-      break;
+      break
   }
 }
 
 function MyApp({ Component, pageProps }) {
-  useReportWebVitals(handleCustomMetrics);
+  useReportWebVitals(handleCustomMetrics)
 
-  return <Component {...pageProps} />;
+  return <Component {...pageProps} />
 }
 ```
 
@@ -217,18 +217,18 @@ real user performance on your site. For example:
 
 ```js
 function postWebVitals(metrics) {
-  const body = JSON.stringify(metric);
-  const url = 'https://example.com/analytics';
+  const body = JSON.stringify(metric)
+  const url = 'https://example.com/analytics'
 
   // Use `navigator.sendBeacon()` if available, falling back to `fetch()`.
   if (navigator.sendBeacon) {
-    navigator.sendBeacon(url, body);
+    navigator.sendBeacon(url, body)
   } else {
-    fetch(url, { body, method: 'POST', keepalive: true });
+    fetch(url, { body, method: 'POST', keepalive: true })
   }
 }
 
-useReportWebVitals(postWebVitals);
+useReportWebVitals(postWebVitals)
 ```
 
 > **Good to know**: If you use [Google Analytics](https://analytics.google.com/analytics/web/), using the

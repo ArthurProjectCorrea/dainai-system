@@ -16,23 +16,19 @@ See installation instructions for the [Popover](/docs/components/radix/popover#i
 ## Usage
 
 ```tsx showLineNumbers title="components/example-date-picker.tsx"
-'use client';
+'use client'
 
-import * as React from 'react';
-import { format } from 'date-fns';
-import { Calendar as CalendarIcon } from 'lucide-react';
+import * as React from 'react'
+import { format } from 'date-fns'
+import { Calendar as CalendarIcon } from 'lucide-react'
 
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 export function DatePickerDemo() {
-  const [date, setDate] = React.useState<Date>();
+  const [date, setDate] = React.useState<Date>()
 
   return (
     <Popover>
@@ -50,7 +46,7 @@ export function DatePickerDemo() {
         <Calendar mode="single" selected={date} onSelect={setDate} />
       </PopoverContent>
     </Popover>
-  );
+  )
 }
 ```
 
@@ -98,8 +94,4 @@ This component uses the `chrono-node` library to parse natural language dates.
 
 To enable RTL support in shadcn/ui, see the [RTL configuration guide](/docs/rtl).
 
-<ComponentPreview
-  styleName="radix-nova"
-  name="date-picker-rtl"
-  direction="rtl"
-/>
+<ComponentPreview styleName="radix-nova" name="date-picker-rtl" direction="rtl" />

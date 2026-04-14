@@ -49,11 +49,7 @@ npm install radix-ui
 
 <Step>Copy and paste the following code into your project.</Step>
 
-<ComponentSource
-  name="direction"
-  title="components/ui/direction.tsx"
-  styleName="radix-nova"
-/>
+<ComponentSource name="direction" title="components/ui/direction.tsx" styleName="radix-nova" />
 
 <Step>Update the import paths to match your project setup.</Step>
 
@@ -66,15 +62,13 @@ npm install radix-ui
 ## Usage
 
 ```tsx showLineNumbers
-import { DirectionProvider } from '@/components/ui/direction';
+import { DirectionProvider } from '@/components/ui/direction'
 ```
 
 ```tsx showLineNumbers
 <html dir="rtl">
   <body>
-    <DirectionProvider direction="rtl">
-      {/* Your app content */}
-    </DirectionProvider>
+    <DirectionProvider direction="rtl">{/* Your app content */}</DirectionProvider>
   </body>
 </html>
 ```
@@ -84,10 +78,10 @@ import { DirectionProvider } from '@/components/ui/direction';
 The `useDirection` hook is used to get the current direction of the application.
 
 ```tsx showLineNumbers
-import { useDirection } from '@/components/ui/direction';
+import { useDirection } from '@/components/ui/direction'
 
 function MyComponent() {
-  const direction = useDirection();
-  return <div>Current direction: {direction}</div>;
+  const direction = useDirection()
+  return <div>Current direction: {direction}</div>
 }
 ```

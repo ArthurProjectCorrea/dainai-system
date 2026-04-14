@@ -31,7 +31,7 @@ npx shadcn@latest add tooltip
 <Step>Add the `TooltipProvider` to the root of your app.</Step>
 
 ```tsx title="app/layout.tsx" showLineNumbers {1,7}
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 export default function RootLayout({ children }) {
   return (
@@ -40,7 +40,7 @@ export default function RootLayout({ children }) {
         <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>
-  );
+  )
 }
 ```
 
@@ -60,18 +60,14 @@ npm install radix-ui
 
 <Step>Copy and paste the following code into your project.</Step>
 
-<ComponentSource
-  name="tooltip"
-  title="components/ui/tooltip.tsx"
-  styleName="radix-nova"
-/>
+<ComponentSource name="tooltip" title="components/ui/tooltip.tsx" styleName="radix-nova" />
 
 <Step>Update the import paths to match your project setup.</Step>
 
 <Step>Add the `TooltipProvider` to the root of your app.</Step>
 
 ```tsx title="app/layout.tsx" showLineNumbers {1,7}
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 export default function RootLayout({ children }) {
   return (
@@ -80,7 +76,7 @@ export default function RootLayout({ children }) {
         <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>
-  );
+  )
 }
 ```
 
@@ -93,11 +89,7 @@ export default function RootLayout({ children }) {
 ## Usage
 
 ```tsx showLineNumbers
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 ```
 
 ```tsx showLineNumbers

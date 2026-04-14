@@ -18,9 +18,9 @@ const nextConfig = {
   experimental: {
     adapterPath: require.resolve('./my-adapter.js'),
   },
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
 ```
 
 ## Creating an Adapter
@@ -29,53 +29,53 @@ An adapter is a module that exports an object implementing the `NextAdapter` int
 
 ```typescript
 type Route = {
-  source?: string;
-  sourceRegex: string;
-  destination?: string;
-  headers?: Record<string, string>;
-  has?: RouteHas[];
-  missing?: RouteHas[];
-  status?: number;
-  priority?: boolean;
-};
+  source?: string
+  sourceRegex: string
+  destination?: string
+  headers?: Record<string, string>
+  has?: RouteHas[]
+  missing?: RouteHas[]
+  status?: number
+  priority?: boolean
+}
 
 export interface AdapterOutputs {
-  pages: Array<AdapterOutput['PAGES']>;
-  middleware?: AdapterOutput['MIDDLEWARE'];
-  appPages: Array<AdapterOutput['APP_PAGE']>;
-  pagesApi: Array<AdapterOutput['PAGES_API']>;
-  appRoutes: Array<AdapterOutput['APP_ROUTE']>;
-  prerenders: Array<AdapterOutput['PRERENDER']>;
-  staticFiles: Array<AdapterOutput['STATIC_FILE']>;
+  pages: Array<AdapterOutput['PAGES']>
+  middleware?: AdapterOutput['MIDDLEWARE']
+  appPages: Array<AdapterOutput['APP_PAGE']>
+  pagesApi: Array<AdapterOutput['PAGES_API']>
+  appRoutes: Array<AdapterOutput['APP_ROUTE']>
+  prerenders: Array<AdapterOutput['PRERENDER']>
+  staticFiles: Array<AdapterOutput['STATIC_FILE']>
 }
 
 export interface NextAdapter {
-  name: string;
+  name: string
   modifyConfig?: (
     config: NextConfigComplete,
     ctx: {
-      phase: PHASE_TYPE;
-    }
-  ) => Promise<NextConfigComplete> | NextConfigComplete;
+      phase: PHASE_TYPE
+    },
+  ) => Promise<NextConfigComplete> | NextConfigComplete
   onBuildComplete?: (ctx: {
     routing: {
-      beforeMiddleware: Array<Route>;
-      beforeFiles: Array<Route>;
-      afterFiles: Array<Route>;
-      dynamicRoutes: Array<Route>;
-      onMatch: Array<Route>;
-      fallback: Array<Route>;
-      shouldNormalizeNextData: boolean;
-      rsc: RoutesManifest['rsc'];
-    };
-    outputs: AdapterOutputs;
-    projectDir: string;
-    repoRoot: string;
-    distDir: string;
-    config: NextConfigComplete;
-    nextVersion: string;
-    buildId: string;
-  }) => Promise<void> | void;
+      beforeMiddleware: Array<Route>
+      beforeFiles: Array<Route>
+      afterFiles: Array<Route>
+      dynamicRoutes: Array<Route>
+      onMatch: Array<Route>
+      fallback: Array<Route>
+      shouldNormalizeNextData: boolean
+      rsc: RoutesManifest['rsc']
+    }
+    outputs: AdapterOutputs
+    projectDir: string
+    repoRoot: string
+    distDir: string
+    config: NextConfigComplete
+    nextVersion: string
+    buildId: string
+  }) => Promise<void> | void
 }
 ```
 
@@ -94,9 +94,9 @@ const adapter = {
       return {
         ...config,
         // Add your modifications
-      };
+      }
     }
-    return config;
+    return config
   },
 
   async onBuildComplete({
@@ -110,30 +110,30 @@ const adapter = {
     buildId,
   }) {
     // Process the build output
-    console.log('Build completed with', outputs.pages.length, 'pages');
-    console.log('Build ID:', buildId);
-    console.log('Dynamic routes:', routing.dynamicRoutes.length);
+    console.log('Build completed with', outputs.pages.length, 'pages')
+    console.log('Build ID:', buildId)
+    console.log('Dynamic routes:', routing.dynamicRoutes.length)
 
     // Access emitted output entries
     for (const page of outputs.pages) {
-      console.log('Page:', page.pathname, 'at', page.filePath);
+      console.log('Page:', page.pathname, 'at', page.filePath)
     }
 
     for (const apiRoute of outputs.pagesApi) {
-      console.log('API Route:', apiRoute.pathname, 'at', apiRoute.filePath);
+      console.log('API Route:', apiRoute.pathname, 'at', apiRoute.filePath)
     }
 
     for (const appPage of outputs.appPages) {
-      console.log('App Page:', appPage.pathname, 'at', appPage.filePath);
+      console.log('App Page:', appPage.pathname, 'at', appPage.filePath)
     }
 
     for (const prerender of outputs.prerenders) {
-      console.log('Prerendered:', prerender.pathname);
+      console.log('Prerendered:', prerender.pathname)
     }
   },
-};
+}
 
-module.exports = adapter;
+module.exports = adapter
 ```
 
 ## API Reference
@@ -180,7 +180,7 @@ You can use [`@next/routing`](https://www.npmjs.com/package/@next/routing) to re
 > `@next/routing` is experimental and will stabilize with the adapters API.
 
 ```typescript
-import { resolveRoutes } from '@next/routing';
+import { resolveRoutes } from '@next/routing'
 
 const pathnames = [
   ...outputs.pages,
@@ -188,7 +188,7 @@ const pathnames = [
   ...outputs.appPages,
   ...outputs.appRoutes,
   ...outputs.staticFiles,
-].map((output) => output.pathname);
+].map(output => output.pathname)
 
 const result = await resolveRoutes({
   url: requestUrl,
@@ -199,11 +199,11 @@ const result = await resolveRoutes({
   requestBody,
   pathnames,
   routes: routing,
-  invokeMiddleware: async (ctx) => {
+  invokeMiddleware: async ctx => {
     // platform-specific middleware invocation
-    return {};
+    return {}
   },
-});
+})
 ```
 
 ## Implementing PPR in an Adapter
@@ -216,14 +216,14 @@ For partially prerendered app routes, `onBuildComplete` gives you the data neede
 ### 1. Seed shell + postponed state at build time
 
 ```ts filename="my-adapter.ts"
-import { readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises'
 
 async function seedPprEntries(outputs: AdapterOutputs) {
   for (const prerender of outputs.prerenders) {
-    const fallback = prerender.fallback;
-    if (!fallback?.filePath || !fallback.postponedState) continue;
+    const fallback = prerender.fallback
+    if (!fallback?.filePath || !fallback.postponedState) continue
 
-    const shell = await readFile(fallback.filePath, 'utf8');
+    const shell = await readFile(fallback.filePath, 'utf8')
     await platformCache.set(prerender.pathname, {
       shell,
       postponedState: fallback.postponedState,
@@ -231,7 +231,7 @@ async function seedPprEntries(outputs: AdapterOutputs) {
       initialStatus: fallback.initialStatus,
       initialRevalidate: fallback.initialRevalidate,
       initialExpiration: fallback.initialExpiration,
-    });
+    })
   }
 }
 ```
@@ -284,10 +284,9 @@ await handler(req, res, {
     onCacheEntryV2: async (cacheEntry, meta) => {
       if (cacheEntry.value?.kind === 'APP_PAGE') {
         const html =
-          cacheEntry.value.html &&
-          typeof cacheEntry.value.html.toUnchunkedString === 'function'
+          cacheEntry.value.html && typeof cacheEntry.value.html.toUnchunkedString === 'function'
             ? cacheEntry.value.html.toUnchunkedString()
-            : null;
+            : null
 
         await platformCache.set(meta.url || req.url || '/', {
           shell: html,
@@ -295,14 +294,14 @@ await handler(req, res, {
           headers: cacheEntry.value.headers,
           status: cacheEntry.value.status,
           cacheControl: cacheEntry.cacheControl,
-        });
+        })
       }
 
       // Return true only if your adapter already wrote the response itself.
-      return false;
+      return false
     },
   },
-});
+})
 ```
 
 ```text
@@ -484,10 +483,10 @@ Static assets and auto-statically optimized pages:
 
 ```typescript
 {
-  type: 'STATIC_FILE';
-  id: string;
-  filePath: string;
-  pathname: string;
+  type: 'STATIC_FILE'
+  id: string
+  filePath: string
+  pathname: string
 }
 ```
 

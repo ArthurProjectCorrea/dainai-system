@@ -448,8 +448,8 @@ public record ScreenDto(int Id, string Name, string NameSidebar, string NameKey)
 public record AccessDto(string NameKey, string NameSidebar, List<string> Permissions);
 
 public record UserTeamDto(
-    Guid Id, 
-    string Name, 
+    Guid Id,
+    string Name,
     string? LogotipoUrl,
     [property: JsonPropertyName("isActive")] bool IsActive
 );

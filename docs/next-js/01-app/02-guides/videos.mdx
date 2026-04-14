@@ -19,15 +19,10 @@ export function Video() {
   return (
     <video width="320" height="240" controls preload="none">
       <source src="/path/to/video.mp4" type="video/mp4" />
-      <track
-        src="/path/to/captions.vtt"
-        kind="subtitles"
-        srcLang="en"
-        label="English"
-      />
+      <track src="/path/to/captions.vtt" kind="subtitles" srcLang="en" label="English" />
       Your browser does not support the video tag.
     </video>
-  );
+  )
 }
 ```
 
@@ -61,9 +56,7 @@ The HTML `<iframe>` tag allows you to embed videos from external platforms like 
 
 ```jsx filename="app/page.jsx"
 export default function Page() {
-  return (
-    <iframe src="https://www.youtube.com/embed/19g66ezsKAg" allowFullScreen />
-  );
+  return <iframe src="https://www.youtube.com/embed/19g66ezsKAg" allowFullScreen />
 }
 ```
 
@@ -100,9 +93,9 @@ The first step is to create a [Server Component](/docs/app/getting-started/serve
 
 ```jsx filename="app/ui/video-component.jsx"
 export default async function VideoComponent() {
-  const src = await getVideoSrc();
+  const src = await getVideoSrc()
 
-  return <iframe src={src} allowFullScreen />;
+  return <iframe src={src} allowFullScreen />
 }
 ```
 
@@ -111,8 +104,8 @@ export default async function VideoComponent() {
 After creating the Server Component to embed the video, the next step is to [stream](/docs/app/api-reference/file-conventions/loading) the component using [React Suspense](https://react.dev/reference/react/Suspense).
 
 ```jsx filename="app/page.jsx"
-import { Suspense } from 'react';
-import VideoComponent from '../ui/VideoComponent.jsx';
+import { Suspense } from 'react'
+import VideoComponent from '../ui/VideoComponent.jsx'
 
 export default function Page() {
   return (
@@ -122,7 +115,7 @@ export default function Page() {
       </Suspense>
       {/* Other content of the page */}
     </section>
-  );
+  )
 }
 ```
 
@@ -136,9 +129,9 @@ This approach results in a better user experience as it prevents the page from b
 For a more engaging and informative loading experience, consider using a loading skeleton as the fallback UI. So instead of showing a simple loading message, you can show a skeleton that resembles the video player like this:
 
 ```jsx filename="app/page.jsx"
-import { Suspense } from 'react';
-import VideoComponent from '../ui/VideoComponent.jsx';
-import VideoSkeleton from '../ui/VideoSkeleton.jsx';
+import { Suspense } from 'react'
+import VideoComponent from '../ui/VideoComponent.jsx'
+import VideoSkeleton from '../ui/VideoSkeleton.jsx'
 
 export default function Page() {
   return (
@@ -148,7 +141,7 @@ export default function Page() {
       </Suspense>
       {/* Other content of the page */}
     </section>
-  );
+  )
 }
 ```
 
@@ -176,30 +169,30 @@ Alternatively, you can upload your video using a server action. For detailed ins
 Once the video is uploaded and stored, you can display it in your Next.js application. Here's an example of how to do this using the `<video>` tag and React Suspense:
 
 ```jsx filename="app/page.jsx"
-import { Suspense } from 'react';
-import { list } from '@vercel/blob';
+import { Suspense } from 'react'
+import { list } from '@vercel/blob'
 
 export default function Page() {
   return (
     <Suspense fallback={<p>Loading video...</p>}>
       <VideoComponent fileName="my-video.mp4" />
     </Suspense>
-  );
+  )
 }
 
 async function VideoComponent({ fileName }) {
   const { blobs } = await list({
     prefix: fileName,
     limit: 1,
-  });
-  const { url } = blobs[0];
+  })
+  const { url } = blobs[0]
 
   return (
     <video controls preload="none" aria-label="Video player">
       <source src={url} type="video/mp4" />
       Your browser does not support the video tag.
     </video>
-  );
+  )
 }
 ```
 
@@ -214,9 +207,9 @@ async function VideoComponent({ fileName }) {
   const { blobs } = await list({
     prefix: fileName,
     limit: 2,
-  });
-  const { url } = blobs[0];
-  const { url: captionsUrl } = blobs[1];
+  })
+  const { url } = blobs[0]
+  const { url: captionsUrl } = blobs[1]
 
   return (
     <video controls preload="none" aria-label="Video player">
@@ -224,7 +217,7 @@ async function VideoComponent({ fileName }) {
       <track src={captionsUrl} kind="subtitles" srcLang="en" label="English" />
       Your browser does not support the video tag.
     </video>
-  );
+  )
 }
 ```
 

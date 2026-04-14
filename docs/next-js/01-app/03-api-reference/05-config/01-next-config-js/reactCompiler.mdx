@@ -34,22 +34,22 @@ bun add -D babel-plugin-react-compiler
 Then, add `reactCompiler` option in `next.config.js`:
 
 ```ts filename="next.config.ts" switcher
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
-};
+}
 
-export default nextConfig;
+export default nextConfig
 ```
 
 ```js filename="next.config.js" switcher
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactCompiler: true,
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
 ```
 
 ## Annotations
@@ -57,15 +57,15 @@ module.exports = nextConfig;
 You can configure the compiler to run in "opt-in" mode as follows:
 
 ```ts filename="next.config.ts" switcher
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   reactCompiler: {
     compilationMode: 'annotation',
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
 ```
 
 ```js filename="next.config.js" switcher
@@ -74,23 +74,23 @@ const nextConfig = {
   reactCompiler: {
     compilationMode: 'annotation',
   },
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
 ```
 
 Then, you can annotate specific components or hooks with the `"use memo"` directive from React to opt-in:
 
 ```ts filename="app/page.tsx" switcher
 export default function Page() {
-  'use memo';
+  'use memo'
   // ...
 }
 ```
 
 ```js filename="app/page.js" switcher
 export default function Page() {
-  'use memo';
+  'use memo'
   // ...
 }
 ```

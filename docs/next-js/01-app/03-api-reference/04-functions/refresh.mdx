@@ -22,48 +22,48 @@ refresh(): void;
 ## Examples
 
 ```ts filename="app/actions.ts" switcher
-'use server';
+'use server'
 
-import { refresh } from 'next/cache';
+import { refresh } from 'next/cache'
 
 export async function createPost(formData: FormData) {
-  const title = formData.get('title');
-  const content = formData.get('content');
+  const title = formData.get('title')
+  const content = formData.get('content')
 
   // Create the post in your database
   const post = await db.post.create({
     data: { title, content },
-  });
+  })
 
-  refresh();
+  refresh()
 }
 ```
 
 ```js filename="app/actions.js" switcher
-'use server';
+'use server'
 
-import { refresh } from 'next/cache';
+import { refresh } from 'next/cache'
 
 export async function createPost(formData) {
-  const title = formData.get('title');
-  const content = formData.get('content');
+  const title = formData.get('title')
+  const content = formData.get('content')
 
   // Create the post in your database
   const post = await db.post.create({
     data: { title, content },
-  });
+  })
 
-  refresh();
+  refresh()
 }
 ```
 
 ### Error when used outside Server Actions
 
 ```ts filename="app/api/posts/route.ts" switcher
-import { refresh } from 'next/cache';
+import { refresh } from 'next/cache'
 
 export async function POST() {
   // This will throw an error
-  refresh();
+  refresh()
 }
 ```

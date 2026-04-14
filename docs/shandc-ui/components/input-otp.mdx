@@ -41,11 +41,7 @@ npm install input-otp
 
 <Step>Copy and paste the following code into your project.</Step>
 
-<ComponentSource
-  name="input-otp"
-  title="components/ui/input-otp.tsx"
-  styleName="radix-nova"
-/>
+<ComponentSource name="input-otp" title="components/ui/input-otp.tsx" styleName="radix-nova" />
 
 <Step>Update the import paths to match your project setup.</Step>
 
@@ -58,12 +54,7 @@ npm install input-otp
 ## Usage
 
 ```tsx showLineNumbers
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from '@/components/ui/input-otp';
+import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@/components/ui/input-otp'
 ```
 
 ```tsx showLineNumbers
@@ -87,10 +78,10 @@ import {
 Use the `pattern` prop to define a custom pattern for the OTP input.
 
 ```tsx showLineNumbers {1,5}
-import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp';
-<InputOTP maxLength={6} pattern={REGEXP_ONLY_DIGITS_AND_CHARS}>
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp'
+;<InputOTP maxLength={6} pattern={REGEXP_ONLY_DIGITS_AND_CHARS}>
   ...
-</InputOTP>;
+</InputOTP>
 ```
 
 <ComponentPreview styleName="radix-nova" name="input-otp-pattern" />
@@ -135,11 +126,7 @@ Use `REGEXP_ONLY_DIGITS_AND_CHARS` to accept both letters and numbers.
 
 ### Form
 
-<ComponentPreview
-  styleName="radix-nova"
-  name="input-otp-form"
-  previewClassName="h-[30rem]"
-/>
+<ComponentPreview styleName="radix-nova" name="input-otp-form" previewClassName="h-[30rem]" />
 
 ## RTL
 

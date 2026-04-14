@@ -3,7 +3,7 @@ title: Next.js
 description: Build forms in React using useActionState and Server Actions.
 ---
 
-import { InfoIcon } from 'lucide-react';
+import { InfoIcon } from 'lucide-react'
 
 In this guide, we will take a look at building forms with Next.js using `useActionState` and Server Actions. We'll cover building forms, validation, pending states, accessibility, and more.
 
@@ -11,14 +11,11 @@ In this guide, we will take a look at building forms with Next.js using `useActi
 
 We are going to build the following form with a simple text input and a textarea. On submit, we'll use a server action to validate the form data and update the form state.
 
-<ComponentPreview
-  name="form-next-demo"
-  className="[&_.preview]:h-[700px] [&_pre]:!h-[700px]"
-/>
+<ComponentPreview name="form-next-demo" className="[&_.preview]:h-[700px] [&_pre]:!h-[700px]" />
 
 <Callout icon={<InfoIcon />}>
-  **Note:** The examples on this page intentionally disable browser validation
-  to show how schema validation and form errors work in server actions.
+  **Note:** The examples on this page intentionally disable browser validation to show how schema
+  validation and form errors work in server actions.
 </Callout>
 
 ## Approach
@@ -50,12 +47,8 @@ Here's a basic example of a form using the `<Field />` component.
         placeholder="Login button not working on mobile"
         autoComplete="off"
       />
-      <FieldDescription>
-        Provide a concise title for your bug report.
-      </FieldDescription>
-      {formState.errors?.title && (
-        <FieldError>{formState.errors.title[0]}</FieldError>
-      )}
+      <FieldDescription>Provide a concise title for your bug report.</FieldDescription>
+      {formState.errors?.title && <FieldError>{formState.errors.title[0]}</FieldError>}
     </Field>
   </FieldGroup>
   <Button type="submit">Submit</Button>
@@ -69,13 +62,13 @@ Here's a basic example of a form using the `<Field />` component.
 We'll start by defining the shape of our form using a Zod schema in a `schema.ts` file.
 
 <Callout icon={<InfoIcon />}>
-  **Note:** This example uses `zod v3` for schema validation, but you can
-  replace it with any other schema validation library. Make sure your schema
-  library conforms to the Standard Schema specification.
+  **Note:** This example uses `zod v3` for schema validation, but you can replace it with any other
+  schema validation library. Make sure your schema library conforms to the Standard Schema
+  specification.
 </Callout>
 
 ```tsx showLineNumbers title="schema.ts"
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const formSchema = z.object({
   title: z
@@ -86,7 +79,7 @@ export const formSchema = z.object({
     .string()
     .min(20, 'Description must be at least 20 characters.')
     .max(100, 'Description must be at most 100 characters.'),
-});
+})
 ```
 
 ### Define the form state type
@@ -94,13 +87,13 @@ export const formSchema = z.object({
 Next, we'll create a type for our form state that includes values, errors, and success status. This will be used to type the form state on the client and server.
 
 ```tsx showLineNumbers title="schema.ts"
-import { z } from 'zod';
+import { z } from 'zod'
 
 export type FormState = {
-  values?: z.infer<typeof formSchema>;
-  errors: null | Partial<Record<keyof z.infer<typeof formSchema>, string[]>>;
-  success: boolean;
-};
+  values?: z.infer<typeof formSchema>
+  errors: null | Partial<Record<keyof z.infer<typeof formSchema>, string[]>>
+  success: boolean
+}
 ```
 
 **Important:** We define the schema and the `FormState` type in a separate file so we can import them into both the client and server components.
@@ -109,10 +102,7 @@ export type FormState = {
 
 A server action is a function that runs on the server and can be called from the client. We'll use it to validate the form data and update the form state.
 
-<ComponentSource
-  src="/registry/new-york-v4/examples/form-next-demo-action.ts"
-  title="actions.ts"
-/>
+<ComponentSource src="/registry/new-york-v4/examples/form-next-demo-action.ts" title="actions.ts" />
 
 **Note:** We're returning `values` for error cases. This is because we want to keep the user submitted values in the form state. For success cases, we're returning empty values to reset the form.
 
@@ -120,10 +110,7 @@ A server action is a function that runs on the server and can be called from the
 
 We can now build the form using the `<Field />` component. We'll use the `useActionState` hook to manage the form state, server action, and pending state.
 
-<ComponentSource
-  src="/registry/new-york-v4/examples/form-next-demo.tsx"
-  title="form.tsx"
-/>
+<ComponentSource src="/registry/new-york-v4/examples/form-next-demo.tsx" title="form.tsx" />
 
 ### Done
 
@@ -138,23 +125,20 @@ If the form data is invalid, the server action will return the errors to the cli
 Use the `pending` prop from `useActionState` to show loading indicators and disable form inputs.
 
 ```tsx showLineNumbers {11,26-34}
-'use client';
+'use client'
 
-import * as React from 'react';
-import Form from 'next/form';
+import * as React from 'react'
+import Form from 'next/form'
 
-import { Spinner } from '@/components/ui/spinner';
+import { Spinner } from '@/components/ui/spinner'
 
-import { bugReportFormAction } from './actions';
+import { bugReportFormAction } from './actions'
 
 export function BugReportForm() {
-  const [formState, formAction, pending] = React.useActionState(
-    bugReportFormAction,
-    {
-      errors: null,
-      success: false,
-    }
-  );
+  const [formState, formAction, pending] = React.useActionState(bugReportFormAction, {
+    errors: null,
+    success: false,
+  })
 
   return (
     <Form action={formAction}>
@@ -170,7 +154,7 @@ export function BugReportForm() {
         </Field>
       </FieldGroup>
     </Form>
-  );
+  )
 }
 ```
 
@@ -204,31 +188,28 @@ To apply a disabled state and styling to a `<Field />` component, use the `data-
 Use `safeParse()` on your schema in your server action to validate the form data.
 
 ```tsx showLineNumbers title="actions.ts" {12-20}
-'use server';
+'use server'
 
-export async function bugReportFormAction(
-  _prevState: FormState,
-  formData: FormData
-) {
+export async function bugReportFormAction(_prevState: FormState, formData: FormData) {
   const values = {
     title: formData.get('title') as string,
     description: formData.get('description') as string,
-  };
+  }
 
-  const result = formSchema.safeParse(values);
+  const result = formSchema.safeParse(values)
 
   if (!result.success) {
     return {
       values,
       success: false,
       errors: result.error.flatten().fieldErrors,
-    };
+    }
   }
 
   return {
     errors: null,
     success: true,
-  };
+  }
 }
 ```
 
@@ -239,31 +220,28 @@ You can add additional custom validation logic in your server action.
 Make sure to return the values on validation errors. This is to ensure that the form state maintains the user's input.
 
 ```tsx showLineNumbers title="actions.ts" {22-35}
-'use server';
+'use server'
 
-export async function bugReportFormAction(
-  _prevState: FormState,
-  formData: FormData
-) {
+export async function bugReportFormAction(_prevState: FormState, formData: FormData) {
   const values = {
     title: formData.get('title') as string,
     description: formData.get('description') as string,
-  };
+  }
 
-  const result = formSchema.safeParse(values);
+  const result = formSchema.safeParse(values)
 
   if (!result.success) {
     return {
       values,
       success: false,
       errors: result.error.flatten().fieldErrors,
-    };
+    }
   }
 
   // Check if email already exists in database.
   const existingUser = await db.user.findUnique({
     where: { email: result.data.email },
-  });
+  })
 
   if (existingUser) {
     return {
@@ -272,13 +250,13 @@ export async function bugReportFormAction(
       errors: {
         email: ['This email is already registered'],
       },
-    };
+    }
   }
 
   return {
     errors: null,
     success: true,
-  };
+  }
 }
 ```
 
@@ -289,15 +267,8 @@ Display errors next to the field using `<FieldError />`. Make sure to add the `d
 ```tsx showLineNumbers
 <Field data-invalid={!!formState.errors?.email?.length}>
   <FieldLabel htmlFor="email">Email</FieldLabel>
-  <Input
-    id="email"
-    name="email"
-    type="email"
-    aria-invalid={!!formState.errors?.email?.length}
-  />
-  {formState.errors?.email && (
-    <FieldError>{formState.errors.email[0]}</FieldError>
-  )}
+  <Input id="email" name="email" type="email" aria-invalid={!!formState.errors?.email?.length} />
+  {formState.errors?.email && <FieldError>{formState.errors.email[0]}</FieldError>}
 </Field>
 ```
 
@@ -310,14 +281,11 @@ When you submit a form with a server action, React will automatically reset the 
 To reset the form on success, you can omit the `values` from the server action and React will automatically reset the form state to the initial values. This is standard React behavior.
 
 ```tsx showLineNumbers title="actions.ts" {22-26}
-export async function demoFormAction(
-  _prevState: FormState,
-  formData: FormData
-) {
+export async function demoFormAction(_prevState: FormState, formData: FormData) {
   const values = {
     title: formData.get('title') as string,
     description: formData.get('description') as string,
-  };
+  }
 
   // Validation.
   if (!result.success) {
@@ -325,17 +293,17 @@ export async function demoFormAction(
       values,
       success: false,
       errors: result.error.flatten().fieldErrors,
-    };
+    }
   }
 
   // Business logic.
-  callYourDatabaseOrAPI(values);
+  callYourDatabaseOrAPI(values)
 
   // Omit the values on success to reset the form state.
   return {
     errors: null,
     success: true,
-  };
+  }
 }
 ```
 
@@ -344,14 +312,11 @@ export async function demoFormAction(
 To prevent the form from being reset on failure, you can return the values in the server action. This is to ensure that the form state maintains the user's input.
 
 ```tsx showLineNumbers title="actions.ts" {12-17}
-export async function demoFormAction(
-  _prevState: FormState,
-  formData: FormData
-) {
+export async function demoFormAction(_prevState: FormState, formData: FormData) {
   const values = {
     title: formData.get('title') as string,
     description: formData.get('description') as string,
-  };
+  }
 
   // Validation.
   if (!result.success) {
@@ -360,7 +325,7 @@ export async function demoFormAction(
       values,
       success: false,
       errors: result.error.flatten().fieldErrors,
-    };
+    }
   }
 }
 ```
@@ -384,10 +349,7 @@ Here is an example of a more complex form with multiple fields and validation.
 
 ### Form
 
-<ComponentSource
-  src="/registry/new-york-v4/examples/form-next-complex.tsx"
-  title="form.tsx"
-/>
+<ComponentSource src="/registry/new-york-v4/examples/form-next-complex.tsx" title="form.tsx" />
 
 ### Server Action
 

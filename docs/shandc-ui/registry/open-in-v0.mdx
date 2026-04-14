@@ -8,8 +8,8 @@ If your registry is hosted and publicly accessible via a URL, you can open a reg
 eg. [https://v0.dev/chat/api/open?url=https://ui.shadcn.com/r/styles/new-york/login-01.json](https://v0.dev/chat/api/open?url=https://ui.shadcn.com/r/styles/new-york/login-01.json)
 
 <Callout className="mt-6">
-  **Important:** `Open in v0` does not support `cssVars`, `css`, `envVars`,
-  namespaced registries, or advanced authentication methods.
+  **Important:** `Open in v0` does not support `cssVars`, `css`, `envVars`, namespaced registries,
+  or advanced authentication methods.
 </Callout>
 
 ## Button
@@ -83,7 +83,7 @@ When implementing this on your registry server:
 ```typescript
 // Next.js API route example
 export async function GET(request: NextRequest) {
-  const token = request.nextUrl.searchParams.get('token');
+  const token = request.nextUrl.searchParams.get('token')
 
   if (!isValidToken(token)) {
     return NextResponse.json(
@@ -91,16 +91,16 @@ export async function GET(request: NextRequest) {
         error: 'Unauthorized',
         message: 'Invalid or missing token',
       },
-      { status: 401 }
-    );
+      { status: 401 },
+    )
   }
 
   // Return the registry item
-  return NextResponse.json(registryItem);
+  return NextResponse.json(registryItem)
 }
 ```
 
 <Callout className="mt-6">
-  **Security Note:** Make sure to encrypt and expire tokens. Never expose
-  production tokens in documentation or examples.
+  **Security Note:** Make sure to encrypt and expire tokens. Never expose production tokens in
+  documentation or examples.
 </Callout>

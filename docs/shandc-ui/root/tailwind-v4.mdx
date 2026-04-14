@@ -133,9 +133,8 @@ You can test Tailwind v4 + React 19 today using the `canary` release of the CLI.
 
 <Callout className="mt-6 mb-6 border-blue-600 bg-blue-50 dark:border-blue-900 dark:bg-blue-950 [&_code]:bg-blue-100 dark:[&_code]:bg-blue-900">
   **Important:** Before upgrading, please read the [Tailwind v4 Compatibility
-  Docs](https://tailwindcss.com/docs/compatibility) and make sure your project
-  is ready for the upgrade. Tailwind v4 uses bleeding-edge browser features and
-  is designed for modern browsers.
+  Docs](https://tailwindcss.com/docs/compatibility) and make sure your project is ready for the
+  upgrade. Tailwind v4 uses bleeding-edge browser features and is designed for modern browsers.
 </Callout>
 
 One of the major advantages of using `shadcn/ui` is that the code you end up with is exactly what you'd write yourself. There are no hidden abstractions.
@@ -254,8 +253,8 @@ const AccordionItem = React.forwardRef<
     className={cn('border-b last:border-b-0', className)}
     {...props}
   />
-));
-AccordionItem.displayName = 'AccordionItem';
+))
+AccordionItem.displayName = 'AccordionItem'
 ```
 
 #### After
@@ -271,7 +270,7 @@ function AccordionItem({
       className={cn('border-b last:border-b-0', className)}
       {...props}
     />
-  );
+  )
 }
 ```
 

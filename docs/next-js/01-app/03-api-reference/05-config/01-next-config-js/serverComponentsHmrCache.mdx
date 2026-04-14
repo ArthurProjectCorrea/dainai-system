@@ -11,15 +11,15 @@ By default, the HMR cache applies to all `fetch` requests, including those with 
 You can disable the HMR cache by setting `serverComponentsHmrCache` to `false` in your `next.config.js` file:
 
 ```ts filename="next.config.ts" switcher
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   experimental: {
     serverComponentsHmrCache: false, // defaults to true
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
 ```
 
 ```js filename="next.config.js" switcher
@@ -28,9 +28,9 @@ const nextConfig = {
   experimental: {
     serverComponentsHmrCache: false, // defaults to true
   },
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
 ```
 
 > **Good to know:** For better observability, we recommend using the [`logging.fetches`](/docs/app/api-reference/config/next-config-js/logging) option which logs fetch cache hits and misses in the console during development.

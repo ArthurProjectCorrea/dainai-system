@@ -35,13 +35,13 @@ Activity acts as a boundary, with two modes, `hidden` or `visible` (default). Wh
 When the boundary becomes `mode="visible"` again, React reveals the children with their previous state restored and re-creates their Effects.
 
 ```tsx
-'use client';
+'use client'
 
-import { Activity, useState } from 'react';
+import { Activity, useState } from 'react'
 
 function Dashboard() {
-  const [isVisible, setIsVisible] = useState(true);
-  const toggleSidebar = () => setIsVisible((state) => !state);
+  const [isVisible, setIsVisible] = useState(true)
+  const toggleSidebar = () => setIsVisible(state => !state)
 
   return (
     <>
@@ -50,7 +50,7 @@ function Dashboard() {
       </Activity>
       <Charts toggleSidebar={toggleSidebar} />
     </>
-  );
+  )
 }
 ```
 
@@ -75,7 +75,7 @@ Many HTML elements manage their own internal state: `<input>` and `<textarea>` v
 Consider a filters panel with expandable sections:
 
 ```tsx
-'use client';
+'use client'
 
 function FiltersPanel() {
   return (
@@ -91,38 +91,38 @@ function FiltersPanel() {
         {/* ... checkbox list */}
       </details>
     </aside>
-  );
+  )
 }
 ```
 
 The `<details>` elements track their open/closed state, and the inputs hold user values. Now imagine a parent component that toggles the panel visibility:
 
 ```tsx
-'use client';
+'use client'
 
-import { useReducer } from 'react';
+import { useReducer } from 'react'
 
 function ProductPage() {
-  const [showFilters, toggle] = useReducer((x: boolean) => !x, true);
+  const [showFilters, toggle] = useReducer((x: boolean) => !x, true)
 
   return (
     <>
       <button onClick={toggle}>Toggle Filters</button>
       {showFilters && <FiltersPanel />}
     </>
-  );
+  )
 }
 ```
 
 When `showFilters` becomes `false`, the panel unmounts and all DOM state is lost - which `<details>` were expanded, what the user typed, slider positions. With Activity, the DOM persists:
 
 ```tsx
-'use client';
+'use client'
 
-import { Activity, useReducer } from 'react';
+import { Activity, useReducer } from 'react'
 
 function ProductPage() {
-  const [showFilters, toggle] = useReducer((x: boolean) => !x, true);
+  const [showFilters, toggle] = useReducer((x: boolean) => !x, true)
 
   return (
     <>
@@ -131,7 +131,7 @@ function ProductPage() {
         <FiltersPanel />
       </Activity>
     </>
-  );
+  )
 }
 ```
 
@@ -159,20 +159,20 @@ This quickly adds up to significant boilerplate. Activity lets you keep state lo
 Without Activity, to persist state across hide/show cycles, you must lift it to a parent that won't unmount:
 
 ```tsx
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState } from 'react'
 
 // Before: State lifted to parent
 function Parent() {
-  const [showEditor, setShowEditor] = useState(true);
+  const [showEditor, setShowEditor] = useState(true)
   // State hoisted here to survive Editor unmounting
-  const [draft, setDraft] = useState('');
-  const [cursorPosition, setCursorPosition] = useState(0);
+  const [draft, setDraft] = useState('')
+  const [cursorPosition, setCursorPosition] = useState(0)
 
   return (
     <>
-      <button onClick={() => setShowEditor((s) => !s)}>Toggle Editor</button>
+      <button onClick={() => setShowEditor(s => !s)}>Toggle Editor</button>
       {showEditor && (
         <Editor
           draft={draft}
@@ -182,37 +182,37 @@ function Parent() {
         />
       )}
     </>
-  );
+  )
 }
 ```
 
 The `Editor` can't own its own state - it would be destroyed on hide. With Activity, state stays local:
 
 ```tsx
-'use client';
+'use client'
 
-import { Activity, useState } from 'react';
+import { Activity, useState } from 'react'
 
 // After: State stays in Editor
 function Parent() {
-  const [showEditor, setShowEditor] = useState(true);
+  const [showEditor, setShowEditor] = useState(true)
 
   return (
     <>
-      <button onClick={() => setShowEditor((s) => !s)}>Toggle Editor</button>
+      <button onClick={() => setShowEditor(s => !s)}>Toggle Editor</button>
       <Activity mode={showEditor ? 'visible' : 'hidden'}>
         <Editor />
       </Activity>
     </>
-  );
+  )
 }
 
 function Editor() {
   // State lives here - survives hide/show cycles
-  const [draft, setDraft] = useState('');
-  const [cursorPosition, setCursorPosition] = useState(0);
+  const [draft, setDraft] = useState('')
+  const [cursorPosition, setCursorPosition] = useState(0)
 
-  return <textarea value={draft} onChange={(e) => setDraft(e.target.value)} />;
+  return <textarea value={draft} onChange={e => setDraft(e.target.value)} />
 }
 ```
 
@@ -223,14 +223,14 @@ The parent no longer needs to know about the editor's internal state. This keeps
 A common pattern is offering multiple views of the same data - for example, a list view and a table view. Each view may have its own scroll position, sort order, or selected items.
 
 ```tsx
-'use client';
+'use client'
 
-import { Activity, useState } from 'react';
+import { Activity, useState } from 'react'
 
-type DataItem = { id: number; name: string };
+type DataItem = { id: number; name: string }
 
 function DataViewer({ data }: { data: DataItem[] }) {
-  const [view, setView] = useState<'list' | 'table'>('list');
+  const [view, setView] = useState<'list' | 'table'>('list')
 
   return (
     <>
@@ -246,7 +246,7 @@ function DataViewer({ data }: { data: DataItem[] }) {
         <TableView data={data} />
       </Activity>
     </>
-  );
+  )
 }
 ```
 
@@ -265,15 +265,15 @@ This pattern extends naturally to route-level navigation. With Cache Components,
 Activity can prerender content the user hasn't seen yet. Hidden boundaries render at lower priority. Combined with Suspense, this lets you prefetch data for content the user is likely to view next.
 
 ```tsx filename="app/page.tsx"
-import { Suspense } from 'react';
-import { ExpandableComments } from './expandable-comments';
+import { Suspense } from 'react'
+import { ExpandableComments } from './expandable-comments'
 
 async function getCommentsData() {
-  return db.comments.findMany();
+  return db.comments.findMany()
 }
 
 export default function Page() {
-  const commentsPromise = getCommentsData();
+  const commentsPromise = getCommentsData()
 
   return (
     <article>
@@ -282,27 +282,23 @@ export default function Page() {
 
       <ExpandableComments commentsPromise={commentsPromise} />
     </article>
-  );
+  )
 }
 ```
 
 ```tsx filename="app/expandable-comments.tsx"
-'use client';
+'use client'
 
-import { Activity, Suspense, useState, use } from 'react';
+import { Activity, Suspense, useState, use } from 'react'
 
-type Comment = { id: string; text: string; author: string };
+type Comment = { id: string; text: string; author: string }
 
-export function ExpandableComments({
-  commentsPromise,
-}: {
-  commentsPromise: Promise<Comment[]>;
-}) {
-  const [expanded, setExpanded] = useState(false);
+export function ExpandableComments({ commentsPromise }: { commentsPromise: Promise<Comment[]> }) {
+  const [expanded, setExpanded] = useState(false)
 
   return (
     <>
-      <button onClick={() => setExpanded((e) => !e)}>
+      <button onClick={() => setExpanded(e => !e)}>
         {expanded ? 'Hide Comments' : 'Show Comments'}
       </button>
 
@@ -312,26 +308,22 @@ export function ExpandableComments({
         </Suspense>
       </Activity>
     </>
-  );
+  )
 }
 
-function Comments({
-  commentsPromise,
-}: {
-  commentsPromise: Promise<Comment[]>;
-}) {
-  const comments = use(commentsPromise);
+function Comments({ commentsPromise }: { commentsPromise: Promise<Comment[]> }) {
+  const comments = use(commentsPromise)
   return (
     <ul>
-      {comments.map((c) => (
+      {comments.map(c => (
         <li key={c.id}>{c.text}</li>
       ))}
     </ul>
-  );
+  )
 }
 
 function CommentsSkeleton() {
-  return <div>Loading comments...</div>;
+  return <div>Loading comments...</div>
 }
 ```
 
@@ -346,32 +338,28 @@ Since Activity preserves state, you need to explicitly reset it when appropriate
 The simplest approach - reset state directly in an event handler:
 
 ```tsx
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState } from 'react'
 
 async function sendMessage(formData: FormData) {
   // Your send logic
 }
 
 function ContactForm() {
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState('')
 
   async function handleSubmit(formData: FormData) {
-    await sendMessage(formData);
-    setMessage(''); // Reset immediately after submission
+    await sendMessage(formData)
+    setMessage('') // Reset immediately after submission
   }
 
   return (
     <form action={handleSubmit}>
-      <textarea
-        name="message"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-      />
+      <textarea name="message" value={message} onChange={e => setMessage(e.target.value)} />
       <button type="submit">Send</button>
     </form>
-  );
+  )
 }
 ```
 
@@ -380,27 +368,27 @@ function ContactForm() {
 Use Effect cleanup to reset state when Activity hides the component. This lets you show a success message until the component is hidden:
 
 ```tsx
-'use client';
+'use client'
 
-import { useState, useRef, useLayoutEffect, useTransition } from 'react';
+import { useState, useRef, useLayoutEffect, useTransition } from 'react'
 
 async function signUp(formData: FormData) {
   // Your signup logic
 }
 
 function NewsletterForm() {
-  const [didSubmit, setDidSubmit] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const shouldResetRef = useRef(false);
+  const [didSubmit, setDidSubmit] = useState(false)
+  const [isPending, startTransition] = useTransition()
+  const shouldResetRef = useRef(false)
 
   useLayoutEffect(() => {
     return () => {
       if (shouldResetRef.current) {
-        setDidSubmit(false);
-        shouldResetRef.current = false;
+        setDidSubmit(false)
+        shouldResetRef.current = false
       }
-    };
-  }, []);
+    }
+  }, [])
 
   return (
     <div>
@@ -408,12 +396,12 @@ function NewsletterForm() {
         <>
           <p>Sign up for my newsletter:</p>
           <form
-            action={(formData) => {
+            action={formData => {
               startTransition(async () => {
-                shouldResetRef.current = true;
-                setDidSubmit(true);
-                await signUp(formData);
-              });
+                shouldResetRef.current = true
+                setDidSubmit(true)
+                await signUp(formData)
+              })
             }}
           >
             <input type="email" name="email" placeholder="Email" />
@@ -426,7 +414,7 @@ function NewsletterForm() {
         <p>Thanks for signing up!</p>
       )}
     </div>
-  );
+  )
 }
 ```
 
@@ -439,19 +427,19 @@ On submission, set `shouldResetRef.current = true` and show the success message.
 You can't always control whether an Activity boundary exists above your component - a parent, layout, or framework might wrap your content in Activity. If your component relied on unmounting to reset state, you can force a reset by changing its `key`. React treats a new key as an entirely new element, discarding the old subtree and mounting a fresh instance:
 
 ```tsx
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState } from 'react'
 
 function ResettableForm() {
-  const [formKey, setFormKey] = useState(0);
+  const [formKey, setFormKey] = useState(0)
 
   return (
     <>
-      <button onClick={() => setFormKey((k) => k + 1)}>Reset Form</button>
+      <button onClick={() => setFormKey(k => k + 1)}>Reset Form</button>
       <ContactForm key={formKey} />
     </>
-  );
+  )
 }
 ```
 
@@ -468,27 +456,27 @@ Effects **are cleaned up** when an Activity becomes `hidden`. Callback refs that
 > **Good to know**: "Effects" refers to React's [`useEffect`](https://react.dev/reference/react/useEffect) and [`useLayoutEffect`](https://react.dev/reference/react/useLayoutEffect) hooks. When Activity hides content, React runs the cleanup functions you return from these hooks, just as if the component were unmounting.
 
 ```tsx
-'use client';
+'use client'
 
-import { useEffect } from 'react';
+import { useEffect } from 'react'
 
 function Timer() {
   // Cleanup runs when Activity becomes hidden
   useEffect(() => {
-    const id = setInterval(() => console.log('tick'), 1000);
-    return () => clearInterval(id); // Called on hide
-  }, []);
+    const id = setInterval(() => console.log('tick'), 1000)
+    return () => clearInterval(id) // Called on hide
+  }, [])
 
   return (
     <div
-      ref={(node) => {
+      ref={node => {
         // Ref setup: runs when visible
         return () => {
           // Ref cleanup: runs on hide
-        };
+        }
       }}
     />
-  );
+  )
 }
 ```
 
@@ -498,9 +486,9 @@ For example, a form can use a callback ref to reset its fields when Activity hid
 
 ```tsx
 <form
-  ref={(form) => {
+  ref={form => {
     // Cleanup function - runs when Activity hides this component
-    return () => form?.reset();
+    return () => form?.reset()
   }}
 >
   {/* fields */}
@@ -510,23 +498,23 @@ For example, a form can use a callback ref to reset its fields when Activity hid
 This means tracking "mount count" via Effects is misleading with Activity - Effects run on every hide-to-visible transition, not just the initial mount. If you need to distinguish the first mount from subsequent visibility changes, use a ref to track it:
 
 ```tsx
-'use client';
+'use client'
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react'
 
 function TrackedComponent() {
-  const hasMountedRef = useRef(false);
+  const hasMountedRef = useRef(false)
 
   useEffect(() => {
     if (!hasMountedRef.current) {
-      hasMountedRef.current = true;
-      console.log('First mount');
+      hasMountedRef.current = true
+      console.log('First mount')
     } else {
-      console.log('Became visible again');
+      console.log('Became visible again')
     }
-  }, []);
+  }, [])
 
-  return <div>...</div>;
+  return <div>...</div>
 }
 ```
 
@@ -537,21 +525,21 @@ The ref persists across hide/show cycles (refs aren't cleaned up), so `hasMounte
 Elements like `<video>`, `<audio>`, and `<iframe>` have side effects that persist even with `display: none`. Add explicit cleanup:
 
 ```tsx
-'use client';
+'use client'
 
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react'
 
 function VideoPlayer({ src }: { src: string }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   useLayoutEffect(() => {
-    const video = videoRef.current;
+    const video = videoRef.current
     return () => {
-      video?.pause();
-    };
-  }, []);
+      video?.pause()
+    }
+  }, [])
 
-  return <video ref={videoRef} src={src} controls />;
+  return <video ref={videoRef} src={src} controls />
 }
 ```
 
@@ -575,26 +563,23 @@ In Playwright, `getByRole` queries automatically filter by visibility:
 
 ```ts
 // Good - getByRole filters by visibility automatically
-await page.getByRole('button', { name: 'Submit' }).click();
-await page.getByRole('textbox', { name: 'Email' }).fill('test@example.com');
+await page.getByRole('button', { name: 'Submit' }).click()
+await page.getByRole('textbox', { name: 'Email' }).fill('test@example.com')
 
 // Also good - getByLabel, getByPlaceholder filter by visibility
-await page.getByLabel('Email').fill('test@example.com');
-await page.getByPlaceholder('Search...').fill('query');
+await page.getByLabel('Email').fill('test@example.com')
+await page.getByPlaceholder('Search...').fill('query')
 ```
 
 When `getByRole` isn't suitable, use `.locator()` with visibility filtering:
 
 ```ts
 // Fallback - filter by visibility explicitly
-await page.locator('.product-card').filter({ visible: true }).first().click();
-await page
-  .locator('[data-testid="timer"]')
-  .filter({ visible: true })
-  .textContent();
+await page.locator('.product-card').filter({ visible: true }).first().click()
+await page.locator('[data-testid="timer"]').filter({ visible: true }).textContent()
 
 // Avoid - may match hidden elements in Activity boundaries
-await page.locator('.product-card').first().click();
+await page.locator('.product-card').first().click()
 ```
 
 `getByRole` is robust to Activity, tabbed navigation, accordions, and any other pattern that keeps hidden content in the DOM. It queries the accessibility tree, which excludes hidden elements. For other testing tools, check their documentation for visibility-aware selectors - Cypress uses `.should('be.visible')` or `{ visible: true }` options.

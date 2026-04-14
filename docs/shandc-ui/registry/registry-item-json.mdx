@@ -12,11 +12,7 @@ The `registry-item.json` schema is used to define your custom registry items.
   "type": "registry:block",
   "title": "Hello World",
   "description": "A simple hello world component.",
-  "registryDependencies": [
-    "button",
-    "@acme/input-form",
-    "https://example.com/r/foo"
-  ],
+  "registryDependencies": ["button", "@acme/input-form", "https://example.com/r/foo"],
   "dependencies": ["is-even@3.0.0", "motion"],
   "devDependencies": ["tw-animate-css"],
   "files": [
@@ -136,12 +132,7 @@ Use `@version` to specify the version of your registry item.
 
 ```json title="registry-item.json" showLineNumbers
 {
-  "dependencies": [
-    "@radix-ui/react-accordion",
-    "zod",
-    "lucide-react",
-    "name@1.0.2"
-  ]
+  "dependencies": ["@radix-ui/react-accordion", "zod", "lucide-react", "name@1.0.2"]
 }
 ```
 
@@ -167,11 +158,7 @@ Used for registry dependencies. Can be names, namespaced or URLs.
 
 ```json title="registry-item.json" showLineNumbers
 {
-  "registryDependencies": [
-    "button",
-    "@acme/input-form",
-    "https://example.com/r/editor.json"
-  ]
+  "registryDependencies": ["button", "@acme/input-form", "https://example.com/r/editor.json"]
 }
 ```
 

@@ -16,3 +16,6 @@ apps/api/
 # Secrets & Configs
 .env*
 *.local
+
+# web
+*/.next-env.d.ts

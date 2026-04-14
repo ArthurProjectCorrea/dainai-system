@@ -16,7 +16,7 @@ This option is only available when using Turbopack (`next dev --turbopack`).
 ## Usage
 
 ```ts filename="next.config.ts" switcher
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   turbopack: {
@@ -26,9 +26,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
 ```
 
 ```js filename="next.config.js" switcher
@@ -41,9 +41,9 @@ const nextConfig = {
       },
     ],
   },
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
 ```
 
 ## Options
@@ -74,7 +74,7 @@ module.exports = {
       { path: /node_modules\/legacy-lib/ },
     ],
   },
-};
+}
 ```
 
 ### `title`
@@ -91,7 +91,7 @@ module.exports = {
       },
     ],
   },
-};
+}
 ```
 
 ### `description`
@@ -108,7 +108,7 @@ module.exports = {
       },
     ],
   },
-};
+}
 ```
 
 ## Examples
@@ -118,7 +118,7 @@ module.exports = {
 If your code uses `try/catch` around an optional `require()` call, Turbopack may report a "Module not found" warning. You can suppress it:
 
 ```ts filename="next.config.ts" switcher
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   turbopack: {
@@ -129,9 +129,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
 ```
 
 ```js filename="next.config.js" switcher
@@ -145,9 +145,9 @@ const nextConfig = {
       },
     ],
   },
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
 ```
 
 ### Combining multiple rules
@@ -163,7 +163,7 @@ module.exports = {
       { path: /generated\//, description: /expected identifier/ },
     ],
   },
-};
+}
 ```
 
 ## Version History

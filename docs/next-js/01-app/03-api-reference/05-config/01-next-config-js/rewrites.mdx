@@ -29,9 +29,9 @@ module.exports = {
         source: '/about',
         destination: '/',
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 Rewrites are applied to client-side routing. In the example above, navigating to `<Link href="/about">` will serve content from `/` while keeping the URL as `/about`.
@@ -77,9 +77,9 @@ module.exports = {
           destination: `https://my-old-site.com/:path*`,
         },
       ],
-    };
+    }
   },
-};
+}
 ```
 
 > **Good to know**: rewrites in `beforeFiles` do not check the filesystem/dynamic routes immediately after matching a source, they continue until all `beforeFiles` have been checked.
@@ -121,9 +121,9 @@ module.exports = {
         source: '/old-about/:path*',
         destination: '/about', // The :path parameter isn't used here so will be automatically passed in the query
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 If a parameter is used in the destination none of the parameters will be automatically passed in the query.
@@ -136,9 +136,9 @@ module.exports = {
         source: '/docs/:path*',
         destination: '/:path*', // The :path parameter is used here so will not be automatically passed in the query
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 You can still pass the parameters manually in the query if one is already used in the destination by specifying the query in the `destination`.
@@ -154,9 +154,9 @@ module.exports = {
         // will not automatically be added in the query although we can manually add it
         // as shown above
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 > **Good to know**: Static pages from [Automatic Static Optimization](/docs/pages/building-your-application/rendering/automatic-static-optimization) or [prerendering](/docs/pages/building-your-application/data-fetching/get-static-props) params from rewrites will be parsed on the client after hydration and provided in the query.
@@ -173,9 +173,9 @@ module.exports = {
         source: '/blog/:slug',
         destination: '/news/:slug', // Matched parameters can be used in the destination
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 The pattern `/blog/:slug` matches `/blog/first-post` and `/blog/post-1` but not `/blog/a/b` (no nested paths). Patterns are anchored to the start: `/blog/:slug` will not match `/archive/blog/first-post`.
@@ -196,9 +196,9 @@ module.exports = {
         source: '/blog/:slug*',
         destination: '/news/:slug*', // Matched parameters can be used in the destination
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 ### Regex Path Matching
@@ -213,9 +213,9 @@ module.exports = {
         source: '/old-blog/:post(\\d{1,})',
         destination: '/blog/:post', // Matched parameters can be used in the destination
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 The following characters `(`, `)`, `{`, `}`, `[`, `]`, `|`, `\`, `^`, `.`, `:`, `*`, `+`, `-`, `?`, `$` are used for regex path matching, so when used in the `source` as non-special values they must be escaped by adding `\\` before them:
@@ -229,9 +229,9 @@ module.exports = {
         source: '/english\\(default\\)/:slug',
         destination: '/en-us/:slug',
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 ## Header, Cookie, and Query Matching
@@ -318,9 +318,9 @@ module.exports = {
         ],
         destination: '/another-page',
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 ## Rewriting to an external URL
@@ -346,9 +346,9 @@ module.exports = {
         source: '/blog/:slug',
         destination: 'https://example.com/blog/:slug', // Matched parameters can be used in the destination
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 If you're using `trailingSlash: true`, you also need to insert a trailing slash in the `source` parameter. If the destination server is also expecting a trailing slash it should be included in the `destination` parameter as well.
@@ -366,9 +366,9 @@ module.exports = {
         source: '/blog/:path*/',
         destination: 'https://example.com/blog/:path*/',
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 ### Incremental adoption of Next.js
@@ -387,9 +387,9 @@ module.exports = {
           destination: `https://custom-routes-proxying-endpoint.vercel.app/:path*`,
         },
       ],
-    };
+    }
   },
-};
+}
 ```
 
 ### Rewrites with basePath support
@@ -413,9 +413,9 @@ module.exports = {
         destination: 'https://example.com',
         basePath: false,
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 <PagesOnly>
@@ -461,9 +461,9 @@ module.exports = {
         source: '/(.*)',
         destination: '/another',
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 </PagesOnly>

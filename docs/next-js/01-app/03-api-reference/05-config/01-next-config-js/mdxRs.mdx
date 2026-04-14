@@ -7,7 +7,7 @@ version: experimental
 For experimental use with `@next/mdx`. Compiles MDX files using the new Rust compiler.
 
 ```js filename="next.config.js"
-const withMDX = require('@next/mdx')();
+const withMDX = require('@next/mdx')()
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -15,7 +15,7 @@ const nextConfig = {
   experimental: {
     mdxRs: true,
   },
-};
+}
 
-module.exports = withMDX(nextConfig);
+module.exports = withMDX(nextConfig)
 ```

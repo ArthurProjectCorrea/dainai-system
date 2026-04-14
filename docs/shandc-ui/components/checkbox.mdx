@@ -8,11 +8,7 @@ links:
   api: https://www.radix-ui.com/docs/primitives/components/checkbox#api-reference
 ---
 
-<ComponentPreview
-  styleName="radix-nova"
-  name="checkbox-demo"
-  previewClassName="h-80"
-/>
+<ComponentPreview styleName="radix-nova" name="checkbox-demo" previewClassName="h-80" />
 
 ## Installation
 
@@ -42,11 +38,7 @@ npm install radix-ui
 
 <Step>Copy and paste the following code into your project.</Step>
 
-<ComponentSource
-  name="checkbox"
-  title="components/ui/checkbox.tsx"
-  styleName="radix-nova"
-/>
+<ComponentSource name="checkbox" title="components/ui/checkbox.tsx" styleName="radix-nova" />
 
 <Step>Update the import paths to match your project setup.</Step>
 
@@ -59,7 +51,7 @@ npm install radix-ui
 ## Usage
 
 ```tsx
-import { Checkbox } from '@/components/ui/checkbox';
+import { Checkbox } from '@/components/ui/checkbox'
 ```
 
 ```tsx
@@ -72,12 +64,12 @@ Use `defaultChecked` for uncontrolled checkboxes, or `checked` and
 `onCheckedChange` to control the state.
 
 ```tsx showLineNumbers
-import * as React from 'react';
+import * as React from 'react'
 
 export function Example() {
-  const [checked, setChecked] = React.useState(false);
+  const [checked, setChecked] = React.useState(false)
 
-  return <Checkbox checked={checked} onCheckedChange={setChecked} />;
+  return <Checkbox checked={checked} onCheckedChange={setChecked} />
 }
 ```
 
@@ -116,11 +108,7 @@ Use multiple fields to create a checkbox list.
 
 ### Table
 
-<ComponentPreview
-  styleName="radix-nova"
-  name="checkbox-table"
-  previewClassName="p-4 md:p-8"
-/>
+<ComponentPreview styleName="radix-nova" name="checkbox-table" previewClassName="p-4 md:p-8" />
 
 ## RTL
 

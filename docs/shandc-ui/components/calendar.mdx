@@ -7,11 +7,7 @@ links:
   doc: https://react-day-picker.js.org
 ---
 
-<ComponentPreview
-  styleName="radix-nova"
-  name="calendar-demo"
-  previewClassName="h-96"
-/>
+<ComponentPreview styleName="radix-nova" name="calendar-demo" previewClassName="h-96" />
 
 ## Installation
 
@@ -45,11 +41,7 @@ The `Calendar` component uses the `Button` component. Make sure you have it inst
 
 <Step>Copy and paste the following code into your project.</Step>
 
-<ComponentSource
-  name="calendar"
-  title="components/ui/calendar.tsx"
-  styleName="radix-nova"
-/>
+<ComponentSource name="calendar" title="components/ui/calendar.tsx" styleName="radix-nova" />
 
 <Step>Update the import paths to match your project setup.</Step>
 
@@ -62,20 +54,13 @@ The `Calendar` component uses the `Button` component. Make sure you have it inst
 ## Usage
 
 ```tsx showLineNumbers
-import { Calendar } from '@/components/ui/calendar';
+import { Calendar } from '@/components/ui/calendar'
 ```
 
 ```tsx showLineNumbers
-const [date, setDate] = React.useState<Date | undefined>(new Date());
+const [date, setDate] = React.useState<Date | undefined>(new Date())
 
-return (
-  <Calendar
-    mode="single"
-    selected={date}
-    onSelect={setDate}
-    className="rounded-lg border"
-  />
-);
+return <Calendar mode="single" selected={date} onSelect={setDate} className="rounded-lg border" />
 ```
 
 See the [React DayPicker](https://react-day-picker.js.org) documentation for more information.
@@ -111,21 +96,14 @@ The Calendar component accepts a `timeZone` prop to ensure dates are displayed a
 
 ```tsx showLineNumbers
 export function CalendarWithTimezone() {
-  const [date, setDate] = React.useState<Date | undefined>(undefined);
-  const [timeZone, setTimeZone] = React.useState<string | undefined>(undefined);
+  const [date, setDate] = React.useState<Date | undefined>(undefined)
+  const [timeZone, setTimeZone] = React.useState<string | undefined>(undefined)
 
   React.useEffect(() => {
-    setTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
-  }, []);
+    setTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone)
+  }, [])
 
-  return (
-    <Calendar
-      mode="single"
-      selected={date}
-      onSelect={setDate}
-      timeZone={timeZone}
-    />
-  );
+  return <Calendar mode="single" selected={date} onSelect={setDate} timeZone={timeZone} />
 }
 ```
 
@@ -139,11 +117,7 @@ export function CalendarWithTimezone() {
 
 A basic calendar component. We used `className="rounded-lg border"` to style the calendar.
 
-<ComponentPreview
-  styleName="radix-nova"
-  name="calendar-basic"
-  previewClassName="h-96"
-/>
+<ComponentPreview styleName="radix-nova" name="calendar-basic" previewClassName="h-96" />
 
 ### Range Calendar
 
@@ -159,35 +133,19 @@ Use the `mode="range"` prop to enable range selection.
 
 Use `captionLayout="dropdown"` to show month and year dropdowns.
 
-<ComponentPreview
-  styleName="radix-nova"
-  name="calendar-caption"
-  previewClassName="h-96"
-/>
+<ComponentPreview styleName="radix-nova" name="calendar-caption" previewClassName="h-96" />
 
 ### Presets
 
-<ComponentPreview
-  styleName="radix-nova"
-  name="calendar-presets"
-  previewClassName="h-[650px]"
-/>
+<ComponentPreview styleName="radix-nova" name="calendar-presets" previewClassName="h-[650px]" />
 
 ### Date and Time Picker
 
-<ComponentPreview
-  styleName="radix-nova"
-  name="calendar-time"
-  previewClassName="h-[600px]"
-/>
+<ComponentPreview styleName="radix-nova" name="calendar-time" previewClassName="h-[600px]" />
 
 ### Booked dates
 
-<ComponentPreview
-  styleName="radix-nova"
-  name="calendar-booked-dates"
-  previewClassName="h-96"
-/>
+<ComponentPreview styleName="radix-nova" name="calendar-booked-dates" previewClassName="h-96" />
 
 ### Custom Cell Size
 
@@ -225,11 +183,7 @@ Or use fixed values:
 
 Use `showWeekNumber` to show week numbers.
 
-<ComponentPreview
-  styleName="radix-nova"
-  name="calendar-week-numbers"
-  previewClassName="h-96"
-/>
+<ComponentPreview styleName="radix-nova" name="calendar-week-numbers" previewClassName="h-96" />
 
 ## RTL
 
@@ -247,14 +201,8 @@ See also the [Hijri Guide](#persian--hijri--jalali-calendar) for enabling the Pe
 When using RTL, import the locale from `react-day-picker/locale` and pass both the `locale` and `dir` props to the Calendar component:
 
 ```tsx showLineNumbers
-import { arSA } from 'react-day-picker/locale';
-<Calendar
-  mode="single"
-  selected={date}
-  onSelect={setDate}
-  locale={arSA}
-  dir="rtl"
-/>;
+import { arSA } from 'react-day-picker/locale'
+;<Calendar mode="single" selected={date} onSelect={setDate} locale={arSA} dir="rtl" />
 ```
 
 ## API Reference
@@ -397,6 +345,6 @@ Replace directional classes with logical properties for better RTL support:
 After applying these changes, you can use the `locale` prop to provide locale-specific formatting:
 
 ```tsx
-import { enUS } from 'react-day-picker/locale';
-<Calendar mode="single" selected={date} onSelect={setDate} locale={enUS} />;
+import { enUS } from 'react-day-picker/locale'
+;<Calendar mode="single" selected={date} onSelect={setDate} locale={enUS} />
 ```

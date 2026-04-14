@@ -11,15 +11,15 @@ If this option is not set, Next.js on webpack uses [PostCSS](https://postcss.org
 Turbopack uses Lightning CSS by default since Next 14.2. This configuration option has no effect on Turbopack. Turbopack always uses Lightning CSS.
 
 ```ts filename="next.config.ts" switcher
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   experimental: {
     useLightningcss: false, // default, ignored on Turbopack
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
 ```
 
 ```js filename="next.config.js" switcher
@@ -28,9 +28,9 @@ const nextConfig = {
   experimental: {
     useLightningcss: true, // disables PostCSS on webpack
   },
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
 ```
 
 ## Version History

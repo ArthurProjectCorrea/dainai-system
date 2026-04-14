@@ -5,11 +5,10 @@ base: radix
 component: true
 ---
 
-import { InfoIcon } from 'lucide-react';
+import { InfoIcon } from 'lucide-react'
 
 <Callout variant="info" icon={<InfoIcon className="!translate-y-[3px]" />}>
-  For a styled select component, see the [Select](/docs/components/select)
-  component.
+  For a styled select component, see the [Select](/docs/components/select) component.
 </Callout>
 
 <ComponentPreview styleName="radix-nova" name="native-select-demo" />
@@ -57,7 +56,7 @@ import {
   NativeSelect,
   NativeSelectOptGroup,
   NativeSelectOption,
-} from '@/components/ui/native-select';
+} from '@/components/ui/native-select'
 ```
 
 ```tsx showLineNumbers
@@ -99,11 +98,7 @@ Use `aria-invalid` to show validation errors and the `data-invalid` attribute to
 
 To enable RTL support in shadcn/ui, see the [RTL configuration guide](/docs/rtl).
 
-<ComponentPreview
-  styleName="radix-nova"
-  name="native-select-rtl"
-  direction="rtl"
-/>
+<ComponentPreview styleName="radix-nova" name="native-select-rtl" direction="rtl" />
 
 ## API Reference
 

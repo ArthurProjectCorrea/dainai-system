@@ -154,14 +154,14 @@ You can configure the filesystem root using [turbopack.root](/docs/app/api-refer
 Turbopack will follow JS import order to order [CSS modules](/docs/app/getting-started/css#css-modules) which are not otherwise ordered. For example:
 
 ```jsx filename="components/BlogPost.jsx"
-import utilStyles from './utils.module.css';
-import buttonStyles from './button.module.css';
+import utilStyles from './utils.module.css'
+import buttonStyles from './button.module.css'
 export default function BlogPost() {
   return (
     <div className={utilStyles.container}>
       <button className={buttonStyles.primary}>Click me</button>
     </div>
-  );
+  )
 }
 ```
 
@@ -196,7 +196,7 @@ module.exports = {
       '~*': '*',
     },
   },
-};
+}
 ```
 
 ### Build Caching
@@ -283,7 +283,7 @@ module.exports = {
     },
     resolveExtensions: ['.mdx', '.tsx', '.ts', '.jsx', '.js', '.json'],
   },
-};
+}
 ```
 
 For more in-depth configuration examples, see the [Turbopack config documentation](/docs/app/api-reference/config/next-config-js/turbopack).

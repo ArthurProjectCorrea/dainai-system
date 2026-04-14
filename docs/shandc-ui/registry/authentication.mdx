@@ -82,44 +82,41 @@ Here's how to add authentication to your registry server:
 ### Next.js API Route Example
 
 ```typescript title="app/api/registry/[name]/route.ts"
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { name: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { name: string } }) {
   // Get token from Authorization header.
-  const authHeader = request.headers.get('authorization');
-  const token = authHeader?.replace('Bearer ', '');
+  const authHeader = request.headers.get('authorization')
+  const token = authHeader?.replace('Bearer ', '')
 
   // Or from query parameters.
-  const queryToken = request.nextUrl.searchParams.get('token');
+  const queryToken = request.nextUrl.searchParams.get('token')
 
   // Check if token is valid.
   if (!isValidToken(token || queryToken)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   // Check if token can access this component.
   if (!hasAccessToComponent(token, params.name)) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
   // Return the component.
-  const component = await getComponent(params.name);
-  return NextResponse.json(component);
+  const component = await getComponent(params.name)
+  return NextResponse.json(component)
 }
 
 function isValidToken(token: string | null) {
   // Add your token validation logic here.
   // Check against database, JWT validation, etc.
-  return token === process.env.VALID_TOKEN;
+  return token === process.env.VALID_TOKEN
 }
 
 function hasAccessToComponent(token: string, componentName: string) {
   // Add role-based access control here.
   // Check if token can access specific component.
-  return true; // Your logic here.
+  return true // Your logic here.
 }
 ```
 
@@ -127,19 +124,19 @@ function hasAccessToComponent(token: string, componentName: string) {
 
 ```javascript title="server.js"
 app.get('/registry/:name.json', (req, res) => {
-  const token = req.headers.authorization?.replace('Bearer ', '');
+  const token = req.headers.authorization?.replace('Bearer ', '')
 
   if (!isValidToken(token)) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: 'Unauthorized' })
   }
 
-  const component = getComponent(req.params.name);
+  const component = getComponent(req.params.name)
   if (!component) {
-    return res.status(404).json({ error: 'Component not found' });
+    return res.status(404).json({ error: 'Component not found' })
   }
 
-  res.json(component);
-});
+  res.json(component)
+})
 ```
 
 ## Advanced Authentication Patterns
@@ -150,12 +147,12 @@ Give different teams different components:
 
 ```typescript title="api/registry/route.ts"
 async function GET(request: NextRequest) {
-  const token = extractToken(request);
-  const team = await getTeamFromToken(token);
+  const token = extractToken(request)
+  const team = await getTeamFromToken(token)
 
   // Get components for this team.
-  const components = await getComponentsForTeam(team);
-  return NextResponse.json(components);
+  const components = await getComponentsForTeam(team)
+  return NextResponse.json(components)
 }
 ```
 
@@ -165,15 +162,15 @@ Give users components based on their preferences:
 
 ```typescript
 async function GET(request: NextRequest) {
-  const user = await authenticateUser(request);
+  const user = await authenticateUser(request)
 
   // Get user's style and framework preferences.
-  const preferences = await getUserPreferences(user.id);
+  const preferences = await getUserPreferences(user.id)
 
   // Get personalized component version.
-  const component = await getPersonalizedComponent(params.name, preferences);
+  const component = await getPersonalizedComponent(params.name, preferences)
 
-  return NextResponse.json(component);
+  return NextResponse.json(component)
 }
 ```
 
@@ -183,18 +180,18 @@ Use expiring tokens for better security:
 
 ```typescript
 interface TemporaryToken {
-  token: string;
-  expiresAt: Date;
-  scope: string[];
+  token: string
+  expiresAt: Date
+  scope: string[]
 }
 
 async function validateTemporaryToken(token: string) {
-  const tokenData = await getTokenData(token);
+  const tokenData = await getTokenData(token)
 
-  if (!tokenData) return false;
-  if (new Date() > tokenData.expiresAt) return false;
+  if (!tokenData) return false
+  if (new Date() > tokenData.expiresAt) return false
 
-  return true;
+  return true
 }
 ```
 
@@ -270,14 +267,14 @@ Always use HTTPS URLs for registries to protect your tokens in transit:
 Protect your registry from abuse:
 
 ```typescript
-import rateLimit from 'express-rate-limit';
+import rateLimit from 'express-rate-limit'
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
-});
+})
 
-app.use('/registry', limiter);
+app.use('/registry', limiter)
 ```
 
 ### Rotate Tokens
@@ -287,10 +284,10 @@ Change access tokens regularly:
 ```typescript
 // Create new token with expiration.
 function generateToken() {
-  const token = crypto.randomBytes(32).toString('hex');
-  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days.
+  const token = crypto.randomBytes(32).toString('hex')
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days.
 
-  return { token, expiresAt };
+  return { token, expiresAt }
 }
 ```
 
@@ -306,7 +303,7 @@ async function logAccess(request: Request, component: string, userId: string) {
     component,
     ip: request.ip,
     userAgent: request.headers['user-agent'],
-  });
+  })
 }
 ```
 
@@ -340,11 +337,10 @@ Your registry server can return custom error messages in the response body, and 
 return NextResponse.json(
   {
     error: 'Unauthorized',
-    message:
-      'Your subscription has expired. Please renew at company.com/billing',
+    message: 'Your subscription has expired. Please renew at company.com/billing',
   },
-  { status: 403 }
-);
+  { status: 403 },
+)
 ```
 
 The user will see:
@@ -361,11 +357,10 @@ if (!token) {
   return NextResponse.json(
     {
       error: 'Unauthorized',
-      message:
-        'Authentication required. Set REGISTRY_TOKEN in your .env.local file',
+      message: 'Authentication required. Set REGISTRY_TOKEN in your .env.local file',
     },
-    { status: 401 }
-  );
+    { status: 401 },
+  )
 }
 
 if (isExpiredToken(token)) {
@@ -374,8 +369,8 @@ if (isExpiredToken(token)) {
       error: 'Unauthorized',
       message: 'Token expired. Request a new token at company.com/tokens',
     },
-    { status: 401 }
-  );
+    { status: 401 },
+  )
 }
 
 if (!hasTeamAccess(token, component)) {
@@ -384,8 +379,8 @@ if (!hasTeamAccess(token, component)) {
       error: 'Forbidden',
       message: `Component '${component}' is restricted to the Design team`,
     },
-    { status: 403 }
-  );
+    { status: 403 },
+  )
 }
 ```
 

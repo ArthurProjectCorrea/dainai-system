@@ -11,14 +11,14 @@ Next.js can serve static files, like images, under a folder called `public` in t
 For example, the file `public/avatars/me.png` can be viewed by visiting the `/avatars/me.png` path. The code to display that image might look like:
 
 ```jsx filename="avatar.js"
-import Image from 'next/image';
+import Image from 'next/image'
 
 export function Avatar({ id, alt }) {
-  return <Image src={`/avatars/${id}.png`} alt={alt} width="64" height="64" />;
+  return <Image src={`/avatars/${id}.png`} alt={alt} width="64" height="64" />
 }
 
 export function AvatarOfMe() {
-  return <Avatar id="me" alt="A portrait of me" />;
+  return <Avatar id="me" alt="A portrait of me" />
 }
 ```
 

@@ -31,18 +31,18 @@ Open `next.config.mjs` and add the `assetPrefix` config based on the [phase](/do
 
 ```js filename="next.config.mjs"
 // @ts-check
-import { PHASE_DEVELOPMENT_SERVER } from 'next/constants';
+import { PHASE_DEVELOPMENT_SERVER } from 'next/constants'
 
-export default (phase) => {
-  const isDev = phase === PHASE_DEVELOPMENT_SERVER;
+export default phase => {
+  const isDev = phase === PHASE_DEVELOPMENT_SERVER
   /**
    * @type {import('next').NextConfig}
    */
   const nextConfig = {
     assetPrefix: isDev ? undefined : 'https://cdn.mydomain.com',
-  };
-  return nextConfig;
-};
+  }
+  return nextConfig
+}
 ```
 
 Next.js will automatically use your asset prefix for the JavaScript and CSS files it loads from the `/_next/` path (`.next/static/` folder). For example, with the above configuration, the following request for a JS chunk:

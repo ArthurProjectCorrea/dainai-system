@@ -11,7 +11,7 @@ Turbopack FileSystem Cache enables Turbopack to reduce work across `next dev` or
 > **Good to know:** The FileSystem Cache feature is considered stable for development and experimental for production builds
 
 ```ts filename="next.config.ts" switcher
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -20,9 +20,9 @@ const nextConfig: NextConfig = {
     // Enable filesystem caching for `next build`
     turbopackFileSystemCacheForBuild: true,
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
 ```
 
 ```js filename="next.config.js" switcher
@@ -34,9 +34,9 @@ const nextConfig = {
     // Enable filesystem caching for `next build`
     turbopackFileSystemCacheForBuild: true,
   },
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
 ```
 
 ## Version Changes

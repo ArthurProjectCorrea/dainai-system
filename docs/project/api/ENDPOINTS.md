@@ -861,7 +861,6 @@ id: Guid (ex: d123...)
 
 ---
 
-
 ## 🖥️ Admin - Gerenciamento de Telas (`/admin/screens`)
 
 ### 17. Listar Screens

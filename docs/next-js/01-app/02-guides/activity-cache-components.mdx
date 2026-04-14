@@ -44,23 +44,23 @@ When a user navigates away and returns, Activity preserves the open/closed state
 To reset transient open/closed state, close it in a `useLayoutEffect` cleanup function:
 
 ```tsx highlight={8-13}
-'use client';
+'use client'
 
-import { useState, useLayoutEffect } from 'react';
+import { useState, useLayoutEffect } from 'react'
 
 function SettingsDropdown() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
 
   // Close dropdown when this component becomes hidden
   useLayoutEffect(() => {
     return () => {
-      setIsOpen(false);
-    };
-  }, []);
+      setIsOpen(false)
+    }
+  }, [])
 
   return (
     <div>
-      <button onClick={() => setIsOpen((o) => !o)}>Options</button>
+      <button onClick={() => setIsOpen(o => !o)}>Options</button>
       {isOpen && (
         <ul>
           <li>
@@ -72,7 +72,7 @@ function SettingsDropdown() {
         </ul>
       )}
     </div>
-  );
+  )
 }
 ```
 
@@ -91,19 +91,19 @@ Activity preserves dialog open/closed state. This also affects Effects that run 
 Consider this example:
 
 ```tsx
-'use client';
+'use client'
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react'
 
 function ProductTab() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (isDialogOpen) {
-      inputRef.current?.focus();
+      inputRef.current?.focus()
     }
-  }, [isDialogOpen]);
+  }, [isDialogOpen])
 
   // ...
 }
@@ -114,22 +114,22 @@ If the user navigated away while the dialog was open, returning and opening the 
 To fix this, derive the dialog state from something outside the preserved component state like a search param:
 
 ```tsx highlight={3,7-9,20,25}
-'use client';
+'use client'
 
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation'
+import { useEffect, useRef } from 'react'
 
 function ProductTab() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const isDialogOpen = searchParams.get('edit') === 'true';
-  const inputRef = useRef<HTMLInputElement>(null);
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const isDialogOpen = searchParams.get('edit') === 'true'
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (isDialogOpen) {
-      inputRef.current?.focus();
+      inputRef.current?.focus()
     }
-  }, [isDialogOpen]);
+  }, [isDialogOpen])
 
   return (
     <div>
@@ -138,13 +138,11 @@ function ProductTab() {
       {isDialogOpen && (
         <dialog open>
           <input ref={inputRef} placeholder="Product name" />
-          <button onClick={() => router.replace('?', { scroll: false })}>
-            Close
-          </button>
+          <button onClick={() => router.replace('?', { scroll: false })}>Close</button>
         </dialog>
       )}
     </div>
-  );
+  )
 }
 ```
 
@@ -162,9 +160,9 @@ To reset form fields when Activity hides the component, use a callback ref:
 
 ```tsx
 <form
-  ref={(form) => {
+  ref={form => {
     // Cleanup function - runs when Activity hides this component
-    return () => form?.reset();
+    return () => form?.reset()
   }}
 >
   {/* fields */}
@@ -184,49 +182,44 @@ Activity preserves [`useActionState`](https://react.dev/reference/react/useActio
 You can think of `useActionState` as a `useReducer` that allows side effects. It doesn't have to only handle form submissions - you can dispatch any action to it. Adding a `RESET` action gives you a clean way to clear state when Activity hides the component (see [Reset state](https://react.dev/reference/react/useActionState#reset-state) in the React docs):
 
 ```tsx highlight={5-6,9-21,26-35}
-'use client';
+'use client'
 
-import {
-  useActionState,
-  useLayoutEffect,
-  useRef,
-  startTransition,
-} from 'react';
+import { useActionState, useLayoutEffect, useRef, startTransition } from 'react'
 
-type Action = { type: 'SUBMIT'; data: FormData } | { type: 'RESET' };
-type State = { success: boolean; error: string | null };
+type Action = { type: 'SUBMIT'; data: FormData } | { type: 'RESET' }
+type State = { success: boolean; error: string | null }
 
 function CommentForm() {
   const [state, dispatch, isPending] = useActionState(
     async (prev: State, action: Action) => {
       if (action.type === 'RESET') {
-        return { success: false, error: null };
+        return { success: false, error: null }
       }
       // Handle the form submission
-      const res = await saveComment(action.data);
-      if (!res.ok) return { success: false, error: res.message };
-      shouldReset.current = true;
-      return { success: true, error: null };
+      const res = await saveComment(action.data)
+      if (!res.ok) return { success: false, error: res.message }
+      shouldReset.current = true
+      return { success: true, error: null }
     },
-    { success: false, error: null }
-  );
+    { success: false, error: null },
+  )
 
-  const shouldReset = useRef(false);
+  const shouldReset = useRef(false)
 
   // Dispatch RESET when Activity hides this component
   useLayoutEffect(() => {
     return () => {
       if (shouldReset.current) {
-        shouldReset.current = false;
+        shouldReset.current = false
         startTransition(() => {
-          dispatch({ type: 'RESET' });
-        });
+          dispatch({ type: 'RESET' })
+        })
       }
-    };
-  }, [dispatch]);
+    }
+  }, [dispatch])
 
   return (
-    <form action={(formData) => dispatch({ type: 'SUBMIT', data: formData })}>
+    <form action={formData => dispatch({ type: 'SUBMIT', data: formData })}>
       <textarea name="comment" />
       <button type="submit" disabled={isPending}>
         {isPending ? 'Posting...' : 'Post Comment'}
@@ -234,7 +227,7 @@ function CommentForm() {
       {state.success && <p>Comment posted!</p>}
       {state.error && <p>{state.error}</p>}
     </form>
-  );
+  )
 }
 ```
 
@@ -254,22 +247,22 @@ For logout flows, using `window.location.href` instead of `router.push` triggers
 To reset specific state when the user changes without a full reload:
 
 ```tsx
-'use client';
+'use client'
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react'
 
 function UserScopedForm({ userId }: { userId: string | null }) {
-  const [draft, setDraft] = useState('');
-  const lastUserIdRef = useRef<string | null>(null);
+  const [draft, setDraft] = useState('')
+  const lastUserIdRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (lastUserIdRef.current !== null && lastUserIdRef.current !== userId) {
-      setDraft(''); // Reset on user change
+      setDraft('') // Reset on user change
     }
-    lastUserIdRef.current = userId;
-  }, [userId]);
+    lastUserIdRef.current = userId
+  }, [userId])
 
-  return <textarea value={draft} onChange={(e) => setDraft(e.target.value)} />;
+  return <textarea value={draft} onChange={e => setDraft(e.target.value)} />
 }
 ```
 
@@ -283,11 +276,11 @@ Use a callback ref to toggle the stylesheet's `media` attribute:
 
 ```tsx
 <style
-  ref={(style) => {
-    if (style) style.media = ''; // Enable when visible
+  ref={style => {
+    if (style) style.media = '' // Enable when visible
     return () => {
-      if (style) style.media = 'not all'; // Disable when hidden
-    };
+      if (style) style.media = 'not all' // Disable when hidden
+    }
   }}
 >
   {`:root { --page-accent: blue; }`}
@@ -297,21 +290,21 @@ Use a callback ref to toggle the stylesheet's `media` attribute:
 Or use `useLayoutEffect` when managing multiple style elements or more complex cleanup:
 
 ```tsx
-'use client';
+'use client'
 
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react'
 
 function PageWithStyles() {
-  const styleRef = useRef<HTMLStyleElement>(null);
+  const styleRef = useRef<HTMLStyleElement>(null)
 
   useLayoutEffect(() => {
-    if (styleRef.current) styleRef.current.media = '';
+    if (styleRef.current) styleRef.current.media = ''
     return () => {
-      if (styleRef.current) styleRef.current.media = 'not all';
-    };
-  }, []);
+      if (styleRef.current) styleRef.current.media = 'not all'
+    }
+  }, [])
 
-  return <style ref={styleRef}>{`:root { --page-accent: blue; }`}</style>;
+  return <style ref={styleRef}>{`:root { --page-accent: blue; }`}</style>
 }
 ```
 

@@ -43,7 +43,7 @@ A zone is a normal Next.js application where you also configure an [assetPrefix]
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   assetPrefix: '/blog-static',
-};
+}
 ```
 
 Next.js assets, such as JavaScript and CSS, will be prefixed with `assetPrefix` to make sure that they don't conflict with assets from other zones. These assets will be served under `/assetPrefix/_next/...` for each of the zones.
@@ -64,9 +64,9 @@ const nextConfig = {
           destination: '/_next/:path+',
         },
       ],
-    };
+    }
   },
-};
+}
 ```
 
 ## How to route requests to the right zone
@@ -104,9 +104,9 @@ Routing requests through [`rewrites`](/docs/app/api-reference/config/next-config
 
 ```js filename="proxy.js"
 export async function proxy(request) {
-  const { pathname, search } = request.nextUrl;
+  const { pathname, search } = request.nextUrl
   if (pathname === '/your-path' && myFeatureFlag.isEnabled()) {
-    return NextResponse.rewrite(`${rewriteDomain}${pathname}${search}`);
+    return NextResponse.rewrite(`${rewriteDomain}${pathname}${search}`)
   }
 }
 ```
@@ -134,7 +134,7 @@ const nextConfig = {
       allowedOrigins: ['your-production-domain.com'],
     },
   },
-};
+}
 ```
 
 See [`serverActions.allowedOrigins`](/docs/app/api-reference/config/next-config-js/serverActions#allowedorigins) for more information.

@@ -18,9 +18,9 @@ module.exports = {
         destination: '/',
         permanent: true,
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 `redirects` is an async function that expects an array to be returned holding objects with `source`, `destination`, and `permanent` properties:
@@ -67,9 +67,9 @@ module.exports = {
         destination: '/news/:slug', // Matched parameters can be used in the destination
         permanent: true,
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 The pattern `/old-blog/:slug` matches `/old-blog/first-post` and `/old-blog/post-1` but not `/old-blog/a/b` (no nested paths). Patterns are anchored to the start: `/old-blog/:slug` will not match `/archive/old-blog/first-post`.
@@ -91,9 +91,9 @@ module.exports = {
         destination: '/news/:slug*', // Matched parameters can be used in the destination
         permanent: true,
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 ### Regex Path Matching
@@ -109,9 +109,9 @@ module.exports = {
         destination: '/news/:slug', // Matched parameters can be used in the destination
         permanent: false,
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 The following characters `(`, `)`, `{`, `}`, `:`, `*`, `+`, `?` are used for regex path matching, so when used in the `source` as non-special values they must be escaped by adding `\\` before them:
@@ -126,9 +126,9 @@ module.exports = {
         destination: '/en-us/:slug',
         permanent: false,
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 ## Header, Cookie, and Query Matching
@@ -220,9 +220,9 @@ module.exports = {
         permanent: false,
         destination: '/another-page',
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 ### Redirects with basePath support
@@ -247,9 +247,9 @@ module.exports = {
         basePath: false,
         permanent: false,
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 ### Redirects with i18n support
@@ -288,9 +288,9 @@ module.exports = {
         destination: '/:locale/new-section/:path*',
         permanent: false,
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 </AppOnly>
@@ -341,9 +341,9 @@ module.exports = {
         destination: '/another',
         permanent: false,
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 </PagesOnly>

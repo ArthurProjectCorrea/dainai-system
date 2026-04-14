@@ -29,11 +29,7 @@ npx shadcn@latest add spinner
 
 <Step>Copy and paste the following code into your project.</Step>
 
-<ComponentSource
-  name="spinner"
-  title="components/ui/spinner.tsx"
-  styleName="radix-nova"
-/>
+<ComponentSource name="spinner" title="components/ui/spinner.tsx" styleName="radix-nova" />
 
 <Step>Update the import paths to match your project setup.</Step>
 
@@ -46,7 +42,7 @@ npx shadcn@latest add spinner
 ## Usage
 
 ```tsx
-import { Spinner } from '@/components/ui/spinner';
+import { Spinner } from '@/components/ui/spinner'
 ```
 
 ```tsx
@@ -60,9 +56,9 @@ You can replace the default spinner icon with any other icon by editing the `Spi
 <ComponentPreview styleName="radix-nova" name="spinner-custom" />
 
 ```tsx showLineNumbers title="components/ui/spinner.tsx"
-import { LoaderIcon } from 'lucide-react';
+import { LoaderIcon } from 'lucide-react'
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils'
 
 function Spinner({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
@@ -72,10 +68,10 @@ function Spinner({ className, ...props }: React.ComponentProps<'svg'>) {
       className={cn('size-4 animate-spin', className)}
       {...props}
     />
-  );
+  )
 }
 
-export { Spinner };
+export { Spinner }
 ```
 
 ## Examples

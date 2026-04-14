@@ -41,11 +41,7 @@ npm install @base-ui/react
 
 <Step>Copy and paste the following code into your project.</Step>
 
-<ComponentSource
-  name="combobox"
-  title="components/ui/combobox.tsx"
-  styleName="base-nova"
-/>
+<ComponentSource name="combobox" title="components/ui/combobox.tsx" styleName="base-nova" />
 
 <Step>Update the import paths to match your project setup.</Step>
 
@@ -65,11 +61,11 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-} from '@/components/ui/combobox';
+} from '@/components/ui/combobox'
 ```
 
 ```tsx showLineNumbers
-const frameworks = ['Next.js', 'SvelteKit', 'Nuxt.js', 'Remix', 'Astro'];
+const frameworks = ['Next.js', 'SvelteKit', 'Nuxt.js', 'Remix', 'Astro']
 
 export function ExampleCombobox() {
   return (
@@ -78,7 +74,7 @@ export function ExampleCombobox() {
       <ComboboxContent>
         <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
-          {(item) => (
+          {item => (
             <ComboboxItem key={item} value={item}>
               {item}
             </ComboboxItem>
@@ -86,7 +82,7 @@ export function ExampleCombobox() {
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
-  );
+  )
 }
 ```
 
@@ -95,7 +91,7 @@ export function ExampleCombobox() {
 Use `itemToStringValue` when your items are objects.
 
 ```tsx showLineNumbers
-import * as React from 'react';
+import * as React from 'react'
 
 import {
   Combobox,
@@ -104,30 +100,27 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-} from '@/components/ui/combobox';
+} from '@/components/ui/combobox'
 
 type Framework = {
-  label: string;
-  value: string;
-};
+  label: string
+  value: string
+}
 
 const frameworks: Framework[] = [
   { label: 'Next.js', value: 'next' },
   { label: 'SvelteKit', value: 'sveltekit' },
   { label: 'Nuxt', value: 'nuxt' },
-];
+]
 
 export function ExampleComboboxCustomItems() {
   return (
-    <Combobox
-      items={frameworks}
-      itemToStringValue={(framework) => framework.label}
-    >
+    <Combobox items={frameworks} itemToStringValue={framework => framework.label}>
       <ComboboxInput placeholder="Select a framework" />
       <ComboboxContent>
         <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
-          {(framework) => (
+          {framework => (
             <ComboboxItem key={framework.value} value={framework}>
               {framework.label}
             </ComboboxItem>
@@ -135,7 +128,7 @@ export function ExampleComboboxCustomItems() {
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
-  );
+  )
 }
 ```
 
@@ -144,7 +137,7 @@ export function ExampleComboboxCustomItems() {
 Use `multiple` with chips for multi-select behavior.
 
 ```tsx showLineNumbers
-import * as React from 'react';
+import * as React from 'react'
 
 import {
   Combobox,
@@ -157,23 +150,18 @@ import {
   ComboboxItem,
   ComboboxList,
   ComboboxValue,
-} from '@/components/ui/combobox';
+} from '@/components/ui/combobox'
 
-const frameworks = ['Next.js', 'SvelteKit', 'Nuxt.js', 'Remix', 'Astro'];
+const frameworks = ['Next.js', 'SvelteKit', 'Nuxt.js', 'Remix', 'Astro']
 
 export function ExampleComboboxMultiple() {
-  const [value, setValue] = React.useState<string[]>([]);
+  const [value, setValue] = React.useState<string[]>([])
 
   return (
-    <Combobox
-      items={frameworks}
-      multiple
-      value={value}
-      onValueChange={setValue}
-    >
+    <Combobox items={frameworks} multiple value={value} onValueChange={setValue}>
       <ComboboxChips>
         <ComboboxValue>
-          {value.map((item) => (
+          {value.map(item => (
             <ComboboxChip key={item}>{item}</ComboboxChip>
           ))}
         </ComboboxValue>
@@ -182,7 +170,7 @@ export function ExampleComboboxMultiple() {
       <ComboboxContent>
         <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
-          {(item) => (
+          {item => (
             <ComboboxItem key={item} value={item}>
               {item}
             </ComboboxItem>
@@ -190,7 +178,7 @@ export function ExampleComboboxMultiple() {
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
-  );
+  )
 }
 ```
 
@@ -260,12 +248,7 @@ You can add an addon to the combobox by using the `InputGroupAddon` component in
 
 To enable RTL support in shadcn/ui, see the [RTL configuration guide](/docs/rtl).
 
-<ComponentPreview
-  styleName="radix-nova"
-  name="combobox-rtl"
-  direction="rtl"
-  align="start"
-/>
+<ComponentPreview styleName="radix-nova" name="combobox-rtl" direction="rtl" align="start" />
 
 ## API Reference
 

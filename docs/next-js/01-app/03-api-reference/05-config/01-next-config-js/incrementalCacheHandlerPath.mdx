@@ -12,7 +12,7 @@ You can configure the Next.js cache location if you want to persist cached pages
 module.exports = {
   cacheHandler: require.resolve('./cache-handler.js'),
   cacheMaxMemorySize: 0, // disable default in-memory caching
-};
+}
 ```
 
 View an example of a [custom cache handler](/docs/app/guides/self-hosting#configuring-caching) and learn more about the implementation.
@@ -72,7 +72,7 @@ module.exports = {
   images: {
     customCacheHandler: true,
   },
-};
+}
 ```
 
 > **Good to know**: This opt-in flag will become the default behavior in the next major version. Setting it now allows you to prepare your cache handler for image optimization entries.

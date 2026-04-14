@@ -45,18 +45,17 @@ This `registry.json` file must conform to the [registry schema specification](/d
 Add your first component. Here's an example of a simple `<HelloWorld />` component:
 
 ```tsx title="registry/new-york/hello-world/hello-world.tsx" showLineNumbers
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 
 export function HelloWorld() {
-  return <Button>Hello World</Button>;
+  return <Button>Hello World</Button>
 }
 ```
 
 <Callout className="mt-6">
-  **Note:** This example places the component in the `registry/new-york`
-  directory. You can place it anywhere in your project as long as you set the
-  correct path in the `registry.json` file and you follow the `registry/[NAME]`
-  directory structure.
+  **Note:** This example places the component in the `registry/new-york` directory. You can place it
+  anywhere in your project as long as you set the correct path in the `registry.json` file and you
+  follow the `registry/[NAME]` directory structure.
 </Callout>
 
 ```txt

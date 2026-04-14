@@ -16,7 +16,6 @@
 - **Arquitetura Escalável**: Hook `useAdminPage` e components de layout desacoplados.
 - Estrutura modular (actions, provider, sidebar, forms).
 
-
 ## Proximos passos naturais
 
 1. Cobertura de testes E2E para auth e troca de time.

@@ -17,7 +17,7 @@ The `cacheLife` option allows you to define **custom cache profiles** when using
 To define a profile, enable the [`cacheComponents` flag](/docs/app/api-reference/config/next-config-js/cacheComponents) and add the cache profile in the `cacheLife` object in the `next.config.js` file. For example, a `blog` profile:
 
 ```ts filename="next.config.ts" switcher
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
@@ -28,9 +28,9 @@ const nextConfig: NextConfig = {
       expire: 86400, // 1 day
     },
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
 ```
 
 ```js filename="next.config.js" switcher
@@ -43,30 +43,30 @@ module.exports = {
       expire: 86400, // 1 day
     },
   },
-};
+}
 ```
 
 You can now use this custom `blog` configuration in your component or function as follows:
 
 ```tsx filename="app/actions.ts" highlight={4,5} switcher
-import { cacheLife } from 'next/cache';
+import { cacheLife } from 'next/cache'
 
 export async function getCachedData() {
-  'use cache';
-  cacheLife('blog');
-  const data = await fetch('/api/data');
-  return data;
+  'use cache'
+  cacheLife('blog')
+  const data = await fetch('/api/data')
+  return data
 }
 ```
 
 ```jsx filename="app/actions.js" highlight={4,5} switcher
-import { cacheLife } from 'next/cache';
+import { cacheLife } from 'next/cache'
 
 export async function getCachedData() {
-  'use cache';
-  cacheLife('blog');
-  const data = await fetch('/api/data');
-  return data;
+  'use cache'
+  cacheLife('blog')
+  const data = await fetch('/api/data')
+  return data
 }
 ```
 

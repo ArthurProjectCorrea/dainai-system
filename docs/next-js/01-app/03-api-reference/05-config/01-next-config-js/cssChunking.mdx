@@ -9,15 +9,15 @@ CSS Chunking is a strategy used to improve the performance of your web applicati
 You can control how CSS files are chunked using the `experimental.cssChunking` option in your `next.config.js` file:
 
 ```tsx filename="next.config.ts" switcher
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const nextConfig = {
   experimental: {
     cssChunking: true, // default
   },
-} satisfies NextConfig;
+} satisfies NextConfig
 
-export default nextConfig;
+export default nextConfig
 ```
 
 ```js filename="next.config.js" switcher
@@ -26,9 +26,9 @@ const nextConfig = {
   experimental: {
     cssChunking: true, // default
   },
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
 ```
 
 ## Options

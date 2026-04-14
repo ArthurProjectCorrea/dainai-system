@@ -13,7 +13,7 @@ Open `next.config.js` and add the `expireTime` config:
 module.exports = {
   // one hour in seconds
   expireTime: 3600,
-};
+}
 ```
 
 Now when sending the `Cache-Control` header the expire time will be calculated depending on the specific revalidate period.

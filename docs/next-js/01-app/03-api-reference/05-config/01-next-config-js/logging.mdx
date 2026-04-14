@@ -20,7 +20,7 @@ module.exports = {
       fullUrl: true,
     },
   },
-};
+}
 ```
 
 Any `fetch` requests that are restored from the [Server Components HMR cache](/docs/app/api-reference/config/next-config-js/serverComponentsHmrCache) are not logged by default. However, this can be enabled by setting `logging.fetches.hmrRefreshes` to `true`.
@@ -32,7 +32,7 @@ module.exports = {
       hmrRefreshes: true,
     },
   },
-};
+}
 ```
 
 ### Server Functions
@@ -44,7 +44,7 @@ module.exports = {
   logging: {
     serverFunctions: false,
   },
-};
+}
 ```
 
 When enabled, the terminal displays each Server Function call with its function name, arguments, and duration:
@@ -68,7 +68,7 @@ module.exports = {
       ignore: [/\api\/v1\/health/],
     },
   },
-};
+}
 ```
 
 Or you can disable incoming request logging by setting `incomingRequests` to `false`.
@@ -78,7 +78,7 @@ module.exports = {
   logging: {
     incomingRequests: false,
   },
-};
+}
 ```
 
 ### Browser Console Logs
@@ -90,7 +90,7 @@ module.exports = {
   logging: {
     browserToTerminal: true,
   },
-};
+}
 ```
 
 #### Options
@@ -109,7 +109,7 @@ module.exports = {
   logging: {
     browserToTerminal: 'warn',
   },
-};
+}
 ```
 
 #### Source Location
@@ -119,19 +119,19 @@ When enabled, browser logs include source location information (file path and li
 <AppOnly>
 
 ```tsx filename="app/page.tsx" highlight={8}
-'use client';
+'use client'
 
 export default function Home() {
   return (
     <button
       type="button"
       onClick={() => {
-        console.log('Hello World');
+        console.log('Hello World')
       }}
     >
       Click me
     </button>
-  );
+  )
 }
 ```
 
@@ -151,12 +151,12 @@ export default function Home() {
     <button
       type="button"
       onClick={() => {
-        console.log('Hello World');
+        console.log('Hello World')
       }}
     >
       Click me
     </button>
-  );
+  )
 }
 ```
 
@@ -175,7 +175,7 @@ In addition, you can disable the development logging by setting `logging` to `fa
 ```js filename="next.config.js"
 module.exports = {
   logging: false,
-};
+}
 ```
 
 ## Version History

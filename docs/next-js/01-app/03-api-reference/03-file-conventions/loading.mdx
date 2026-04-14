@@ -16,14 +16,14 @@ The special file `loading.js` helps you create meaningful Loading UI with [React
 ```tsx filename="app/feed/loading.tsx" switcher
 export default function Loading() {
   // Or a custom loading skeleton component
-  return <p>Loading...</p>;
+  return <p>Loading...</p>
 }
 ```
 
 ```jsx filename="app/feed/loading.js" switcher
 export default function Loading() {
   // Or a custom loading skeleton component
-  return <p>Loading...</p>;
+  return <p>Loading...</p>
 }
 ```
 
@@ -62,14 +62,14 @@ Create a loading state by adding a `loading.js` file inside a folder.
 ```tsx filename="app/dashboard/loading.tsx" switcher
 export default function Loading() {
   // You can add any UI inside Loading, including a Skeleton.
-  return <LoadingSkeleton />;
+  return <LoadingSkeleton />
 }
 ```
 
 ```jsx filename="app/dashboard/loading.js" switcher
 export default function Loading() {
   // You can add any UI inside Loading, including a Skeleton.
-  return <LoadingSkeleton />;
+  return <LoadingSkeleton />
 }
 ```
 
@@ -136,8 +136,8 @@ In addition to `loading.js`, you can also manually create Suspense Boundaries fo
 `<Suspense>` works by wrapping a component that performs an asynchronous action (e.g. fetch data), showing fallback UI (e.g. skeleton, spinner) while it's happening, and then swapping in your component once the action completes.
 
 ```tsx filename="app/dashboard/page.tsx" switcher
-import { Suspense } from 'react';
-import { PostFeed, Weather } from './Components';
+import { Suspense } from 'react'
+import { PostFeed, Weather } from './Components'
 
 export default function Posts() {
   return (
@@ -149,13 +149,13 @@ export default function Posts() {
         <Weather />
       </Suspense>
     </section>
-  );
+  )
 }
 ```
 
 ```jsx filename="app/dashboard/page.js" switcher
-import { Suspense } from 'react';
-import { PostFeed, Weather } from './Components';
+import { Suspense } from 'react'
+import { PostFeed, Weather } from './Components'
 
 export default function Posts() {
   return (
@@ -167,7 +167,7 @@ export default function Posts() {
         <Weather />
       </Suspense>
     </section>
-  );
+  )
 }
 ```
 

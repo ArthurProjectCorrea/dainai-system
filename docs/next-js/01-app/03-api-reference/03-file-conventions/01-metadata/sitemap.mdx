@@ -44,7 +44,7 @@ You can use the `sitemap.(js|ts)` file convention to programmatically **generate
 > **Good to know**: `sitemap.js` is a special Route Handler that is cached by default unless it uses a [Dynamic API](/docs/app/guides/caching#dynamic-apis) or [dynamic config](/docs/app/guides/caching#segment-config-options) option.
 
 ```ts filename="app/sitemap.ts" switcher
-import type { MetadataRoute } from 'next';
+import type { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -66,7 +66,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.5,
     },
-  ];
+  ]
 }
 ```
 
@@ -91,7 +91,7 @@ export default function sitemap() {
       changeFrequency: 'weekly',
       priority: 0.5,
     },
-  ];
+  ]
 }
 ```
 
@@ -125,7 +125,7 @@ Output:
 You can use `images` property to create image sitemaps. Learn more details in the [Google Developer Docs](https://developers.google.com/search/docs/crawling-indexing/sitemaps/image-sitemaps).
 
 ```ts filename="app/sitemap.ts" switcher
-import type { MetadataRoute } from 'next';
+import type { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -136,7 +136,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.5,
       images: ['https://example.com/image.jpg'],
     },
-  ];
+  ]
 }
 ```
 
@@ -165,7 +165,7 @@ Output:
 You can use `videos` property to create video sitemaps. Learn more details in the [Google Developer Docs](https://developers.google.com/search/docs/crawling-indexing/sitemaps/video-sitemaps).
 
 ```ts filename="app/sitemap.ts" switcher
-import type { MetadataRoute } from 'next';
+import type { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -182,7 +182,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
       ],
     },
-  ];
+  ]
 }
 ```
 
@@ -211,7 +211,7 @@ Output:
 ### Generate a localized Sitemap
 
 ```ts filename="app/sitemap.ts" switcher
-import type { MetadataRoute } from 'next';
+import type { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -245,7 +245,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
       },
     },
-  ];
+  ]
 }
 ```
 
@@ -282,7 +282,7 @@ export default function sitemap() {
         },
       },
     },
-  ];
+  ]
 }
 ```
 
@@ -341,51 +341,51 @@ There are two ways you can create multiple sitemaps:
 For example, to split a sitemap using `generateSitemaps`, return an array of objects with the sitemap `id`. Then, use the `id` to generate the unique sitemaps.
 
 ```ts filename="app/product/sitemap.ts" switcher
-import type { MetadataRoute } from 'next';
-import { BASE_URL } from '@/app/lib/constants';
+import type { MetadataRoute } from 'next'
+import { BASE_URL } from '@/app/lib/constants'
 
 export async function generateSitemaps() {
   // Fetch the total number of products and calculate the number of sitemaps needed
-  return [{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }];
+  return [{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }]
 }
 
 export default async function sitemap(props: {
-  id: Promise<string>;
+  id: Promise<string>
 }): Promise<MetadataRoute.Sitemap> {
-  const id = await props.id;
+  const id = await props.id
   // Google's limit is 50,000 URLs per sitemap
-  const start = id * 50000;
-  const end = start + 50000;
+  const start = id * 50000
+  const end = start + 50000
   const products = await getProducts(
-    `SELECT id, date FROM products WHERE id BETWEEN ${start} AND ${end}`
-  );
-  return products.map((product) => ({
+    `SELECT id, date FROM products WHERE id BETWEEN ${start} AND ${end}`,
+  )
+  return products.map(product => ({
     url: `${BASE_URL}/product/${product.id}`,
     lastModified: product.date,
-  }));
+  }))
 }
 ```
 
 ```js filename="app/product/sitemap.js" switcher
-import { BASE_URL } from '@/app/lib/constants';
+import { BASE_URL } from '@/app/lib/constants'
 
 export async function generateSitemaps() {
   // Fetch the total number of products and calculate the number of sitemaps needed
-  return [{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }];
+  return [{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }]
 }
 
 export default async function sitemap(props) {
-  const id = await props.id;
+  const id = await props.id
   // Google's limit is 50,000 URLs per sitemap
-  const start = id * 50000;
-  const end = start + 50000;
+  const start = id * 50000
+  const end = start + 50000
   const products = await getProducts(
-    `SELECT id, date FROM products WHERE id BETWEEN ${start} AND ${end}`
-  );
-  return products.map((product) => ({
+    `SELECT id, date FROM products WHERE id BETWEEN ${start} AND ${end}`,
+  )
+  return products.map(product => ({
     url: `${BASE_URL}/product/${product.id}`,
     lastModified: product.date,
-  }));
+  }))
 }
 ```
 
@@ -399,21 +399,14 @@ The default function exported from `sitemap.(xml|ts|js)` should return an array 
 
 ```tsx
 type Sitemap = Array<{
-  url: string;
-  lastModified?: string | Date;
-  changeFrequency?:
-    | 'always'
-    | 'hourly'
-    | 'daily'
-    | 'weekly'
-    | 'monthly'
-    | 'yearly'
-    | 'never';
-  priority?: number;
+  url: string
+  lastModified?: string | Date
+  changeFrequency?: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'
+  priority?: number
   alternates?: {
-    languages?: Languages<string>;
-  };
-}>;
+    languages?: Languages<string>
+  }
+}>
 ```
 
 ## Version History

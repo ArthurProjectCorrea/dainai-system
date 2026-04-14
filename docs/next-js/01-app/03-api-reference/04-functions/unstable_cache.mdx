@@ -32,7 +32,7 @@ export default async function Component({ userID }) {
 ## Parameters
 
 ```jsx
-const data = unstable_cache(fetchData, keyParts, options)();
+const data = unstable_cache(fetchData, keyParts, options)()
 ```
 
 - `fetchData`: This is an asynchronous function that fetches the data you want to cache. It must be a function that returns a `Promise`.
@@ -48,24 +48,20 @@ const data = unstable_cache(fetchData, keyParts, options)();
 ## Example
 
 ```tsx filename="app/page.tsx" switcher
-import { unstable_cache } from 'next/cache';
+import { unstable_cache } from 'next/cache'
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ userId: string }>;
-}) {
-  const { userId } = await params;
+export default async function Page({ params }: { params: Promise<{ userId: string }> }) {
+  const { userId } = await params
   const getCachedUser = unstable_cache(
     async () => {
-      return { id: userId };
+      return { id: userId }
     },
     [userId], // add the user ID to the cache key
     {
       tags: ['users'],
       revalidate: 60,
-    }
-  );
+    },
+  )
 
   //...
 }

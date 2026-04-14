@@ -52,11 +52,7 @@ npm install radix-ui
 ## Usage
 
 ```tsx
-import {
-  ButtonGroup,
-  ButtonGroupSeparator,
-  ButtonGroupText,
-} from '@/components/ui/button-group';
+import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from '@/components/ui/button-group'
 ```
 
 ```tsx
@@ -152,11 +148,7 @@ Use with a `Popover` component.
 
 To enable RTL support in shadcn/ui, see the [RTL configuration guide](/docs/rtl).
 
-<ComponentPreview
-  styleName="radix-nova"
-  name="button-group-rtl"
-  direction="rtl"
-/>
+<ComponentPreview styleName="radix-nova" name="button-group-rtl" direction="rtl" />
 
 ## API Reference
 
@@ -218,8 +210,8 @@ Use this component to display text within a button group.
 Use the `asChild` prop to render a custom component as the text, for example a label.
 
 ```tsx showLineNumbers
-import { ButtonGroupText } from '@/components/ui/button-group';
-import { Label } from '@/components/ui/label';
+import { ButtonGroupText } from '@/components/ui/button-group'
+import { Label } from '@/components/ui/label'
 
 export function ButtonGroupTextDemo() {
   return (
@@ -229,6 +221,6 @@ export function ButtonGroupTextDemo() {
       </ButtonGroupText>
       <Input placeholder="Type something here..." id="name" />
     </ButtonGroup>
-  );
+  )
 }
 ```
