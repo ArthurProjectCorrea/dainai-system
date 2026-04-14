@@ -11,7 +11,7 @@ docs/project/api/
 ├── README.md                    (Visão geral e Quick Start)
 ├── INDEX.md                     (Mapa de navegação)
 ├── ARCHITECTURE.md              (Estrutura em 4 camadas)
-├── ENDPOINTS.md                 (16 endpoints documentados)
+├── ENDPOINTS.md                 (18 endpoints documentados)
 ├── AUTHENTICATION.md            (Fluxos de login/OTP/reset)
 ├── AUTHORIZATION-RBAC.md        (Sistema de permissões)
 ├── MODELS.md                    (Entidades e DTOs)
@@ -39,9 +39,9 @@ docs/project/api/
 
 ### 📡 APIs (3 arquivos)
 
-- ✅ 16 endpoints documentados
+- ✅ 18 endpoints documentados
 - ✅ 6 de autenticação
-- ✅ 10 administrativos
+- ✅ 12 administrativos
 - ✅ Exemplos de request/response
 - ✅ Códigos HTTP corretos
 - ✅ Rate limits

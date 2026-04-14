@@ -758,12 +758,12 @@ Content-Type: application/json
 }
 ```
 
-**Sucesso (200)**
+**Sucesso (201)**
 
 ```json
 {
-  "code": "200",
-  "message": "Time criado com sucesso",
+  "code": "201",
+  "message": "Equipe criada com sucesso",
   "data": {
     "id": "770e8400-e29b-41d4-a716-446655440000",
     "name": "Desenvolvimento",
@@ -782,7 +782,6 @@ curl -X POST http://localhost:5000/api/v1/admin/teams \
   -H "Content-Type: application/json" \
   -b "cookies.txt" \
   -d '{
-    "id": "00000000-0000-0000-0000-000000000000",
     "name": "Desenvolvimento",
     "logotipoUrl": null,
     "isActive": true
@@ -791,9 +790,81 @@ curl -X POST http://localhost:5000/api/v1/admin/teams \
 
 ---
 
+### 15. Atualizar Time
+
+Atualiza os dados de uma equipe existente.
+
+```
+PUT /admin/teams/{id}
+```
+
+**Path Parameters**
+
+```
+id: Guid (ex: d123...)
+```
+
+**Body**
+
+```json
+{
+  "name": "Marketing Digital",
+  "logotipoUrl": "/uploads/logo.png",
+  "isActive": true
+}
+```
+
+**Sucesso (200)**
+
+```json
+{
+  "code": "200",
+  "message": "Equipe atualizada com sucesso",
+  "data": {
+    "id": "d123...",
+    "name": "Marketing Digital",
+    "logotipoUrl": "/uploads/logo.png",
+    "isActive": true
+  }
+}
+```
+
+**Permissões**: 🔒 `teams_management:update`
+
+---
+
+### 16. Remover Time (Soft Delete)
+
+Remove uma equipe logicamente (setando `DeletedAt`).
+
+```
+DELETE /admin/teams/{id}
+```
+
+**Path Parameters**
+
+```
+id: Guid (ex: d123...)
+```
+
+**Sucesso (200)**
+
+```json
+{
+  "code": "200",
+  "message": "Equipe removida com sucesso",
+  "data": null
+}
+```
+
+**Permissões**: 🔒 `teams_management:delete`
+
+---
+
+
 ## 🖥️ Admin - Gerenciamento de Telas (`/admin/screens`)
 
-### 15. Listar Screens
+### 17. Listar Screens
 
 Lista todas as telas/módulos do sistema.
 
@@ -829,7 +900,7 @@ curl -X GET http://localhost:5000/api/v1/admin/screens \
 
 ---
 
-### 16. Atualizar Screen
+### 18. Atualizar Screen
 
 Atualiza propriedades de uma tela.
 

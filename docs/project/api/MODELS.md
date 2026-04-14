@@ -302,7 +302,6 @@ public class Team
 **Exemplo**:
 
 ```json
-{
   "id": "660e8400-e29b-41d4-a716-446655440000",
   "name": "Operações",
   "logotipoUrl": "https://cdn.example.com/ops-logo.png",
@@ -311,6 +310,20 @@ public class Team
 ```
 
 ---
+
+## 🏗️ BaseEntity
+
+Todas as entidades herdam propriedades comuns de auditoria.
+
+```csharp
+public abstract class BaseEntity<TId>
+{
+    public TId Id { get; set; } = default!;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; set; }
+    public DateTime? DeletedAt { get; set; }        // Soft Delete
+}
+```
 
 ## 🔗 Entidade: ProfileTeam (Vinculação)
 
@@ -434,7 +447,12 @@ public record ScreenDto(int Id, string Name, string NameSidebar, string NameKey)
 
 public record AccessDto(string NameKey, string NameSidebar, List<string> Permissions);
 
-public record UserTeamDto(Guid Id, string Name, string? LogotipoUrl);
+public record UserTeamDto(
+    Guid Id, 
+    string Name, 
+    string? LogotipoUrl,
+    [property: JsonPropertyName("isActive")] bool IsActive
+);
 
 public record TeamAccessDto(
     Guid TeamId,
@@ -468,7 +486,8 @@ public record ApiResponse<T>(string Code, string Message, T? Data);
     {
       "id": "660e8400-e29b-41d4-a716-446655440000",
       "name": "Operações",
-      "logotipoUrl": null
+      "logotipoUrl": null,
+      "isActive": true
     }
   ],
   "teamAccesses": [

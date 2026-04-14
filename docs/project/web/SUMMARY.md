@@ -5,13 +5,17 @@
 - Fluxo completo de autenticacao e recuperacao de senha.
 - Protecao de rotas privadas em borda com `proxy.ts`.
 - Integracao transparente com API C# via reescrita de `/api/*`.
-- RBAC por time com selecao de time ativo e filtro dinamico de menu.
+- RBAC por time com seleção de time ativo e filtro dinâmico de menu.
+- **Padronização Admin**: Novo sistema de layouts e hooks para acelerar a criação de telas administrativas.
+- **Gerenciamento de Equipes**: CRUD completo com suporte a soft-delete e gestão de status ativo/inativo.
 
 ## Pontos fortes
 
-- Sessao baseada em cookie HTTP-only.
+- Sessão baseada em cookie HTTP-only.
 - Contrato `/api/v1/auth/me` alinhado ao modelo por time (`teamAccesses`).
+- **Arquitetura Escalável**: Hook `useAdminPage` e components de layout desacoplados.
 - Estrutura modular (actions, provider, sidebar, forms).
+
 
 ## Proximos passos naturais
 

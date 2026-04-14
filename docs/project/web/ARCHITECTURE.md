@@ -46,8 +46,28 @@ graph TD
   D --> F[Cookie de sessao + RBAC por time]
 ```
 
-## Decisoes Importantes
+## Módulos Administrativos Padronizados
 
-- Sessao em cookie HTTP-only para reduzir exposicao de token no cliente.
-- Selecao de time ativa no frontend e enviada por header para API.
+Para garantir consistência e facilitar a replicação de telas de CRUD (como Usuários, Times, etc.), a aplicação utiliza um padrão arquitetural baseado em:
+
+### 1. Hook `useAdminPage`
+Centraliza a lógica de:
+- Busca de dados vinculada ao `activeTeamId`.
+- Gerenciamento de estados de carregamento e erro.
+- Cálculo de permissões granulares (`view`, `create`, `update`, `delete`) baseado no `screenKey`.
+
+### 2. Layouts Padronizados (`AdminPageLayout`)
+Conjunto de componentes estruturais:
+- `AdminPage`: Container principal com espaçamento padrão.
+- `AdminPageHeader`: Integração com `PageHeader` e Breadcrumbs.
+- `AdminPageIndicators`: Grid para `StatCard` com métricas.
+- `AdminPageTableContainer`: Container flexível para `DataTable`.
+
+## Decisões Importantes
+
+- Sessão em cookie HTTP-only para reduzir exposição de token no cliente.
+- Seleção de time ativa no frontend e enviada por header para API.
 - Filtro de menu realizado no cliente com base em `teamAccesses`.
+- **Soft Delete**: Entidades administrativas são marcadas como removidas no banco sem exclusão física.
+- **Visualização de Status**: Times inativos são marcados visualmente no switcher e bloqueados para seleção.
+
