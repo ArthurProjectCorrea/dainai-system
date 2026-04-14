@@ -36,18 +36,24 @@ export function proxy(request: NextRequest) {
   }
 
   // 3. Proxy de API para o Backend C#
-  if (pathname.startsWith('/api')) {
-    const backendUrl = new URL(
-      pathname,
-      process.env.BACKEND_API_URL || 'http://localhost:5000/api/v1',
-    )
+  if (pathname.startsWith('/api') || pathname.startsWith('/uploads')) {
+    // For uploads, we don't want to use the /api/v1 prefix if the backendUrl construction would include it incorrectly
+    // The current construction in line 40-42 is: new URL(pathname, 'http://localhost:5000/api/v1')
+    // If pathname is /uploads/foo.png, it results in http://localhost:5000/api/v1/uploads/foo.png
+    // The backend serves it at http://localhost:5000/uploads/foo.png
+
+    const baseBackendUrl = process.env.BACKEND_IMAGE_URL || 'http://localhost:5000'
+    const finalUrl = pathname.startsWith('/uploads')
+      ? new URL(pathname, baseBackendUrl)
+      : new URL(pathname, process.env.BACKEND_API_URL || 'http://localhost:5000/api/v1')
+
     const requestHeaders = new Headers(request.headers)
     const activeTeamId = request.cookies.get('active_team_id')?.value
     if (activeTeamId) {
       requestHeaders.set('X-Active-Team-Id', activeTeamId)
     }
 
-    return NextResponse.rewrite(backendUrl, {
+    return NextResponse.rewrite(finalUrl, {
       request: {
         headers: requestHeaders,
       },

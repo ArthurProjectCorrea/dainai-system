@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { Spinner } from '@/components/ui/spinner'
 import Link from 'next/link'
 
 import { forgotPasswordAction } from '@/app/auth/actions'
@@ -58,6 +59,7 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
         </Field>
         <Field>
           <Button type="submit" disabled={isPending}>
+            {isPending && <Spinner className="mr-2" />}
             {isPending ? 'Enviando...' : 'Enviar Código'}
           </Button>
         </Field>

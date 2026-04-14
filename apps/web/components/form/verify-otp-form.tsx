@@ -3,6 +3,7 @@
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Spinner } from '@/components/ui/spinner'
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@/components/ui/input-otp'
 import Link from 'next/link'
 import { RefreshCwIcon } from 'lucide-react'
@@ -92,6 +93,7 @@ export function VerifyOtpForm({ className, ...props }: React.ComponentProps<'for
         </Field>
         <Field>
           <Button type="submit" className="w-full" disabled={isPending}>
+            {isPending && <Spinner className="mr-2" />}
             {isPending ? 'Verificando...' : 'Verificar'}
           </Button>
         </Field>

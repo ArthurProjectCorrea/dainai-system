@@ -3,6 +3,7 @@
 import * as React from 'react'
 import Image from 'next/image'
 import { Building2, ChevronsUpDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 import {
   DropdownMenu,
@@ -20,19 +21,15 @@ import {
 } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
 
+import { Team } from '@/types/team'
+
 export function TeamSwitcher({
   teams,
   activeTeamId,
   onTeamChange,
   loading = false,
 }: {
-  teams: {
-    id: string
-    name: string
-    position: string
-    logotipoUrl?: string | null
-    logotipo_url?: string | null
-  }[]
+  teams: (Team & { position: string })[]
   activeTeamId: string | null
   onTeamChange: (teamId: string) => void
   loading?: boolean
@@ -40,7 +37,7 @@ export function TeamSwitcher({
   const { isMobile } = useSidebar()
   const activeTeam = teams.find(team => team.id === activeTeamId) ?? teams[0]
   const [logoError, setLogoError] = React.useState(false)
-  const teamLogo = activeTeam ? (activeTeam.logotipo_url ?? activeTeam.logotipoUrl ?? null) : null
+  const teamLogo = activeTeam?.logotipoUrl ?? null
 
   React.useEffect(() => {
     setLogoError(false)
@@ -104,13 +101,14 @@ export function TeamSwitcher({
             <DropdownMenuLabel className="text-xs text-muted-foreground">Times</DropdownMenuLabel>
 
             {teams.map((team, index) => {
-              const teamLogoItem = team.logotipo_url ?? team.logotipoUrl ?? null
+              const teamLogoItem = team.logotipoUrl ?? null
 
               return (
                 <DropdownMenuItem
                   key={team.id}
-                  onClick={() => onTeamChange(team.id)}
-                  className="gap-2 p-2"
+                  onClick={() => team.isActive && onTeamChange(team.id)}
+                  disabled={!team.isActive}
+                  className={cn('gap-2 p-2', !team.isActive && 'opacity-60 cursor-not-allowed')}
                 >
                   <div className="flex size-6 items-center justify-center overflow-hidden rounded-md border">
                     {teamLogoItem ? (
@@ -120,7 +118,7 @@ export function TeamSwitcher({
                         width={24}
                         height={24}
                         unoptimized
-                        className="size-6 object-cover"
+                        className={cn('size-6 object-cover', !team.isActive && 'grayscale')}
                       />
                     ) : (
                       <Building2 className="size-3.5 shrink-0" />
@@ -128,10 +126,12 @@ export function TeamSwitcher({
                   </div>
                   <div className="flex min-w-0 flex-col">
                     <span className="truncate">{team.name}</span>
-                    <span className="truncate text-xs text-muted-foreground">{team.position}</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {team.isActive ? team.position : 'Inativo'}
+                    </span>
                   </div>
                   <DropdownMenuShortcut>
-                    {activeTeam.id === team.id ? 'Ativo' : `Ctrl+${index + 1}`}
+                    {activeTeamId === team.id ? 'Ativo' : team.isActive ? `Ctrl+${index + 1}` : ''}
                   </DropdownMenuShortcut>
                 </DropdownMenuItem>
               )

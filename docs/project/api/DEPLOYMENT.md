@@ -459,6 +459,22 @@ Redis__ConnectionString: redis-prod-1:6379,redis-prod-2:6379
 
 ## 📝 Scripts Úteis
 
+---
+
+## 🆕 Atualizacao Abril 2026
+
+### Persistencia de uploads no docker-compose
+
+O serviço `api` passou a usar volume para persistir arquivos enviados:
+
+```yaml
+api:
+  volumes:
+    - ./apps/api/wwwroot/uploads:/app/wwwroot/uploads
+```
+
+Isso garante que logotipos e imagens de equipes não sejam perdidos ao recriar o container.
+
 ### start.sh
 
 ```bash

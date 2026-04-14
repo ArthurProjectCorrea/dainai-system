@@ -35,6 +35,8 @@ services:
       - mailhog
     ports:
       - '5000:8080'
+    volumes:
+      - ./apps/api/wwwroot/uploads:/app/wwwroot/uploads
 
   # web:
   #   build:

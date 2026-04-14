@@ -446,3 +446,44 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options => {
 ---
 
 **Próximos passos?** 👉 Leia [AUTHORIZATION-RBAC.md](AUTHORIZATION-RBAC.md) para RBAC.
+
+---
+
+## 🆕 Atualizacao Abril 2026
+
+### Cache de RBAC
+
+- A chave principal do contexto de permissao passou para `rbac_v4_{userId}`.
+- Durante login, logout e reset de senha, tambem sao invalidadas chaves legadas (`rbac`, `rbac_v2`, `rbac_v3`) para compatibilidade.
+
+### Contrato de resposta do /auth/me
+
+- `AccessDto` agora inclui `name` alem de `nameKey` e `nameSidebar`.
+- `UserTeamDto` agora inclui `isActive` para controle de times ativos no frontend.
+
+Exemplo simplificado:
+
+```json
+{
+  "teamAccesses": [
+    {
+      "accesses": [
+        {
+          "nameKey": "teams_management",
+          "name": "Gerenciamento de Times",
+          "nameSidebar": "Equipes",
+          "permissions": ["view", "create", "update", "delete"]
+        }
+      ]
+    }
+  ],
+  "teams": [
+    {
+      "id": "...",
+      "name": "Operações",
+      "logotipoUrl": "/uploads/logo.png",
+      "isActive": true
+    }
+  ]
+}
+```

@@ -32,19 +32,19 @@ export const sidebarData = {
       items: [
         {
           title: name_sidebar,
-          url: '/dashboard/access-control',
+          url: '/admin/access-control',
           name_key: 'access_control',
           is_permission: true,
         },
         {
           title: name_sidebar,
-          url: '/dashboard/users',
+          url: '/admin/users',
           name_key: 'users_management',
           is_permission: true,
         },
         {
           title: name_sidebar,
-          url: '/dashboard/teams',
+          url: '/admin/teams',
           name_key: 'teams_management',
           is_permission: true,
         },

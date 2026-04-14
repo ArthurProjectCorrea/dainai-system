@@ -12,5 +12,6 @@ namespace Api.Application.Interfaces
         Task<ApiResponse<object>> ForgotPasswordAsync(string email);
         Task<ApiResponse<VerifyOtpResponse>> VerifyOtpAsync(VerifyOtpRequest request);
         Task<ApiResponse<object>> ResetPasswordAsync(string resetToken, string newPassword);
+        Task<bool> HasPermissionAsync(Guid userId, Guid? activeTeamId, string screen, string permission);
     }
 }

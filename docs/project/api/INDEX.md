@@ -21,7 +21,7 @@ Esta página ajuda a navegar entre os arquivos de documentação da DAINAI API.
    - Padrões de integração
 
 3. **[ENDPOINTS.md](ENDPOINTS.md)**
-   - Todos os 16 endpoints
+   - Todos os 19 endpoints
    - Request/Response examples
    - Códigos HTTP
 
@@ -56,11 +56,12 @@ Esta página ajuda a navegar entre os arquivos de documentação da DAINAI API.
 
 ### Lógica de Negócio
 
-| Tópico      | Arquivo                        | Descrição                     |
-| ----------- | ------------------------------ | ----------------------------- |
-| 🧠 Serviços | [SERVICES.md](SERVICES.md)     | Implementação de services, DI |
-| 🧪 Testes   | [TESTING.md](TESTING.md)       | Unit tests, E2E, estratégia   |
-| 🐳 Deploy   | [DEPLOYMENT.md](DEPLOYMENT.md) | Docker, Compose, variáveis    |
+| Tópico       | Arquivo                                            | Descrição                     |
+| ------------ | -------------------------------------------------- | ----------------------------- |
+| 🧠 Serviços  | [SERVICES.md](SERVICES.md)                         | Implementação de services, DI |
+| 🧪 Testes    | [TESTING.md](TESTING.md)                           | Unit tests, E2E, estratégia   |
+| 🐳 Deploy    | [DEPLOYMENT.md](DEPLOYMENT.md)                     | Docker, Compose, variáveis    |
+| 📝 Changelog | [CHANGELOG-2026-04-14.md](CHANGELOG-2026-04-14.md) | Atualizações recentes da API  |
 
 ---
 
@@ -120,7 +121,7 @@ docs/project/api/
 ├── AUTHORIZATION-RBAC.md              Permissões, controle de acesso
 │
 ├── 📡 API
-├── ENDPOINTS.md                       Todos os 16 endpoints
+├── ENDPOINTS.md                       Todos os 19 endpoints
 ├── ERROR-HANDLING.md                  Códigos HTTP, tratamento
 │
 ├── 📦 DADOS
@@ -310,22 +311,23 @@ Ao adicionar nova documentação:
 
 ## 📝 Status da Documentação
 
-| Arquivo               | Status       | Última Atualização |
-| --------------------- | ------------ | ------------------ |
-| README.md             | ✅ Completo  | Abril 2026         |
-| INDEX.md              | ✅ Completo  | Abril 2026         |
-| ARCHITECTURE.md       | ✅ Completo  | Abril 2026         |
-| AUTHENTICATION.md     | ✅ Completo  | Abril 2026         |
-| AUTHORIZATION-RBAC.md | ✅ Completo  | Abril 2026         |
-| ENDPOINTS.md          | ✅ Completo  | Abril 2026         |
-| ERROR-HANDLING.md     | ✅ Completo  | Abril 2026         |
-| MODELS.md             | ✅ Completo  | Abril 2026         |
-| SERVICES.md           | ✅ Completo  | Abril 2026         |
-| DATABASE.md           | ✅ Completo  | Abril 2026         |
-| TESTING.md            | ✅ Completo  | Abril 2026         |
-| DEPLOYMENT.md         | ✅ Completo  | Abril 2026         |
-| database-schema.md    | ✅ Existente | -                  |
-| database-seed.md      | ✅ Existente | -                  |
+| Arquivo                 | Status       | Última Atualização |
+| ----------------------- | ------------ | ------------------ |
+| README.md               | ✅ Completo  | Abril 2026         |
+| INDEX.md                | ✅ Completo  | Abril 2026         |
+| ARCHITECTURE.md         | ✅ Completo  | Abril 2026         |
+| AUTHENTICATION.md       | ✅ Completo  | Abril 2026         |
+| AUTHORIZATION-RBAC.md   | ✅ Completo  | Abril 2026         |
+| ENDPOINTS.md            | ✅ Completo  | Abril 2026         |
+| ERROR-HANDLING.md       | ✅ Completo  | Abril 2026         |
+| MODELS.md               | ✅ Completo  | Abril 2026         |
+| SERVICES.md             | ✅ Completo  | Abril 2026         |
+| DATABASE.md             | ✅ Completo  | Abril 2026         |
+| TESTING.md              | ✅ Completo  | Abril 2026         |
+| DEPLOYMENT.md           | ✅ Completo  | Abril 2026         |
+| CHANGELOG-2026-04-14.md | ✅ Completo  | Abril 2026         |
+| database-schema.md      | ✅ Existente | -                  |
+| database-seed.md        | ✅ Existente | -                  |
 
 ---
 

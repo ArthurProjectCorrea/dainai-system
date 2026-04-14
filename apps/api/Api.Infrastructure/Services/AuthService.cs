@@ -48,6 +48,7 @@ namespace Api.Infrastructure.Services
             var result = await _signInManager.PasswordSignInAsync(user, request.Password, false, false);
             if (!result.Succeeded) return new ApiResponse<LoginResponse>("401", "Credenciais inválidas", null);
 
+            await _cache.RemoveAsync($"rbac_v4_{user.Id}");
             await _cache.RemoveAsync($"rbac_v3_{user.Id}");
             await _cache.RemoveAsync($"rbac_v2_{user.Id}");
             await _cache.RemoveAsync($"rbac_{user.Id}");
@@ -63,6 +64,7 @@ namespace Api.Infrastructure.Services
 
             if (Guid.TryParse(userId, out var parsedUserId))
             {
+                await _cache.RemoveAsync($"rbac_v4_{parsedUserId}");
                 await _cache.RemoveAsync($"rbac_v3_{parsedUserId}");
                 await _cache.RemoveAsync($"rbac_v2_{parsedUserId}");
                 await _cache.RemoveAsync($"rbac_{parsedUserId}");
@@ -74,7 +76,7 @@ namespace Api.Infrastructure.Services
         public async Task<ApiResponse<UserMeResponse>> GetMeAsync(Guid userId)
         {
             // Try to get from cache first
-            var cacheKey = $"rbac_v3_{userId}";
+            var cacheKey = $"rbac_v4_{userId}";
             var cachedData = await _cache.GetAsync<UserMeResponse>(cacheKey);
             if (cachedData != null) return new ApiResponse<UserMeResponse>("200", "", cachedData);
 
@@ -113,7 +115,8 @@ namespace Api.Infrastructure.Services
                 profile.ProfileTeams.Select(pt => new UserTeamDto(
                     pt.Team.Id,
                     pt.Team.Name,
-                    pt.Team.LogotipoUrl
+                    pt.Team.LogotipoUrl,
+                    pt.Team.IsActive
                 )).ToList(),
                 teamAccesses
             );
@@ -215,6 +218,7 @@ namespace Api.Infrastructure.Services
             await _cache.RemoveAsync($"rbac_{user.Id}");
             await _cache.RemoveAsync($"rbac_v2_{user.Id}");
             await _cache.RemoveAsync($"rbac_v3_{user.Id}");
+            await _cache.RemoveAsync($"rbac_v4_{user.Id}");
             await _cache.RemoveAsync($"reset_{resetToken}");
             var attempt = await _context.OtpAttempts.FirstOrDefaultAsync(x => x.Email == user.Email);
             if (attempt != null)
@@ -223,6 +227,20 @@ namespace Api.Infrastructure.Services
                 await _context.SaveChangesAsync();
             }
             return new ApiResponse<object>("200", "Senha alterada com sucesso.", null);
+        }
+
+        public async Task<bool> HasPermissionAsync(Guid userId, Guid? activeTeamId, string screen, string permission)
+        {
+            var meResponse = await GetMeAsync(userId);
+            if (meResponse.Data == null) return false;
+
+            var scopedAccesses = activeTeamId.HasValue
+                ? meResponse.Data.TeamAccesses
+                    .Where(t => t.TeamId == activeTeamId.Value)
+                    .SelectMany(t => t.Accesses)
+                : meResponse.Data.TeamAccesses.SelectMany(t => t.Accesses);
+
+            return scopedAccesses.Any(a => a.NameKey == screen && a.Permissions.Contains(permission));
         }
 
         private static string HashValue(string value)
@@ -238,9 +256,8 @@ namespace Api.Infrastructure.Services
                 .GroupBy(a => a.Screen.NameKey)
                 .Select(g => new AccessDto(
                     g.Key,
-                    g.Select(a => a.Screen.NameSidebar).FirstOrDefault()
-                        ?? g.Select(a => a.Screen.Name).FirstOrDefault()
-                        ?? g.Key,
+                    g.Select(a => a.Screen.Name).FirstOrDefault() ?? g.Key,
+                    g.Select(a => a.Screen.NameSidebar).FirstOrDefault() ?? g.Key,
                     g.Select(a => a.Permission.NameKey).Distinct().ToList()
                 ))
                 .ToList();

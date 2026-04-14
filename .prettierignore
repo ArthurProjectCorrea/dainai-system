@@ -18,4 +18,4 @@ apps/api/
 *.local
 
 # web
-*/.next-env.d.ts
+**/next-env.d.ts

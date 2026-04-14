@@ -6,7 +6,16 @@ Obrigatorias para ambiente local/servidor:
 
 ```env
 BACKEND_API_URL=http://localhost:5000/api/v1
+BACKEND_IMAGE_URL=http://localhost:5000
 NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
+```
+
+Opcional (next.config.ts):
+
+```ts
+experimental: {
+	authInterrupts: true,
+}
 ```
 
 ## Comandos
@@ -26,7 +35,8 @@ npm run start
 2. CORS do backend liberando o dominio do frontend com credenciais.
 3. Cookies de sessao funcionando no dominio final.
 4. Rota `/api/*` sendo reescrita corretamente pelo proxy.
-5. Build sem erros: `npm run build`.
+5. Rota `/uploads/*` sendo reescrita corretamente pelo proxy.
+6. Build sem erros: `npm run build`.
 
 ## Docker
 

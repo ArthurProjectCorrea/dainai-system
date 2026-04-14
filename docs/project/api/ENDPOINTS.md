@@ -101,7 +101,9 @@ Cookie: AuthToken=...
       {
         "id": "660e8400-e29b-41d4-a716-446655440000",
         "name": "Operações",
-        "logotipoUrl": null
+        "iconUrl": null,
+        "logotipoUrl": null,
+        "isActive": true
       }
     ],
     "teamAccesses": [
@@ -112,11 +114,13 @@ Cookie: AuthToken=...
         "accesses": [
           {
             "nameKey": "users_management",
+            "name": "Gerenciamento de Usuários",
             "nameSidebar": "Usuários",
             "permissions": ["view", "create", "delete"]
           },
           {
             "nameKey": "teams_management",
+            "name": "Gerenciamento de Times",
             "nameSidebar": "Equipes",
             "permissions": ["view", "create"]
           }
@@ -751,8 +755,8 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "00000000-0000-0000-0000-000000000000",
   "name": "Desenvolvimento",
+  "iconUrl": "/uploads/icon.png",
   "logotipoUrl": null,
   "isActive": true
 }
@@ -767,6 +771,7 @@ Content-Type: application/json
   "data": {
     "id": "770e8400-e29b-41d4-a716-446655440000",
     "name": "Desenvolvimento",
+    "iconUrl": "/uploads/icon.png",
     "logotipoUrl": null,
     "isActive": true
   }
@@ -809,6 +814,7 @@ id: Guid (ex: d123...)
 ```json
 {
   "name": "Marketing Digital",
+  "iconUrl": "/uploads/icon-marketing.png",
   "logotipoUrl": "/uploads/logo.png",
   "isActive": true
 }
@@ -823,6 +829,7 @@ id: Guid (ex: d123...)
   "data": {
     "id": "d123...",
     "name": "Marketing Digital",
+    "iconUrl": "/uploads/icon-marketing.png",
     "logotipoUrl": "/uploads/logo.png",
     "isActive": true
   }
@@ -859,11 +866,62 @@ id: Guid (ex: d123...)
 
 **Permissões**: 🔒 `teams_management:delete`
 
+**Erros comuns**:
+
+- `400`: Equipe possui usuários vinculados
+- `404`: Equipe não encontrada
+
+---
+
+## 📁 Storage (`/storage`)
+
+### 17. Upload de Arquivo
+
+Realiza upload de imagem para uso em equipes e retorna URL pública.
+
+```
+POST /storage/upload
+```
+
+**Headers**
+
+```
+Content-Type: multipart/form-data
+```
+
+**Body**
+
+- `file`: imagem (`.jpg`, `.jpeg`, `.png`, `.webp`)
+
+**Regras**
+
+- Tamanho máximo: `2MB`
+- Extensões permitidas: `.jpg`, `.jpeg`, `.png`, `.webp`
+
+**Sucesso (200)**
+
+```json
+{
+  "code": "200",
+  "message": "Upload realizado com sucesso",
+  "data": "/uploads/6f7c3a2f-e8f4-4b15-9903-8f4be54f4209.png"
+}
+```
+
+**Erros**
+
+- `400`: nenhum arquivo enviado
+- `400`: extensão não permitida
+- `400`: arquivo acima de 2MB
+- `500`: erro interno no salvamento
+
+**Permissões**: 🔒 Requer autenticação (`[Authorize]`)
+
 ---
 
 ## 🖥️ Admin - Gerenciamento de Telas (`/admin/screens`)
 
-### 17. Listar Screens
+### 18. Listar Screens
 
 Lista todas as telas/módulos do sistema.
 
@@ -899,7 +957,7 @@ curl -X GET http://localhost:5000/api/v1/admin/screens \
 
 ---
 
-### 18. Atualizar Screen
+### 19. Atualizar Screen
 
 Atualiza propriedades de uma tela.
 
@@ -969,24 +1027,27 @@ curl -X PUT http://localhost:5000/api/v1/admin/screens/1 \
 
 ## 📊 Resumo de Endpoints
 
-| #   | Método | Endpoint                     | Autenticação | Permissão                   | Descrição       |
-| --- | ------ | ---------------------------- | ------------ | --------------------------- | --------------- |
-| 1   | POST   | `/auth/login`                | ✅ Pública   | -                           | Fazer login     |
-| 2   | GET    | `/auth/me`                   | 🔒 Requerida | -                           | Dados da sessão |
-| 3   | POST   | `/auth/logout`               | 🔒 Requerida | -                           | Fazer logout    |
-| 4   | POST   | `/auth/forgot-password`      | ✅ Pública   | -                           | Solicitar reset |
-| 5   | POST   | `/auth/verify-otp`           | ✅ Pública   | -                           | Validar OTP     |
-| 6   | POST   | `/auth/reset-password`       | ✅ Pública   | -                           | Alterar senha   |
-| 7   | GET    | `/admin/profiles`            | 🔒 Requerida | `users_management:view`     | Listar usuários |
-| 8   | POST   | `/admin/profiles`            | 🔒 Requerida | `users_management:create`   | Criar usuário   |
-| 9   | DELETE | `/admin/profiles/{id}`       | 🔒 Requerida | `users_management:delete`   | Deletar usuário |
-| 10  | GET    | `/admin/access-control`      | 🔒 Requerida | `access_control:view`       | Obter RBAC      |
-| 11  | POST   | `/admin/access-control`      | 🔒 Requerida | `access_control:create`     | Criar cargo     |
-| 12  | DELETE | `/admin/access-control/{id}` | 🔒 Requerida | `access_control:delete`     | Deletar cargo   |
-| 13  | GET    | `/admin/teams`               | 🔒 Requerida | `teams_management:view`     | Listar times    |
-| 14  | POST   | `/admin/teams`               | 🔒 Requerida | `teams_management:create`   | Criar time      |
-| 15  | GET    | `/admin/screens`             | 🔒 Requerida | `screens_management:view`   | Listar telas    |
-| 16  | PUT    | `/admin/screens/{id}`        | 🔒 Requerida | `screens_management:update` | Atualizar tela  |
+| #   | Método | Endpoint                     | Autenticação | Permissão                   | Descrição        |
+| --- | ------ | ---------------------------- | ------------ | --------------------------- | ---------------- |
+| 1   | POST   | `/auth/login`                | ✅ Pública   | -                           | Fazer login      |
+| 2   | GET    | `/auth/me`                   | 🔒 Requerida | -                           | Dados da sessão  |
+| 3   | POST   | `/auth/logout`               | 🔒 Requerida | -                           | Fazer logout     |
+| 4   | POST   | `/auth/forgot-password`      | ✅ Pública   | -                           | Solicitar reset  |
+| 5   | POST   | `/auth/verify-otp`           | ✅ Pública   | -                           | Validar OTP      |
+| 6   | POST   | `/auth/reset-password`       | ✅ Pública   | -                           | Alterar senha    |
+| 7   | GET    | `/admin/profiles`            | 🔒 Requerida | `users_management:view`     | Listar usuários  |
+| 8   | POST   | `/admin/profiles`            | 🔒 Requerida | `users_management:create`   | Criar usuário    |
+| 9   | DELETE | `/admin/profiles/{id}`       | 🔒 Requerida | `users_management:delete`   | Deletar usuário  |
+| 10  | GET    | `/admin/access-control`      | 🔒 Requerida | `access_control:view`       | Obter RBAC       |
+| 11  | POST   | `/admin/access-control`      | 🔒 Requerida | `access_control:create`     | Criar cargo      |
+| 12  | DELETE | `/admin/access-control/{id}` | 🔒 Requerida | `access_control:delete`     | Deletar cargo    |
+| 13  | GET    | `/admin/teams`               | 🔒 Requerida | `teams_management:view`     | Listar times     |
+| 14  | POST   | `/admin/teams`               | 🔒 Requerida | `teams_management:create`   | Criar time       |
+| 15  | PUT    | `/admin/teams/{id}`          | 🔒 Requerida | `teams_management:update`   | Atualizar time   |
+| 16  | DELETE | `/admin/teams/{id}`          | 🔒 Requerida | `teams_management:delete`   | Remover time     |
+| 17  | POST   | `/storage/upload`            | 🔒 Requerida | -                           | Upload de imagem |
+| 18  | GET    | `/admin/screens`             | 🔒 Requerida | `screens_management:view`   | Listar telas     |
+| 19  | PUT    | `/admin/screens/{id}`        | 🔒 Requerida | `screens_management:update` | Atualizar tela   |
 
 ---
 

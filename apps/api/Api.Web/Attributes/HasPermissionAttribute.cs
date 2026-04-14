@@ -30,19 +30,10 @@ namespace Api.Web.Attributes
                 return;
             }
 
-            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
+            var userIdString = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(userIdString, out var userId))
             {
                 context.Result = new UnauthorizedResult();
-                return;
-            }
-
-            var authService = context.HttpContext.RequestServices.GetRequiredService<IAuthService>();
-            var rbacResponse = await authService.GetMeAsync(Guid.Parse(userId));
-
-            if (rbacResponse.Data == null)
-            {
-                context.Result = new ForbidResult();
                 return;
             }
 
@@ -53,14 +44,8 @@ namespace Api.Web.Attributes
                 activeTeamId = parsedTeamId;
             }
 
-            var scopedAccesses = activeTeamId.HasValue
-                ? rbacResponse.Data.TeamAccesses
-                    .Where(t => t.TeamId == activeTeamId.Value)
-                    .SelectMany(t => t.Accesses)
-                : rbacResponse.Data.TeamAccesses.SelectMany(t => t.Accesses);
-
-            var hasAccess = scopedAccesses
-                .Any(a => a.NameKey == _screen && a.Permissions.Contains(_permission));
+            var authService = context.HttpContext.RequestServices.GetRequiredService<IAuthService>();
+            var hasAccess = await authService.HasPermissionAsync(userId, activeTeamId, _screen, _permission);
 
             if (!hasAccess)
             {

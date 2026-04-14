@@ -84,9 +84,28 @@ namespace Api.Web.Controllers
 
         [HttpPost("teams")]
         [HasPermission("teams_management", "create")]
-        public async Task<IActionResult> CreateTeam([FromBody] TeamResponse request)
+        public async Task<IActionResult> CreateTeam([FromBody] SaveTeamRequest request)
         {
             var response = await _adminService.CreateTeamAsync(request);
+            return Ok(response);
+        }
+
+        [HttpPut("teams/{id}")]
+        [HasPermission("teams_management", "update")]
+        public async Task<IActionResult> UpdateTeam(Guid id, [FromBody] SaveTeamRequest request)
+        {
+            var response = await _adminService.UpdateTeamAsync(id, request);
+            if (response.Code == "404") return NotFound(response);
+            return Ok(response);
+        }
+
+        [HttpDelete("teams/{id}")]
+        [HasPermission("teams_management", "delete")]
+        public async Task<IActionResult> DeleteTeam(Guid id)
+        {
+            var response = await _adminService.DeleteTeamAsync(id);
+            if (response.Code == "404") return NotFound(response);
+            if (response.Code == "400") return BadRequest(response);
             return Ok(response);
         }
 

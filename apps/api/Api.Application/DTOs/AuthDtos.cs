@@ -15,7 +15,7 @@ namespace Api.Application.DTOs
     public record PermissionDto(int Id, string Name, string NameKey);
     public record ScreenDto(int Id, string Name, string NameSidebar, string NameKey);
 
-    public record AccessDto(string NameKey, string NameSidebar, List<string> Permissions);
+    public record AccessDto(string NameKey, string Name, string NameSidebar, List<string> Permissions);
 
     public record TeamAccessDto(
         Guid TeamId,
@@ -30,7 +30,7 @@ namespace Api.Application.DTOs
         List<TeamAccessDto> TeamAccesses
     );
 
-    public record UserTeamDto(Guid Id, string Name, string? LogotipoUrl);
+    public record UserTeamDto(Guid Id, string Name, string? LogotipoUrl, bool IsActive);
 
     public record ForgotPasswordRequest(string Email);
     public record VerifyOtpRequest(string Email, string Code);

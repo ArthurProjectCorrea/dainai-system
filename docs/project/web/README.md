@@ -31,6 +31,7 @@ Aplicacao frontend em Next.js (App Router) responsavel por autenticacao, navegac
 2. Entenda sessao em [AUTHENTICATION.md](AUTHENTICATION.md)
 3. Entenda permissoes em [AUTHORIZATION-RBAC.md](AUTHORIZATION-RBAC.md)
 4. Consulte [ROUTES.md](ROUTES.md)
+5. Consulte [CHANGELOG-2026-04-14.md](CHANGELOG-2026-04-14.md) para as ultimas mudancas
 
 ## Comandos
 

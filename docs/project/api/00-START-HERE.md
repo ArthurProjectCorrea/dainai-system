@@ -28,7 +28,7 @@ Documentação **completa e padronizada** da DAINAI API criada em **16 arquivos*
 
 | #   | Arquivo               | Propósito                   | Linhas |
 | --- | --------------------- | --------------------------- | ------ |
-| 7   | **ENDPOINTS.md**      | 16 endpoints, curl examples | ~450   |
+| 7   | **ENDPOINTS.md**      | 19 endpoints, curl examples | ~450   |
 | 8   | **ERROR-HANDLING.md** | Códigos HTTP, tratamento    | ~230   |
 
 ### Segurança
@@ -72,7 +72,7 @@ Documentação **completa e padronizada** da DAINAI API criada em **16 arquivos*
 
 ### Cobertura
 
-- ✅ 16 endpoints (100%)
+- ✅ 19 endpoints (100%)
 - ✅ 4 camadas arquiteturais (100%)
 - ✅ 9 entidades principais (100%)
 - ✅ 6 fluxos de autenticação (100%)

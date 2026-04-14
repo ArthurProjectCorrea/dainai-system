@@ -24,7 +24,7 @@ node_modules/
 # Next.js
 **/.next/
 **/out/
-**/.next-env.d.ts
+**/next-env.d.ts
 
 # Env
 .env.local

@@ -50,18 +50,19 @@ Redis__ConnectionString=redis:6379
 
 ## 📚 Estrutura da Documentação
 
-| Documento                                      | Descrição                                                                       |
-| ---------------------------------------------- | ------------------------------------------------------------------------------- |
-| [ARCHITECTURE.md](ARCHITECTURE.md)             | Arquitetura em camadas, padrões e fluxo de requisição                           |
-| [ENDPOINTS.md](ENDPOINTS.md)                   | Referência completa de todos os endpoints (Auth e Admin)                        |
-| [AUTHENTICATION.md](AUTHENTICATION.md)         | Fluxos de login, recuperação de senha, OTP                                      |
-| [AUTHORIZATION-RBAC.md](AUTHORIZATION-RBAC.md) | Sistema de roles, permissões, controle de acesso                                |
-| [MODELS.md](MODELS.md)                         | Entidades de banco de dados e DTOs                                              |
-| [SERVICES.md](SERVICES.md)                     | Detalhes de implementação dos serviços de negócio                               |
-| [DATABASE.md](DATABASE.md)                     | Schema, relacionamentos, migrações (veja database-schema.md e database-seed.md) |
-| [TESTING.md](TESTING.md)                       | Estratégia de testes unitários e E2E                                            |
-| [DEPLOYMENT.md](DEPLOYMENT.md)                 | Docker, Docker Compose, variáveis de ambiente                                   |
-| [ERROR-HANDLING.md](ERROR-HANDLING.md)         | Padrão de respostas de erro e códigos HTTP                                      |
+| Documento                                          | Descrição                                                                       |
+| -------------------------------------------------- | ------------------------------------------------------------------------------- |
+| [ARCHITECTURE.md](ARCHITECTURE.md)                 | Arquitetura em camadas, padrões e fluxo de requisição                           |
+| [ENDPOINTS.md](ENDPOINTS.md)                       | Referência completa de todos os endpoints (Auth e Admin)                        |
+| [AUTHENTICATION.md](AUTHENTICATION.md)             | Fluxos de login, recuperação de senha, OTP                                      |
+| [AUTHORIZATION-RBAC.md](AUTHORIZATION-RBAC.md)     | Sistema de roles, permissões, controle de acesso                                |
+| [MODELS.md](MODELS.md)                             | Entidades de banco de dados e DTOs                                              |
+| [SERVICES.md](SERVICES.md)                         | Detalhes de implementação dos serviços de negócio                               |
+| [DATABASE.md](DATABASE.md)                         | Schema, relacionamentos, migrações (veja database-schema.md e database-seed.md) |
+| [TESTING.md](TESTING.md)                           | Estratégia de testes unitários e E2E                                            |
+| [DEPLOYMENT.md](DEPLOYMENT.md)                     | Docker, Docker Compose, variáveis de ambiente                                   |
+| [ERROR-HANDLING.md](ERROR-HANDLING.md)             | Padrão de respostas de erro e códigos HTTP                                      |
+| [CHANGELOG-2026-04-14.md](CHANGELOG-2026-04-14.md) | Atualizações recentes de contratos, endpoints e infraestrutura                  |
 
 ---
 
@@ -202,7 +203,7 @@ graph LR
 - **Data**: Abril 2026
 - **Versão API**: v1
 - **Status**: Pronto para produção (com validações)
-- **Endpoints totais**: 16 (Auth + Admin)
+- **Endpoints totais**: 19 (Auth + Admin + Storage)
 
 ---
 

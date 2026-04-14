@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { Spinner } from '@/components/ui/spinner'
 import Link from 'next/link'
 import { loginAction } from '@/app/auth/actions'
 import { toast } from 'sonner'
@@ -69,6 +70,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'form'>)
         </Field>
         <Field>
           <Button type="submit" disabled={isPending}>
+            {isPending && <Spinner className="mr-2" />}
             {isPending ? 'Entrando...' : 'Entrar'}
           </Button>
         </Field>

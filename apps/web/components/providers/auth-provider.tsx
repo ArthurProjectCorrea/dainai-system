@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import React, { createContext, useEffect, useState } from 'react'
 import { logoutAction } from '@/app/auth/actions'
@@ -70,20 +70,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         const normalizedTeams = meData.data.teams.map(team => {
           const teamAny = team as typeof team & {
+            IconUrl?: string | null
             LogotipoUrl?: string | null
             Logotipo_Url?: string | null
             logotipo_url?: string | null
+            IsActive?: boolean
           }
 
           return {
             id: team.id,
             name: team.name,
+            iconUrl: team.iconUrl ?? teamAny.IconUrl ?? null,
             logotipoUrl:
               team.logotipoUrl ??
               teamAny.logotipo_url ??
               teamAny.LogotipoUrl ??
               teamAny.Logotipo_Url ??
               null,
+            isActive: team.isActive ?? teamAny.IsActive ?? true,
           }
         })
 
@@ -103,12 +107,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .map(access => {
               const accessAny = access as typeof access & {
                 NameKey?: string
+                Name?: string
                 NameSidebar?: string
                 Permissions?: string[]
               }
 
               return {
                 nameKey: access.nameKey ?? accessAny.NameKey ?? '',
+                name: access.name ?? accessAny.Name ?? '',
                 nameSidebar: access.nameSidebar ?? accessAny.NameSidebar ?? '',
                 permissions: access.permissions ?? accessAny.Permissions ?? [],
               }

@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Spinner } from '@/components/ui/spinner'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import {
   Table,
@@ -83,6 +84,7 @@ export function ProfileForm({ className, ...props }: React.ComponentProps<'form'
       </Card>
 
       <Button type="button" variant="outline" disabled>
+        {false && <Spinner className="mr-2" />}
         Salvar Alterações
       </Button>
     </form>

@@ -521,3 +521,26 @@ var accesses = profile.ProfileTeams          // Todas posições
 ---
 
 **Próximos passos?** 👉 Leia [MODELS.md](MODELS.md) para entidades de BD.
+
+---
+
+## 🆕 Atualizacao Abril 2026
+
+### Validação de permissão centralizada
+
+Foi adicionada a operação `HasPermissionAsync` em `IAuthService`, usada pelo atributo `HasPermission` para validar acesso sem duplicar lógica no filtro.
+
+Beneficios:
+
+- regra unica para autorização por tela/ação
+- reaproveitamento do contexto já montado em `GetMeAsync`
+- suporte explicito ao escopo de time ativo
+
+### Escopo por time ativo
+
+O filtro considera o header `X-Active-Team-Id` quando informado.
+
+- com header: valida permissões somente do time ativo
+- sem header: considera permissões agregadas de todos os times do usuário
+
+Isso permite que o frontend alterne contexto organizacional sem perder consistencia de segurança.

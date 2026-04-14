@@ -615,3 +615,37 @@ Request → Controller → Service → Database
 ---
 
 **Próximos passos?** 👉 Leia [DATABASE.md](DATABASE.md) para migrações e seed.
+
+---
+
+## 🆕 Atualizacao Abril 2026
+
+### Novos contratos de serviço
+
+`IAuthService`:
+
+- `Task<bool> HasPermissionAsync(Guid userId, Guid? activeTeamId, string screen, string permission)`
+
+`IAdminService` (Teams):
+
+- `Task<ApiResponse<TeamResponse>> CreateTeamAsync(SaveTeamRequest request)`
+- `Task<ApiResponse<TeamResponse>> UpdateTeamAsync(Guid id, SaveTeamRequest request)`
+- `Task<ApiResponse<object>> DeleteTeamAsync(Guid id)`
+
+`IFileService`:
+
+- `Task<string> SaveFileAsync(IFormFile file, string subFolder = "uploads")`
+- `void DeleteFile(string? fileUrl)`
+
+### Comportamento novo no AdminService
+
+- `GetTeamsAsync` agora ignora registros com `DeletedAt` (soft delete).
+- `CreateTeamAsync` e `UpdateTeamAsync` trabalham com `iconUrl`, `logotipoUrl` e `isActive`.
+- `DeleteTeamAsync` aplica remoção lógica e bloqueia exclusão quando há vínculos em `ProfileTeams`.
+- `UpdateTeamAsync` remove arquivos antigos quando logo/icone muda.
+
+### FileService
+
+- salva arquivos em `wwwroot/uploads`
+- retorna URL relativa (`/uploads/{arquivo}`)
+- restringe remoção ao diretório local de uploads

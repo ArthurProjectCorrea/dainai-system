@@ -205,7 +205,7 @@ Com estudos práticos
 | -------------- | ---------------------------- | ------ |
 | README         | Visão geral, stack, links    | 130    |
 | ARCHITECTURE   | 4 camadas, DI, fluxos        | 350    |
-| ENDPOINTS      | 16 endpoints, curl, status   | 450    |
+| ENDPOINTS      | 19 endpoints, curl, status   | 450    |
 | AUTHENTICATION | 3 fluxos (login, OTP, reset) | 380    |
 | AUTHORIZATION  | RBAC, permissões, cache      | 280    |
 | MODELS         | 9 entidades + DTOs           | 280    |
@@ -261,7 +261,7 @@ Tempo: 30 minutos
 
 - ✅ Autenticação (4 fluxos)
 - ✅ Autorização (RBAC completo)
-- ✅ 16 endpoints mapeados
+- ✅ 19 endpoints mapeados
 - ✅ Tratamento de erros
 - ✅ Testes unitários e E2E
 - ✅ Deploy com Docker
@@ -331,7 +331,8 @@ Tempo: 30 minutos
 ### ✅ Endpoints
 
 - [x] 6 auth endpoints
-- [x] 10 admin endpoints
+- [x] 12 admin endpoints
+- [x] 1 endpoint de storage/upload
 - [x] Path parameters
 - [x] Status codes
 - [x] Exemplos curl
@@ -350,6 +351,7 @@ Tempo: 30 minutos
 - [x] AdminService
 - [x] EmailService
 - [x] CacheService
+- [x] FileService
 - [x] Injeção de dependência
 
 ### ✅ Infraestrutura
@@ -375,6 +377,17 @@ Tempo: 30 minutos
 - [x] Health checks
 - [x] Logs e debugging
 - [x] Ambientes (dev/staging/prod)
+- [x] Persistência de uploads no compose
+
+---
+
+## 🆕 Atualizacao Abril 2026
+
+- CRUD de equipes completado com `POST`, `PUT`, `DELETE` e soft delete.
+- Endpoint autenticado para upload de imagens: `POST /storage/upload`.
+- Contrato de `GET /auth/me` ampliado com `access.name`, `team.iconUrl` e `team.isActive`.
+- Invalidação de cache RBAC alinhada para chave `rbac_v4` mantendo limpeza de versões legadas.
+- Autorização centralizada via `HasPermissionAsync` em `IAuthService`.
 
 ---
 

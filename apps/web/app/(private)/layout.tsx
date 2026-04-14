@@ -12,7 +12,7 @@ export default function PrivateLayout({
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
-          <main>{children}</main>
+          <main className="flex flex-1 flex-col">{children}</main>
         </SidebarInset>
       </SidebarProvider>
     </AuthProvider>

@@ -20,7 +20,9 @@ namespace Api.Application.Interfaces
 
         // Teams
         Task<ApiResponse<List<TeamResponse>>> GetTeamsAsync();
-        Task<ApiResponse<TeamResponse>> CreateTeamAsync(TeamResponse request);
+        Task<ApiResponse<TeamResponse>> CreateTeamAsync(SaveTeamRequest request);
+        Task<ApiResponse<TeamResponse>> UpdateTeamAsync(Guid id, SaveTeamRequest request);
+        Task<ApiResponse<object>> DeleteTeamAsync(Guid id);
 
         // Screens
         Task<ApiResponse<List<ScreenResponse>>> GetScreensAsync();

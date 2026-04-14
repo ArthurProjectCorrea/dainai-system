@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { Spinner } from '@/components/ui/spinner'
 
 import { resetPasswordAction } from '@/app/auth/actions'
 import { toast } from 'sonner'
@@ -116,6 +117,7 @@ export function ResetPasswordForm({ className, ...props }: React.ComponentProps<
         </div>
         <Field>
           <Button type="submit" className="w-full" disabled={isPending}>
+            {isPending && <Spinner className="mr-2" />}
             {isPending ? 'Redefinindo...' : 'Redefinir senha'}
           </Button>
         </Field>

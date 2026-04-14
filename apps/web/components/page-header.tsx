@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { cn } from '@/lib/utils'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -34,16 +35,25 @@ export function PageHeader({ breadcrumbs }: PageHeaderProps) {
           <BreadcrumbList>
             {breadcrumbs.map((item, index) => {
               const isLast = index === breadcrumbs.length - 1
+              const itemClasses = cn(
+                !isLast && 'text-muted-foreground/60 hidden md:block',
+                isLast && 'font-medium',
+              )
+
               return (
                 <React.Fragment key={index}>
-                  <BreadcrumbItem className={!isLast ? 'hidden md:block' : ''}>
+                  <BreadcrumbItem className={itemClasses}>
                     {isLast ? (
                       <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                    ) : item.href ? (
+                      <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
                     ) : (
-                      <BreadcrumbLink href={item.href || '#'}>{item.label}</BreadcrumbLink>
+                      <span className="cursor-default">{item.label}</span>
                     )}
                   </BreadcrumbItem>
-                  {!isLast && <BreadcrumbSeparator className="hidden md:block" />}
+                  {!isLast && (
+                    <BreadcrumbSeparator className="text-muted-foreground/30 hidden md:block" />
+                  )}
                 </React.Fragment>
               )
             })}

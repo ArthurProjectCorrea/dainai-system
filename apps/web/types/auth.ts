@@ -16,25 +16,16 @@ export interface UserProfile {
  */
 export interface UserAccess {
   nameKey: string
+  name: string
   nameSidebar: string
   permissions: string[]
 }
 
-/**
- * Team/Client data
- */
-export interface UserTeam {
-  id: string
-  name: string
-  logotipoUrl?: string | null
-}
+import { Team, TeamAccess } from './team'
 
-export interface TeamAccess {
-  teamId: string
-  position: string
-  department: string
-  accesses: UserAccess[]
-}
+export type UserTeam = Team
+
+export type { TeamAccess }
 
 /**
  * Complete response from GET /auth/me
