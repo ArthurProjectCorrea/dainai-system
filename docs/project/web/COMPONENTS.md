@@ -51,7 +51,26 @@ Responsabilidades:
 - dialogo de novo/edicao
 - confirmacao para exclusao
 
-## Modulo de Equipes
+## Componentes de Formulario Avancados
+
+### CreatableCombobox
+
+Arquivo: `apps/web/components/creatable-combobox.tsx`
+
+Componente de selecao que permite:
+
+- Pesquisa case-insensitive em lista de opcoes.
+- Sugestao de criacao de novo termo caso nao exista na lista.
+- Feedback visual de "Criar novo: 'termo'".
+- Integracao direta com formulários Shadcn/Field.
+
+### Padrao de Formulario Administrativo
+
+Todos os novos formulários (ex: `access-control-form.tsx`) seguem o padrao:
+
+- **Grid de Info Basica**: 2 colunas (`grid-cols-1 md:grid-cols-2`) para Nome e Vinculo Principal.
+- **Largura Total**: Ocupa todo o container disponível.
+- **Matrix de Permissoes**: Tabela responsiva com cores neutras e hover states.
 
 Arquivos:
 

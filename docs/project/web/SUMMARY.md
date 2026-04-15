@@ -8,6 +8,8 @@
 - RBAC por time com selecao de time ativo e filtro dinamico de menu.
 - CRUD completo de equipes na rota administrativa /admin/teams.
 - Upload de imagem de equipe usando /api/v1/storage/upload e consumo de /uploads/\* no mesmo dominio.
+- CRUD completo de Controle de Acesso (Cargos e Departamentos) com matriz de permissões RBAC.
+- Seleção dinâmica de departamentos ("Criar novo") via `CreatableCombobox`.
 - Tabela administrativa reutilizavel com ordenacao, filtros, colunas configuraveis, dialogo de formulario e confirmacao de exclusao.
 
 ## Principais mudancas aplicadas
@@ -18,6 +20,9 @@
 - Novo componente StatCard para KPIs nas paginas privadas.
 - Nova pagina de acesso negado para fallback de permissoes.
 - Proxy atualizado para reescrever tambem /uploads/\* para BACKEND_IMAGE_URL.
+- Novo módulo de Controle de Acesso padronizado com DataTable e formulários em Grid.
+- Implementação de limites de `<Suspense>` para estabilização de build em páginas com CSR Bailout.
+- Redução agressiva de dívida técnica TypeScript (0 erros de lint no módulo administrativo).
 - AuthProvider normalizando campos adicionais do backend (name em acessos, iconUrl e isActive em teams).
 
 ## Pontos fortes atuais
@@ -33,4 +38,4 @@
 2. Reusar DataTable em usuarios e controle de acesso para padronizar UX.
 3. Adicionar politicas de compressao/otimizacao de imagens de upload no backend.
 
-Consulte o detalhamento de alteracoes em CHANGELOG-2026-04-14.md.
+Consulte o detalhamento de alteracoes em CHANGELOG-2026-04-15.md.

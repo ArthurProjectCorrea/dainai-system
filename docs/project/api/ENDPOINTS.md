@@ -550,7 +550,11 @@ GET /admin/access-control
         "name": "Administrador",
         "departmentId": 1,
         "isActive": true,
-        "screenPermissions": [1, 2, 3, 4, 5]
+        "screenPermissions": [1, 2, 3, 4, 5],
+        "accesses": [
+          { "screenId": 1, "permissionId": 1 },
+          { "screenId": 1, "permissionId": 2 }
+        ]
       }
     ],
     "departments": [
@@ -583,6 +587,8 @@ GET /admin/access-control
 }
 ```
 
+**Nota**: `screenPermissions` é uma lista legada de IDs de permissões. O frontend moderno utiliza a lista `accesses` para maior precisão.
+
 **cURL**
 
 ```bash
@@ -612,9 +618,16 @@ Content-Type: application/json
 {
   "name": "Analista Jr.",
   "departmentId": 1,
-  "isActive": true
+  "newDepartmentName": null,
+  "isActive": true,
+  "accesses": [
+    { "screenId": 1, "permissionId": 1 },
+    { "screenId": 2, "permissionId": 1 }
+  ]
 }
 ```
+
+**Departamentos Dinâmicos**: Se `departmentId` for `0` e `newDepartmentName` for fornecido, a API criará o departamento automaticamente (ou usará um existente com o mesmo nome, case-insensitive).
 
 **Sucesso (200)**
 
@@ -643,9 +656,24 @@ curl -X POST http://localhost:5000/api/v1/admin/access-control \
   -d '{
     "name": "Analista Jr.",
     "departmentId": 1,
-    "isActive": true
+    "isActive": true,
+    "accesses": [{ "screenId": 1, "permissionId": 1 }]
   }'
 ```
+
+---
+
+### 11.1 Editar Posição
+
+Atualiza os dados e permissões de uma posição.
+
+```
+PUT /admin/access-control/positions/{id}
+```
+
+**Body**: Igual ao de criação.
+
+**Permissões**: 🔒 `access_control:update`
 
 ---
 

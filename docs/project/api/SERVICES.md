@@ -147,7 +147,8 @@ public interface IAdminService
 
     // === ACCESS CONTROL ===
     Task<ApiResponse<AccessControlResponse>> GetAccessControlAsync();
-    Task<ApiResponse<object>> CreatePositionAsync(Position position);
+    Task<ApiResponse<object>> CreatePositionAsync(SavePositionRequest request);
+    Task<ApiResponse<object>> UpdatePositionAsync(int id, SavePositionRequest request);
     Task<ApiResponse<object>> DeletePositionAsync(int positionId);
 
     // === TEAMS ===
@@ -310,14 +311,51 @@ public class AdminService : IAdminService
             new AccessControlResponse(positions, departments, permissions, screens));
     }
 
-    public async Task<ApiResponse<object>> CreatePositionAsync(Position position)
+    public async Task<ApiResponse<object>> CreatePositionAsync(SavePositionRequest request)
     {
+        // 1. Resolve Departamento (id ou novo nome)
+        int departmentId = request.DepartmentId;
+
+        if (departmentId == 0 && !string.IsNullOrWhiteSpace(request.NewDepartmentName))
+        {
+            var deptName = request.NewDepartmentName.Trim();
+            var existingDept = await _context.Departments
+                .FirstOrDefaultAsync(d => d.Name.ToLower() == deptName.ToLower());
+
+            if (existingDept != null)
+            {
+                departmentId = existingDept.Id;
+            }
+            else
+            {
+                var newDept = new Department { Name = deptName };
+                _context.Departments.Add(newDept);
+                await _context.SaveChangesAsync();
+                departmentId = newDept.Id;
+            }
+        }
+
+        // 2. Cria Posição
+        var position = new Position {
+            Name = request.Name,
+            DepartmentId = departmentId,
+            IsActive = request.IsActive
+        };
+
+        // 3. Mapeia Acessos (RBAC Matrix)
+        if (request.Accesses != null) {
+            foreach(var acc in request.Accesses) {
+                position.Accesses.Add(new Access {
+                    ScreenId = acc.ScreenId,
+                    PermissionId = acc.PermissionId
+                });
+            }
+        }
+
         _context.Positions.Add(position);
         await _context.SaveChangesAsync();
 
-        return new ApiResponse<object>("200",
-            "Posição criada com sucesso",
-            new { id = position.Id, name = position.Name });
+        return new ApiResponse<object>("200", "Posição criada com sucesso", new { id = position.Id });
     }
 
     public async Task<ApiResponse<object>> DeletePositionAsync(int positionId)

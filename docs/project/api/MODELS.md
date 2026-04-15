@@ -524,7 +524,18 @@ public record PositionResponse(
     string Name,
     int DepartmentId,
     bool IsActive,
-    List<int> ScreenPermissions
+    List<int> ScreenPermissions,
+    List<SavePositionAccessDto> Accesses
+);
+
+public record SavePositionAccessDto(int ScreenId, int PermissionId);
+
+public record SavePositionRequest(
+    string Name,
+    int DepartmentId,
+    string? NewDepartmentName,
+    bool IsActive,
+    List<SavePositionAccessDto> Accesses
 );
 
 public record TeamResponse(

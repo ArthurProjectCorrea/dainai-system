@@ -74,3 +74,30 @@ Conjunto de componentes estruturais:
 - Filtro de menu realizado no cliente com base em `teamAccesses`.
 - **Soft Delete**: Entidades administrativas são marcadas como removidas no banco sem exclusão física.
 - **Visualização de Status**: Times inativos são marcados visualmente no switcher e bloqueados para seleção.
+
+## 🏗️ Padrões de Renderização e Build
+
+### CSR Bailout & Suspense
+
+Devido às otimizações de build do Next.js 15+ (Turbopack), qualquer componente que utilize o hook `useSearchParams()` deve obrigatoriamente estar envolvido em um limite de `<Suspense>`.
+
+**Por que?**
+O uso de `useSearchParams()` em uma página que não é estática (ou durante a pré-renderização estática) causa o "bailout" da renderização no lado do servidor. Sem o `<Suspense>`, o build falhará com o erro `missing-suspense-with-csr-bailout`.
+
+**Como Implementar**:
+Sempre envolva o conteúdo da página que consome parâmetros de busca em um componente separado e exporte a página com o wrapper:
+
+```tsx
+function PageContent() {
+  const searchParams = useSearchParams()
+  // ... lógica
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<Spinner />}>
+      <PageContent />
+    </Suspense>
+  )
+}
+```
