@@ -12,6 +12,12 @@ namespace Api.Application.Interfaces
         Task<ApiResponse<List<ProfileResponse>>> GetProfilesAsync();
         Task<ApiResponse<ProfileResponse>> CreateProfileAsync(CreateProfileRequest request);
         Task<ApiResponse<object>> ToggleProfileActiveAsync(Guid id);
+        Task<ApiResponse<UsersListResponse>> GetUsersAsync();
+        Task<ApiResponse<UserDetailResponse>> GetUserByIdAsync(Guid id);
+        Task<ApiResponse<UserManagementUserResponse>> CreateUserAsync(SaveUserRequest request);
+        Task<ApiResponse<UserManagementUserResponse>> UpdateUserAsync(Guid id, SaveUserRequest request);
+        Task<ApiResponse<object>> DeleteUserAsync(Guid id);
+        Task<ApiResponse<object>> ResendInvitationAsync(Guid id);
 
         // Access Control
         Task<ApiResponse<AccessControlResponse>> GetAccessControlAsync();

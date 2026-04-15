@@ -10,6 +10,58 @@ namespace Api.Application.DTOs
     public record TeamResponse(Guid Id, string Name, string? IconUrl, string? LogotipoUrl, bool IsActive);
     public record SaveTeamRequest(string Name, string? IconUrl, string? LogotipoUrl, bool IsActive);
 
+    public record ProfileTeamAssignmentRequest(Guid TeamId, int PositionId);
+
+    public record SaveUserRequest(
+        string Name,
+        string Email,
+        string? AvatarUrl,
+        bool IsActive,
+        List<ProfileTeamAssignmentRequest> ProfileTeams
+    );
+
+    public record ProfileTeamAssignmentResponse(
+        int Id,
+        Guid TeamId,
+        string TeamName,
+        int PositionId,
+        string PositionName,
+        int DepartmentId,
+        string DepartmentName
+    );
+
+    public record UserManagementUserResponse(
+        Guid Id,
+        string Name,
+        string Email,
+        string? AvatarUrl,
+        bool IsActive,
+        List<ProfileTeamAssignmentResponse> ProfileTeams
+    );
+
+    public record PositionOptionResponse(
+        int Id,
+        string Name,
+        int DepartmentId,
+        string DepartmentName,
+        bool IsActive
+    );
+
+    public record UserManagementOptionsResponse(
+        List<TeamResponse> Teams,
+        List<PositionOptionResponse> Positions
+    );
+
+    public record UserManagementIndicatorsResponse(int Total, int Active, int Inactive);
+
+    public record UsersListResponse(
+        List<UserManagementUserResponse> Users,
+        UserManagementIndicatorsResponse Indicators,
+        UserManagementOptionsResponse Options
+    );
+
+    public record UserDetailResponse(UserManagementUserResponse User, UserManagementOptionsResponse Options);
+
     public record ScreenResponse(int Id, string Name, string NameSidebar, string NameKey);
 
     public record AccessControlResponse(

@@ -108,6 +108,279 @@ namespace Api.Infrastructure.Services
             return new ApiResponse<object>("200", $"Perfil {(profile.IsActive ? "ativado" : "desativado")} com sucesso", null);
         }
 
+        public async Task<ApiResponse<UsersListResponse>> GetUsersAsync()
+        {
+            var profiles = await _context.Profiles
+                .Include(p => p.User)
+                .Include(p => p.ProfileTeams)
+                    .ThenInclude(pt => pt.Team)
+                .Include(p => p.ProfileTeams)
+                    .ThenInclude(pt => pt.Position)
+                        .ThenInclude(pos => pos.Department)
+                .Where(p => p.DeletedAt == null)
+                .OrderBy(p => p.Name)
+                .ToListAsync();
+
+            var users = profiles.Select(MapUser).ToList();
+            var indicators = new UserManagementIndicatorsResponse(
+                users.Count,
+                users.Count(u => u.IsActive),
+                users.Count(u => !u.IsActive)
+            );
+
+            var options = await BuildUserOptionsAsync();
+            var payload = new UsersListResponse(users, indicators, options);
+
+            return new ApiResponse<UsersListResponse>("200", "", payload);
+        }
+
+        public async Task<ApiResponse<UserDetailResponse>> GetUserByIdAsync(Guid id)
+        {
+            var profile = await _context.Profiles
+                .Include(p => p.User)
+                .Include(p => p.ProfileTeams)
+                    .ThenInclude(pt => pt.Team)
+                .Include(p => p.ProfileTeams)
+                    .ThenInclude(pt => pt.Position)
+                        .ThenInclude(pos => pos.Department)
+                .FirstOrDefaultAsync(p => p.Id == id && p.DeletedAt == null);
+
+            if (profile == null)
+                return new ApiResponse<UserDetailResponse>("404", "Usuário não encontrado", null);
+
+            var payload = new UserDetailResponse(MapUser(profile), await BuildUserOptionsAsync());
+            return new ApiResponse<UserDetailResponse>("200", "", payload);
+        }
+
+        public async Task<ApiResponse<UserManagementUserResponse>> CreateUserAsync(SaveUserRequest request)
+        {
+            if (request.ProfileTeams == null || request.ProfileTeams.Count == 0)
+                return new ApiResponse<UserManagementUserResponse>("400", "Informe ao menos uma atribuição de time e cargo", null);
+
+            var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+            var existing = await _userManager.FindByEmailAsync(normalizedEmail);
+            if (existing != null)
+                return new ApiResponse<UserManagementUserResponse>("400", "Já existe um usuário com este e-mail", null);
+
+            var assignments = request.ProfileTeams
+                .Where(pt => pt.TeamId != Guid.Empty && pt.PositionId > 0)
+                .GroupBy(pt => new { pt.TeamId, pt.PositionId })
+                .Select(g => g.First())
+                .ToList();
+
+            if (assignments.Count == 0)
+                return new ApiResponse<UserManagementUserResponse>("400", "As atribuições enviadas são inválidas", null);
+
+            var teamIds = assignments.Select(a => a.TeamId).Distinct().ToList();
+            var positionIds = assignments.Select(a => a.PositionId).Distinct().ToList();
+
+            var validTeamIds = await _context.Teams
+                .Where(t => t.DeletedAt == null && teamIds.Contains(t.Id))
+                .Select(t => t.Id)
+                .ToListAsync();
+
+            if (validTeamIds.Count != teamIds.Count)
+                return new ApiResponse<UserManagementUserResponse>("400", "Uma ou mais equipes são inválidas", null);
+
+            var validPositionIds = await _context.Positions
+                .Where(p => positionIds.Contains(p.Id))
+                .Select(p => p.Id)
+                .ToListAsync();
+
+            if (validPositionIds.Count != positionIds.Count)
+                return new ApiResponse<UserManagementUserResponse>("400", "Um ou mais cargos são inválidos", null);
+
+            var password = PasswordGenerator.Generate();
+            var inviteToken = Guid.NewGuid().ToString("N");
+
+            var user = new User { UserName = normalizedEmail, Email = normalizedEmail, EmailConfirmed = true };
+            var userResult = await _userManager.CreateAsync(user, password);
+            if (!userResult.Succeeded)
+                return new ApiResponse<UserManagementUserResponse>("400", "Erro ao criar usuário", null);
+
+            var profile = new Profile
+            {
+                Id = user.Id,
+                UserId = user.Id,
+                Name = request.Name,
+                AvatarUrl = request.AvatarUrl,
+                IsActive = request.IsActive
+            };
+            _context.Profiles.Add(profile);
+
+            foreach (var assignment in assignments)
+            {
+                _context.ProfileTeams.Add(new ProfileTeam
+                {
+                    ProfileId = profile.Id,
+                    TeamId = assignment.TeamId,
+                    PositionId = assignment.PositionId
+                });
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Generate invitation token (7 days expiry)
+            // Use 'reset_' prefix so AuthService.ResetPasswordAsync can consume it
+            await _cache.SetAsync($"reset_{inviteToken}", user.Id.ToString(), TimeSpan.FromHours(168));
+            var inviteBaseUrl = _configuration["App:InvitationBaseUrl"] ?? "http://localhost:3000/auth/reset-password";
+            var inviteLink = $"{inviteBaseUrl}?token={inviteToken}&email={Uri.EscapeDataString(normalizedEmail)}";
+            await _emailService.SendInvitationEmailAsync(normalizedEmail, inviteLink);
+
+            var createdProfile = await _context.Profiles
+                .Include(p => p.User)
+                .Include(p => p.ProfileTeams)
+                    .ThenInclude(pt => pt.Team)
+                .Include(p => p.ProfileTeams)
+                    .ThenInclude(pt => pt.Position)
+                        .ThenInclude(pos => pos.Department)
+                .FirstAsync(p => p.Id == profile.Id);
+
+            return new ApiResponse<UserManagementUserResponse>("201", "Usuário criado com sucesso", MapUser(createdProfile));
+        }
+
+        public async Task<ApiResponse<UserManagementUserResponse>> UpdateUserAsync(Guid id, SaveUserRequest request)
+        {
+            var profile = await _context.Profiles
+                .Include(p => p.User)
+                .Include(p => p.ProfileTeams)
+                .FirstOrDefaultAsync(p => p.Id == id && p.DeletedAt == null);
+
+            if (profile == null)
+                return new ApiResponse<UserManagementUserResponse>("404", "Usuário não encontrado", null);
+
+            if (request.ProfileTeams == null || request.ProfileTeams.Count == 0)
+                return new ApiResponse<UserManagementUserResponse>("400", "Informe ao menos uma atribuição de time e cargo", null);
+
+            var assignments = request.ProfileTeams
+                .Where(pt => pt.TeamId != Guid.Empty && pt.PositionId > 0)
+                .GroupBy(pt => new { pt.TeamId, pt.PositionId })
+                .Select(g => g.First())
+                .ToList();
+
+            if (assignments.Count == 0)
+                return new ApiResponse<UserManagementUserResponse>("400", "As atribuições enviadas são inválidas", null);
+
+            var teamIds = assignments.Select(a => a.TeamId).Distinct().ToList();
+            var positionIds = assignments.Select(a => a.PositionId).Distinct().ToList();
+
+            var validTeamIds = await _context.Teams
+                .Where(t => t.DeletedAt == null && teamIds.Contains(t.Id))
+                .Select(t => t.Id)
+                .ToListAsync();
+
+            if (validTeamIds.Count != teamIds.Count)
+                return new ApiResponse<UserManagementUserResponse>("400", "Uma ou mais equipes são inválidas", null);
+
+            var validPositionIds = await _context.Positions
+                .Where(p => positionIds.Contains(p.Id))
+                .Select(p => p.Id)
+                .ToListAsync();
+
+            if (validPositionIds.Count != positionIds.Count)
+                return new ApiResponse<UserManagementUserResponse>("400", "Um ou mais cargos são inválidos", null);
+
+            var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+            var emailAlreadyUsed = await _userManager.Users
+                .AnyAsync(u => u.Email == normalizedEmail && u.Id != id);
+
+            if (emailAlreadyUsed)
+                return new ApiResponse<UserManagementUserResponse>("400", "Já existe um usuário com este e-mail", null);
+
+            if (!string.IsNullOrWhiteSpace(profile.AvatarUrl) && profile.AvatarUrl != request.AvatarUrl)
+            {
+                _fileService.DeleteFile(profile.AvatarUrl);
+            }
+
+            profile.Name = request.Name;
+            profile.AvatarUrl = request.AvatarUrl;
+            profile.IsActive = request.IsActive;
+            profile.UpdatedAt = DateTime.UtcNow;
+
+            if (profile.User != null)
+            {
+                profile.User.Email = normalizedEmail;
+                profile.User.UserName = normalizedEmail;
+                var userUpdateResult = await _userManager.UpdateAsync(profile.User);
+                if (!userUpdateResult.Succeeded)
+                    return new ApiResponse<UserManagementUserResponse>("400", "Erro ao atualizar credenciais do usuário", null);
+            }
+
+            _context.ProfileTeams.RemoveRange(profile.ProfileTeams);
+            foreach (var assignment in assignments)
+            {
+                _context.ProfileTeams.Add(new ProfileTeam
+                {
+                    ProfileId = profile.Id,
+                    TeamId = assignment.TeamId,
+                    PositionId = assignment.PositionId
+                });
+            }
+
+            await _context.SaveChangesAsync();
+
+            await _cache.RemoveAsync($"rbac_{profile.UserId}");
+            await _cache.RemoveAsync($"rbac_v2_{profile.UserId}");
+            await _cache.RemoveAsync($"rbac_v3_{profile.UserId}");
+            await _cache.RemoveAsync($"rbac_v4_{profile.UserId}");
+
+            if (profile.User != null)
+            {
+                await _userManager.UpdateSecurityStampAsync(profile.User);
+            }
+
+            var updatedProfile = await _context.Profiles
+                .Include(p => p.User)
+                .Include(p => p.ProfileTeams)
+                    .ThenInclude(pt => pt.Team)
+                .Include(p => p.ProfileTeams)
+                    .ThenInclude(pt => pt.Position)
+                        .ThenInclude(pos => pos.Department)
+                .FirstAsync(p => p.Id == id);
+
+            return new ApiResponse<UserManagementUserResponse>("200", "Usuário atualizado com sucesso", MapUser(updatedProfile));
+        }
+
+        public async Task<ApiResponse<object>> DeleteUserAsync(Guid id)
+        {
+            var profile = await _context.Profiles
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.Id == id && p.DeletedAt == null);
+
+            if (profile == null)
+                return new ApiResponse<object>("404", "Usuário não encontrado", null);
+
+            if (!string.IsNullOrWhiteSpace(profile.AvatarUrl))
+            {
+                _fileService.DeleteFile(profile.AvatarUrl);
+            }
+
+            profile.IsActive = false;
+            profile.DeletedAt = DateTime.UtcNow;
+            profile.UpdatedAt = DateTime.UtcNow;
+
+            if (profile.User != null)
+            {
+                profile.User.LockoutEnabled = true;
+                profile.User.LockoutEnd = DateTimeOffset.MaxValue;
+                await _userManager.UpdateAsync(profile.User);
+            }
+
+            await _context.SaveChangesAsync();
+
+            await _cache.RemoveAsync($"rbac_{profile.UserId}");
+            await _cache.RemoveAsync($"rbac_v2_{profile.UserId}");
+            await _cache.RemoveAsync($"rbac_v3_{profile.UserId}");
+            await _cache.RemoveAsync($"rbac_v4_{profile.UserId}");
+
+            if (profile.User != null)
+            {
+                await _userManager.UpdateSecurityStampAsync(profile.User);
+            }
+
+            return new ApiResponse<object>("200", "Usuário removido com sucesso", null);
+        }
+
         public async Task<ApiResponse<AccessControlResponse>> GetAccessControlAsync()
         {
             var positions = await _context.Positions.Include(p => p.Accesses).ToListAsync();
@@ -237,6 +510,77 @@ namespace Api.Infrastructure.Services
             await _context.SaveChangesAsync();
 
             return new ApiResponse<ScreenResponse>("200", "Tela atualizada com sucesso", null);
+        }
+
+        private async Task<UserManagementOptionsResponse> BuildUserOptionsAsync()
+        {
+            var teams = await _context.Teams
+                .Where(t => t.DeletedAt == null)
+                .OrderBy(t => t.Name)
+                .Select(t => new TeamResponse(t.Id, t.Name, t.IconUrl, t.LogotipoUrl, t.IsActive))
+                .ToListAsync();
+
+            var positions = await _context.Positions
+                .Include(p => p.Department)
+                .OrderBy(p => p.Name)
+                .Select(p => new PositionOptionResponse(
+                    p.Id,
+                    p.Name,
+                    p.DepartmentId,
+                    p.Department.Name,
+                    p.IsActive
+                ))
+                .ToListAsync();
+
+            return new UserManagementOptionsResponse(teams, positions);
+        }
+
+        private static UserManagementUserResponse MapUser(Profile profile)
+        {
+            var assignments = profile.ProfileTeams
+                .OrderBy(pt => pt.Team.Name)
+                .ThenBy(pt => pt.Position.Name)
+                .Select(pt => new ProfileTeamAssignmentResponse(
+                    pt.Id,
+                    pt.TeamId,
+                    pt.Team.Name,
+                    pt.PositionId,
+                    pt.Position.Name,
+                    pt.Position.DepartmentId,
+                    pt.Position.Department.Name
+                ))
+                .ToList();
+
+            return new UserManagementUserResponse(
+                profile.Id,
+                profile.Name,
+                profile.User?.Email ?? string.Empty,
+                profile.AvatarUrl,
+                profile.IsActive,
+                assignments
+            );
+        }
+        public async Task<ApiResponse<object>> ResendInvitationAsync(Guid id)
+        {
+            var profile = await _context.Profiles
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.Id == id && p.DeletedAt == null);
+
+            if (profile == null)
+                return new ApiResponse<object>("404", "Usuário não encontrado", null);
+
+            var normalizedEmail = profile.User.Email!;
+            var inviteToken = Guid.NewGuid().ToString("N");
+
+            // Expiration: 7 days (168 hours)
+            await _cache.SetAsync($"reset_{inviteToken}", profile.Id.ToString(), TimeSpan.FromHours(168));
+
+            var inviteBaseUrl = _configuration["App:InvitationBaseUrl"] ?? "http://localhost:3000/auth/reset-password";
+            var inviteLink = $"{inviteBaseUrl}?token={inviteToken}&email={Uri.EscapeDataString(normalizedEmail)}";
+
+            await _emailService.SendInvitationEmailAsync(normalizedEmail, inviteLink);
+
+            return new ApiResponse<object>("200", "Convite reenviado com sucesso", null);
         }
     }
 }

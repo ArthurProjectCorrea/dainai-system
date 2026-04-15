@@ -47,6 +47,60 @@ namespace Api.Web.Controllers
             return Ok(response);
         }
 
+        [HttpGet("users")]
+        [HasPermission("users_management", "view")]
+        public async Task<IActionResult> GetUsers()
+        {
+            var response = await _adminService.GetUsersAsync();
+            return Ok(response);
+        }
+
+        [HttpGet("users/{id}")]
+        [HasPermission("users_management", "view")]
+        public async Task<IActionResult> GetUserById(Guid id)
+        {
+            var response = await _adminService.GetUserByIdAsync(id);
+            if (response.Code == "404") return NotFound(response);
+            return Ok(response);
+        }
+
+        [HttpPost("users")]
+        [HasPermission("users_management", "create")]
+        public async Task<IActionResult> CreateUser([FromBody] SaveUserRequest request)
+        {
+            var response = await _adminService.CreateUserAsync(request);
+            if (response.Code == "400") return BadRequest(response);
+            return Ok(response);
+        }
+
+        [HttpPut("users/{id}")]
+        [HasPermission("users_management", "update")]
+        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] SaveUserRequest request)
+        {
+            var response = await _adminService.UpdateUserAsync(id, request);
+            if (response.Code == "404") return NotFound(response);
+            if (response.Code == "400") return BadRequest(response);
+            return Ok(response);
+        }
+
+        [HttpPost("users/{id}/resend-invitation")]
+        [HasPermission("users_management", "update")]
+        public async Task<IActionResult> ResendInvitation(Guid id)
+        {
+            var response = await _adminService.ResendInvitationAsync(id);
+            if (response.Code == "404") return NotFound(response);
+            return Ok(response);
+        }
+
+        [HttpDelete("users/{id}")]
+        [HasPermission("users_management", "delete")]
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            var response = await _adminService.DeleteUserAsync(id);
+            if (response.Code == "404") return NotFound(response);
+            return Ok(response);
+        }
+
         // --- ACCESS CONTROL ---
         [HttpGet("access-control")]
         [HasPermission("access_control", "view")]

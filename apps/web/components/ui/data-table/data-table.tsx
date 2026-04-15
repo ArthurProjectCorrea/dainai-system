@@ -15,7 +15,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2, LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 
 import {
@@ -65,6 +65,13 @@ interface DataTableProps<TData, TValue> {
     onDelete?: (row: TData) => void
     show?: boolean
   }
+  rowActions?: {
+    icon: LucideIcon
+    label: string
+    onClick: (row: TData) => void
+    show?: boolean
+    variant?: 'ghost' | 'destructive' | 'default' | 'secondary'
+  }[]
   onSuccess?: () => void
 }
 
@@ -77,6 +84,7 @@ export function DataTable<TData, TValue>({
   newConfig,
   editConfig,
   deleteConfig,
+  rowActions,
   onSuccess,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
@@ -102,8 +110,9 @@ export function DataTable<TData, TValue>({
 
     const showEdit = editConfig?.show !== false && (editConfig?.url || editConfig?.dialog)
     const showDelete = deleteConfig?.show !== false && deleteConfig?.onDelete
+    const hasRowActions = (rowActions?.length ?? 0) > 0
 
-    if (showEdit || showDelete) {
+    if (showEdit || showDelete || hasRowActions) {
       cols.push({
         id: 'actions',
         header: () => <div className="text-center">Ações</div>,
@@ -117,10 +126,12 @@ export function DataTable<TData, TValue>({
                       {editConfig.url ? (
                         <Button variant="ghost" size="icon-sm" asChild>
                           <Link
-                            href={editConfig.url.replace(
-                              ':id',
-                              String((row.original as { id: string | number }).id),
-                            )}
+                            href={editConfig.url
+                              .replace(':id', String((row.original as { id: string | number }).id))
+                              .replace(
+                                '[id]',
+                                String((row.original as { id: string | number }).id),
+                              )}
                           >
                             <Pencil className="h-4 w-4" />
                           </Link>
@@ -162,6 +173,28 @@ export function DataTable<TData, TValue>({
                     <TooltipContent>Excluir</TooltipContent>
                   </Tooltip>
                 )}
+
+                {rowActions?.map((action, idx) => {
+                  if (action.show === false) return null
+                  const Icon = action.icon
+                  return (
+                    <Tooltip key={idx}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={action.variant || 'ghost'}
+                          size="icon-sm"
+                          onClick={e => {
+                            e.stopPropagation()
+                            action.onClick(row.original)
+                          }}
+                        >
+                          <Icon className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{action.label}</TooltipContent>
+                    </Tooltip>
+                  )
+                })}
               </TooltipProvider>
             </div>
           )
@@ -170,7 +203,7 @@ export function DataTable<TData, TValue>({
     }
 
     return cols
-  }, [initialColumns, editConfig, deleteConfig])
+  }, [initialColumns, editConfig, deleteConfig, rowActions])
 
   const table = useReactTable({
     data,

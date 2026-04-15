@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import Image from 'next/image'
-import { Building2, ChevronsUpDown } from 'lucide-react'
+import { Building2, ChevronsUpDown, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 import {
@@ -130,9 +130,19 @@ export function TeamSwitcher({
                       {team.isActive ? team.position : 'Inativo'}
                     </span>
                   </div>
-                  <DropdownMenuShortcut>
-                    {activeTeamId === team.id ? 'Ativo' : team.isActive ? `Ctrl+${index + 1}` : ''}
-                  </DropdownMenuShortcut>
+                  <div className="ml-auto">
+                    {activeTeamId === team.id && <Check className="size-4 text-emerald-500" />}
+                    {!team.isActive && (
+                      <span className="text-[10px] uppercase tracking-wider text-amber-500 font-bold">
+                        Inativo
+                      </span>
+                    )}
+                    {activeTeamId !== team.id && team.isActive && (
+                      <DropdownMenuShortcut className="ml-0">
+                        {`Ctrl+${index + 1}`}
+                      </DropdownMenuShortcut>
+                    )}
+                  </div>
                 </DropdownMenuItem>
               )
             })}

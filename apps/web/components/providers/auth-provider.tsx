@@ -144,12 +144,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const storedActiveTeamId =
           typeof window !== 'undefined' ? window.localStorage.getItem('active_team_id') : null
 
-        const initialActiveTeamId = teams.some(team => team.id === storedActiveTeamId)
-          ? storedActiveTeamId
-          : (teams[0]?.id ?? null)
+        const activeTeams = teams.filter(team => team.isActive)
+        const storedTeamIsActive = teams.find(t => t.id === storedActiveTeamId)?.isActive
+
+        const initialActiveTeamId =
+          storedActiveTeamId && storedTeamIsActive
+            ? storedActiveTeamId
+            : (activeTeams[0]?.id ?? teams[0]?.id ?? null)
 
         setActiveTeamId(initialActiveTeamId)
-
         if (initialActiveTeamId && typeof window !== 'undefined') {
           window.localStorage.setItem('active_team_id', initialActiveTeamId)
           document.cookie = `active_team_id=${initialActiveTeamId}; path=/; samesite=lax`

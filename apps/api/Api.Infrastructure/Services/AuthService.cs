@@ -39,10 +39,22 @@ namespace Api.Infrastructure.Services
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null) return new ApiResponse<LoginResponse>("401", "Credenciais inválidas", null);
 
-            var profile = await _context.Profiles.FirstOrDefaultAsync(p => p.UserId == user.Id);
-            if (profile != null && !profile.IsActive)
+            var profile = await _context.Profiles
+                .Include(p => p.ProfileTeams)
+                    .ThenInclude(pt => pt.Team)
+                .FirstOrDefaultAsync(p => p.UserId == user.Id);
+
+            if (profile != null)
             {
-                return new ApiResponse<LoginResponse>("401", "Credenciais inválidas", null);
+                if (!profile.IsActive)
+                {
+                    return new ApiResponse<LoginResponse>("401", "Credenciais inválidas", null);
+                }
+
+                if (profile.ProfileTeams.Count == 1 && !profile.ProfileTeams.First().Team.IsActive)
+                {
+                    return new ApiResponse<LoginResponse>("403", "Sua equipe está inativa. Entre em contato com o administrador.", null);
+                }
             }
 
             var result = await _signInManager.PasswordSignInAsync(user, request.Password, false, false);
@@ -100,6 +112,12 @@ namespace Api.Infrastructure.Services
 
             if (profile == null) return new ApiResponse<UserMeResponse>("404", "Perfil não encontrado", null);
             if (!profile.IsActive) return new ApiResponse<UserMeResponse>("401", "Sessão inválida ou expirada", null);
+
+            // Countermeasure: check if user has only 1 team and it's inactive
+            if (profile.ProfileTeams.Count == 1 && !profile.ProfileTeams.First().Team.IsActive)
+            {
+                return new ApiResponse<UserMeResponse>("403", "Sua equipe está inativa. Entre em contato com o administrador.", null);
+            }
 
             var teamAccesses = profile.ProfileTeams
                 .Select(pt => new TeamAccessDto(
