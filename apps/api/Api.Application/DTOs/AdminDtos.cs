@@ -64,12 +64,36 @@ namespace Api.Application.DTOs
 
     public record ScreenResponse(int Id, string Name, string NameSidebar, string NameKey);
 
+    public record AccessControlIndicatorsResponse(int Total, int Active, int Inactive);
+
     public record AccessControlResponse(
         List<PositionResponse> Data,
         List<DepartmentDto> Departments,
         List<PermissionDto> Permissions,
-        List<ScreenDto> Screens
+        List<ScreenDto> Screens,
+        AccessControlIndicatorsResponse PositionIndicators,
+        int DepartmentCount
     );
 
     public record DepartmentDto(int Id, string Name);
+
+    public record SaveDepartmentRequest(string Name);
+
+    public record PositionAccessRequest(int ScreenId, int PermissionId);
+
+    public record PositionDetailResponse(
+        int Id,
+        string Name,
+        int DepartmentId,
+        bool IsActive,
+        List<PositionAccessRequest> Accesses
+    );
+
+    public record SavePositionRequest(
+        string Name,
+        int DepartmentId,
+        string? NewDepartmentName,
+        bool IsActive,
+        List<PositionAccessRequest> Accesses
+    );
 }

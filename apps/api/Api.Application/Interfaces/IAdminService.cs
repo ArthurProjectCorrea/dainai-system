@@ -21,7 +21,17 @@ namespace Api.Application.Interfaces
 
         // Access Control
         Task<ApiResponse<AccessControlResponse>> GetAccessControlAsync();
-        Task<ApiResponse<PositionResponse>> CreatePositionAsync(Position record);
+
+        // Departments
+        Task<ApiResponse<DepartmentDto>> GetDepartmentByIdAsync(int id);
+        Task<ApiResponse<DepartmentDto>> CreateDepartmentAsync(SaveDepartmentRequest request);
+        Task<ApiResponse<DepartmentDto>> UpdateDepartmentAsync(int id, SaveDepartmentRequest request);
+        Task<ApiResponse<object>> DeleteDepartmentAsync(int id);
+
+        // Positions
+        Task<ApiResponse<PositionDetailResponse>> GetPositionByIdAsync(int id);
+        Task<ApiResponse<PositionResponse>> CreatePositionAsync(SavePositionRequest request);
+        Task<ApiResponse<PositionResponse>> UpdatePositionAsync(int id, SavePositionRequest request);
         Task<ApiResponse<object>> DeletePositionAsync(int id);
 
         // Teams

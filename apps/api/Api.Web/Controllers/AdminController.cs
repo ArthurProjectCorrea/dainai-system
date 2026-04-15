@@ -101,7 +101,56 @@ namespace Api.Web.Controllers
             return Ok(response);
         }
 
-        // --- ACCESS CONTROL ---
+
+        // --- ACCESS CONTROL: DEPARTMENTS ---
+        [HttpGet("access-control/departments/{id}")]
+        [HasPermission("access_control", "view")]
+        public async Task<IActionResult> GetDepartmentById(int id)
+        {
+            var response = await _adminService.GetDepartmentByIdAsync(id);
+            if (response.Code == "404") return NotFound(response);
+            return Ok(response);
+        }
+
+        [HttpPost("access-control/departments")]
+        [HasPermission("access_control", "create")]
+        public async Task<IActionResult> CreateDepartment([FromBody] SaveDepartmentRequest request)
+        {
+            var response = await _adminService.CreateDepartmentAsync(request);
+            if (response.Code == "400") return BadRequest(response);
+            return Ok(response);
+        }
+
+        [HttpPut("access-control/departments/{id}")]
+        [HasPermission("access_control", "update")]
+        public async Task<IActionResult> UpdateDepartment(int id, [FromBody] SaveDepartmentRequest request)
+        {
+            var response = await _adminService.UpdateDepartmentAsync(id, request);
+            if (response.Code == "404") return NotFound(response);
+            if (response.Code == "400") return BadRequest(response);
+            return Ok(response);
+        }
+
+        [HttpDelete("access-control/departments/{id}")]
+        [HasPermission("access_control", "delete")]
+        public async Task<IActionResult> DeleteDepartment(int id)
+        {
+            var response = await _adminService.DeleteDepartmentAsync(id);
+            if (response.Code == "404") return NotFound(response);
+            if (response.Code == "400") return BadRequest(response);
+            return Ok(response);
+        }
+
+        // --- ACCESS CONTROL: POSITIONS ---
+        [HttpGet("access-control/positions/{id}")]
+        [HasPermission("access_control", "view")]
+        public async Task<IActionResult> GetPositionById(int id)
+        {
+            var response = await _adminService.GetPositionByIdAsync(id);
+            if (response.Code == "404") return NotFound(response);
+            return Ok(response);
+        }
+
         [HttpGet("access-control")]
         [HasPermission("access_control", "view")]
         public async Task<IActionResult> GetAccessControl()
@@ -110,19 +159,31 @@ namespace Api.Web.Controllers
             return Ok(response);
         }
 
-        [HttpPost("access-control")]
+        [HttpPost("access-control/positions")]
         [HasPermission("access_control", "create")]
-        public async Task<IActionResult> CreatePosition([FromBody] Position record)
+        public async Task<IActionResult> CreatePosition([FromBody] SavePositionRequest request)
         {
-            var response = await _adminService.CreatePositionAsync(record);
+            var response = await _adminService.CreatePositionAsync(request);
+            if (response.Code == "400") return BadRequest(response);
             return Ok(response);
         }
 
-        [HttpDelete("access-control/{id}")]
+        [HttpPut("access-control/positions/{id}")]
+        [HasPermission("access_control", "update")]
+        public async Task<IActionResult> UpdatePosition(int id, [FromBody] SavePositionRequest request)
+        {
+            var response = await _adminService.UpdatePositionAsync(id, request);
+            if (response.Code == "404") return NotFound(response);
+            if (response.Code == "400") return BadRequest(response);
+            return Ok(response);
+        }
+
+        [HttpDelete("access-control/positions/{id}")]
         [HasPermission("access_control", "delete")]
         public async Task<IActionResult> DeletePosition(int id)
         {
             var response = await _adminService.DeletePositionAsync(id);
+            if (response.Code == "404") return NotFound(response);
             if (response.Code == "400") return BadRequest(response);
             return Ok(response);
         }

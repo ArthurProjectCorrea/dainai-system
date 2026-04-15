@@ -381,6 +381,29 @@ namespace Api.Infrastructure.Services
             return new ApiResponse<object>("200", "Usuário removido com sucesso", null);
         }
 
+        public async Task<ApiResponse<DepartmentDto>> GetDepartmentByIdAsync(int id)
+        {
+            var dept = await _context.Departments.FindAsync(id);
+            if (dept == null) return new ApiResponse<DepartmentDto>("404", "Departamento não encontrado", null);
+            return new ApiResponse<DepartmentDto>("200", "", new DepartmentDto(dept.Id, dept.Name));
+        }
+
+        public async Task<ApiResponse<PositionDetailResponse>> GetPositionByIdAsync(int id)
+        {
+            var pos = await _context.Positions.Include(p => p.Accesses).FirstOrDefaultAsync(p => p.Id == id);
+            if (pos == null) return new ApiResponse<PositionDetailResponse>("404", "Cargo não encontrado", null);
+
+            var response = new PositionDetailResponse(
+                pos.Id,
+                pos.Name,
+                pos.DepartmentId,
+                pos.IsActive,
+                pos.Accesses.Select(a => new PositionAccessRequest(a.ScreenId, a.PermissionId)).ToList()
+            );
+
+            return new ApiResponse<PositionDetailResponse>("200", "", response);
+        }
+
         public async Task<ApiResponse<AccessControlResponse>> GetAccessControlAsync()
         {
             var positions = await _context.Positions.Include(p => p.Accesses).ToListAsync();
@@ -397,17 +420,132 @@ namespace Api.Infrastructure.Services
                 data,
                 depts.Select(d => new DepartmentDto(d.Id, d.Name)).ToList(),
                 perms.Select(p => new PermissionDto(p.Id, p.Name, p.NameKey)).ToList(),
-                screens.Select(s => new ScreenDto(s.Id, s.Name, s.NameSidebar, s.NameKey)).ToList()
+                screens.Select(s => new ScreenDto(s.Id, s.Name, s.NameSidebar, s.NameKey)).ToList(),
+                new AccessControlIndicatorsResponse(
+                    positions.Count,
+                    positions.Count(p => p.IsActive),
+                    positions.Count(p => !p.IsActive)
+                ),
+                depts.Count
             );
 
             return new ApiResponse<AccessControlResponse>("200", "", response);
         }
 
-        public async Task<ApiResponse<PositionResponse>> CreatePositionAsync(Position record)
+        public async Task<ApiResponse<DepartmentDto>> CreateDepartmentAsync(SaveDepartmentRequest request)
         {
-            _context.Positions.Add(record);
+            var dept = new Department { Name = request.Name };
+            _context.Departments.Add(dept);
             await _context.SaveChangesAsync();
+            return new ApiResponse<DepartmentDto>("201", "Departamento criado com sucesso", new DepartmentDto(dept.Id, dept.Name));
+        }
+
+        public async Task<ApiResponse<DepartmentDto>> UpdateDepartmentAsync(int id, SaveDepartmentRequest request)
+        {
+            var dept = await _context.Departments.FindAsync(id);
+            if (dept == null) return new ApiResponse<DepartmentDto>("404", "Departamento não encontrado", null);
+
+            dept.Name = request.Name;
+            await _context.SaveChangesAsync();
+            return new ApiResponse<DepartmentDto>("200", "Departamento atualizado com sucesso", new DepartmentDto(dept.Id, dept.Name));
+        }
+
+        public async Task<ApiResponse<object>> DeleteDepartmentAsync(int id)
+        {
+            var dept = await _context.Departments.Include(d => d.Positions).FirstOrDefaultAsync(d => d.Id == id);
+            if (dept == null) return new ApiResponse<object>("404", "Departamento não encontrado", null);
+
+            if (dept.Positions.Any())
+                return new ApiResponse<object>("400", "Não é possível excluir um departamento que possua cargos vinculados", null);
+
+            _context.Departments.Remove(dept);
+            await _context.SaveChangesAsync();
+            return new ApiResponse<object>("200", "Departamento removido com sucesso", null);
+        }
+
+        public async Task<ApiResponse<PositionResponse>> CreatePositionAsync(SavePositionRequest request)
+        {
+            var resolvedDepartmentId = await ResolveDepartmentIdAsync(request.DepartmentId, request.NewDepartmentName);
+            if (resolvedDepartmentId == 0)
+                return new ApiResponse<PositionResponse>("400", "Departamento inválido ou não informado", null);
+
+            var position = new Position
+            {
+                Name = request.Name,
+                DepartmentId = resolvedDepartmentId,
+                IsActive = request.IsActive
+            };
+
+            _context.Positions.Add(position);
+            await _context.SaveChangesAsync(); // Get ID
+
+            if (request.Accesses?.Any() == true)
+            {
+                foreach (var acc in request.Accesses)
+                {
+                    _context.Accesses.Add(new Access
+                    {
+                        PositionId = position.Id,
+                        ScreenId = acc.ScreenId,
+                        PermissionId = acc.PermissionId
+                    });
+                }
+                await _context.SaveChangesAsync();
+            }
+
             return new ApiResponse<PositionResponse>("201", "Cargo criado com sucesso", null);
+        }
+
+        public async Task<ApiResponse<PositionResponse>> UpdatePositionAsync(int id, SavePositionRequest request)
+        {
+            var position = await _context.Positions.Include(p => p.Accesses).FirstOrDefaultAsync(p => p.Id == id);
+            if (position == null) return new ApiResponse<PositionResponse>("404", "Cargo não encontrado", null);
+
+            var resolvedDepartmentId = await ResolveDepartmentIdAsync(request.DepartmentId, request.NewDepartmentName);
+            if (resolvedDepartmentId == 0)
+                return new ApiResponse<PositionResponse>("400", "Departamento inválido ou não informado", null);
+
+            position.Name = request.Name;
+            position.DepartmentId = resolvedDepartmentId;
+            position.IsActive = request.IsActive;
+
+            // Sync Accesses
+            _context.Accesses.RemoveRange(position.Accesses);
+
+            if (request.Accesses?.Any() == true)
+            {
+                foreach (var acc in request.Accesses)
+                {
+                    _context.Accesses.Add(new Access
+                    {
+                        PositionId = position.Id,
+                        ScreenId = acc.ScreenId,
+                        PermissionId = acc.PermissionId
+                    });
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return new ApiResponse<PositionResponse>("200", "Cargo atualizado com sucesso", null);
+        }
+
+        private async Task<int> ResolveDepartmentIdAsync(int existingId, string? newName)
+        {
+            if (existingId > 0) return existingId;
+
+            if (string.IsNullOrWhiteSpace(newName)) return 0;
+
+            var normalizedName = newName.Trim();
+            var existingDept = await _context.Departments
+                .FirstOrDefaultAsync(d => d.Name.ToLower() == normalizedName.ToLower());
+
+            if (existingDept != null) return existingDept.Id;
+
+            var newDept = new Department { Name = normalizedName };
+            _context.Departments.Add(newDept);
+            await _context.SaveChangesAsync();
+
+            return newDept.Id;
         }
 
         public async Task<ApiResponse<object>> DeletePositionAsync(int id)

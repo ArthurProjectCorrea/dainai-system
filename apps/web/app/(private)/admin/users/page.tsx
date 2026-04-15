@@ -14,8 +14,6 @@ import { Badge } from '@/components/ui/badge'
 import { StatCard } from '@/components/stat-card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Button } from '@/components/ui/button'
 
 import type { UserManagementIndicators, UserManagementUser, UsersListPayload } from '@/types/user'
 
