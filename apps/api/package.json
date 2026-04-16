@@ -7,7 +7,9 @@
     "build": "dotnet build Api.sln -c Release",
     "lint": "dotnet format Api.sln --verify-no-changes",
     "test": "dotnet test Api.Tests/Api.Tests.csproj --filter \"Category!=E2E\"",
-    "test:e2e": "dotnet test Api.Tests/Api.Tests.csproj --filter Category=E2E",
+    "test:e2e": "dotnet test Api.Tests/Api.Tests.csproj --filter Category=E2E --logger \"console;verbosity=normal\"",
+    "test:docker": "cd ../.. && docker compose up -d --build && timeout /t 15 && cd apps/api && dotnet test Api.Tests/Api.Tests.csproj --filter Category=E2E --logger \"console;verbosity=normal\"",
+    "test:docker:run": "dotnet test Api.Tests/Api.Tests.csproj --filter Category=E2E --logger \"console;verbosity=normal\"",
     "format": "dotnet format Api.sln"
   }
 }

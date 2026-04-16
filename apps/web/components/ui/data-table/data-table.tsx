@@ -15,7 +15,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { Pencil, Trash2, LucideIcon } from 'lucide-react'
+import { Pencil, Trash2, Eye, LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 
 import {
@@ -61,6 +61,11 @@ interface DataTableProps<TData, TValue> {
     dialog?: React.ComponentType<{ data?: TData | null; onSuccess: () => void }>
     show?: boolean
   }
+  viewConfig?: {
+    url?: string
+    dialog?: React.ComponentType<{ data?: TData | null; onSuccess: () => void; readOnly?: boolean }>
+    show?: boolean
+  }
   deleteConfig?: {
     onDelete?: (row: TData) => void
     show?: boolean
@@ -83,6 +88,7 @@ export function DataTable<TData, TValue>({
   onReload,
   newConfig,
   editConfig,
+  viewConfig,
   deleteConfig,
   rowActions,
   onSuccess,
@@ -109,10 +115,11 @@ export function DataTable<TData, TValue>({
     const cols = [...initialColumns]
 
     const showEdit = editConfig?.show !== false && (editConfig?.url || editConfig?.dialog)
+    const showView = viewConfig?.show !== false && (viewConfig?.url || viewConfig?.dialog)
     const showDelete = deleteConfig?.show !== false && deleteConfig?.onDelete
     const hasRowActions = (rowActions?.length ?? 0) > 0
 
-    if (showEdit || showDelete || hasRowActions) {
+    if (showEdit || showView || showDelete || hasRowActions) {
       cols.push({
         id: 'actions',
         header: () => <div className="text-center">Ações</div>,
@@ -120,6 +127,41 @@ export function DataTable<TData, TValue>({
           return (
             <div className="flex items-center justify-center gap-2">
               <TooltipProvider>
+                {showView && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      {viewConfig.url ? (
+                        <Button variant="ghost" size="icon-sm" asChild>
+                          <Link
+                            href={viewConfig.url
+                              .replace(':id', String((row.original as { id: string | number }).id))
+                              .replace(
+                                '[id]',
+                                String((row.original as { id: string | number }).id),
+                              )}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => {
+                            setDialogTitle('Visualizar Registro')
+                            setDialogForm(() => viewConfig.dialog!)
+                            setDialogData(row.original)
+                            setDialogOpen(true)
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </TooltipTrigger>
+                    <TooltipContent>Visualizar</TooltipContent>
+                  </Tooltip>
+                )}
+
                 {showEdit && (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -203,7 +245,7 @@ export function DataTable<TData, TValue>({
     }
 
     return cols
-  }, [initialColumns, editConfig, deleteConfig, rowActions])
+  }, [initialColumns, editConfig, viewConfig, deleteConfig, rowActions])
 
   const table = useReactTable({
     data,
@@ -298,6 +340,7 @@ export function DataTable<TData, TValue>({
         form={dialogForm}
         formData={dialogData}
         onSuccess={onSuccess}
+        readOnly={dialogTitle === 'Visualizar Registro'}
       />
 
       <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>

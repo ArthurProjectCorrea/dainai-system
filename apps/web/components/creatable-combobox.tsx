@@ -26,6 +26,7 @@ interface CreatableComboboxProps {
   placeholder?: string
   emptyMessage?: string
   createLabel?: string
+  disabled?: boolean
 }
 
 export function CreatableCombobox({
@@ -35,6 +36,7 @@ export function CreatableCombobox({
   placeholder = 'Selecione uma opção...',
   emptyMessage = 'Nenhum resultado encontrado.',
   createLabel = 'Criar novo',
+  disabled,
 }: CreatableComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
@@ -45,12 +47,13 @@ export function CreatableCombobox({
   const exactMatch = options.find(option => option.label.toLowerCase() === search.toLowerCase())
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={disabled ? undefined : setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
           aria-expanded={open}
+          disabled={disabled}
           className="w-full justify-between font-normal"
         >
           {value ? selectedOption?.label || value : placeholder}

@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { forbidden, useParams, useRouter } from 'next/navigation'
+import { forbidden, useParams, useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { useAuth } from '@/hooks/use-auth'
@@ -10,9 +10,11 @@ import { UserForm } from '@/components/form/user-form'
 
 import type { UserDetailPayload } from '@/types/user'
 
-export default function EditUserPage() {
+function EditUserContent() {
   const router = useRouter()
   const params = useParams<{ id: string }>()
+  const searchParams = useSearchParams()
+  const mode = (searchParams.get('mode') as 'edit' | 'view') || 'edit'
   const userId = params.id
 
   const { hasPermission, loading, activeAccesses } = useAuth()
@@ -43,10 +45,15 @@ export default function EditUserPage() {
       }
     }
 
-    if (!loading && hasPermission('users_management', 'update')) {
+    const canAccess =
+      mode === 'view'
+        ? hasPermission('users_management', 'view')
+        : hasPermission('users_management', 'update')
+
+    if (!loading && canAccess) {
       loadUser()
     }
-  }, [loading, hasPermission, userId, router])
+  }, [loading, hasPermission, userId, router, mode])
 
   const screenName = React.useMemo(() => {
     return activeAccesses.find(a => a.nameKey === 'users_management')?.name || 'Usuarios'
@@ -54,7 +61,12 @@ export default function EditUserPage() {
 
   if (loading) return null
 
-  if (!hasPermission('users_management', 'update')) {
+  const canAccess =
+    mode === 'view'
+      ? hasPermission('users_management', 'view')
+      : hasPermission('users_management', 'update')
+
+  if (!canAccess) {
     return forbidden()
   }
 
@@ -68,17 +80,27 @@ export default function EditUserPage() {
         breadcrumbs={[
           { label: 'Administrador' },
           { label: screenName, href: '/admin/users' },
-          { label: payload.user.name || 'Editar Usuario' },
+          {
+            label: payload.user.name || (mode === 'view' ? 'Visualizar' : 'Editar Usuario'),
+          },
         ]}
       />
 
       <UserForm
-        mode="edit"
+        mode={mode}
         user={payload.user}
         options={payload.options}
         onSuccess={() => router.push('/admin/users')}
         onCancel={() => router.push('/admin/users')}
       />
     </div>
+  )
+}
+
+export default function EditUserPage() {
+  return (
+    <React.Suspense fallback={null}>
+      <EditUserContent />
+    </React.Suspense>
   )
 }

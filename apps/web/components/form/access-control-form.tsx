@@ -44,6 +44,7 @@ interface AccessControlFormProps {
   }
   onSuccess?: () => void
   onCancel?: () => void
+  readOnly?: boolean
 }
 
 export function AccessControlForm({
@@ -53,6 +54,7 @@ export function AccessControlForm({
   options,
   onSuccess,
   onCancel,
+  readOnly,
 }: AccessControlFormProps) {
   const [loading, setLoading] = React.useState(false)
 
@@ -166,7 +168,8 @@ export function AccessControlForm({
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-2 border-b mb-2 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-0.5">
           <h2 className="text-lg font-semibold tracking-tight">
-            {type === 'edit' ? 'Editar' : 'Novo'} {mode === 'department' ? 'Departamento' : 'Cargo'}
+            {readOnly ? 'Visualizar' : type === 'edit' ? 'Editar' : 'Novo'}{' '}
+            {mode === 'department' ? 'Departamento' : 'Cargo'}
           </h2>
           <p className="text-[11px] text-muted-foreground">
             {mode === 'department'
@@ -176,14 +179,16 @@ export function AccessControlForm({
         </div>
         <div className="flex items-center gap-3">
           <Button type="button" variant="outline" onClick={onCancel}>
-            Cancelar
+            {readOnly ? 'Voltar' : 'Cancelar'}
           </Button>
-          <Button type="submit" disabled={loading}>
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {type === 'edit'
-              ? 'Salvar Alterações'
-              : `Criar ${mode === 'department' ? 'Departamento' : 'Cargo'}`}
-          </Button>
+          {!readOnly && (
+            <Button type="submit" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {type === 'edit'
+                ? 'Salvar Alterações'
+                : `Criar ${mode === 'department' ? 'Departamento' : 'Cargo'}`}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -219,6 +224,7 @@ export function AccessControlForm({
                     mode === 'department' ? 'Ex: Recursos Humanos' : 'Ex: Analista de Sistemas'
                   }
                   required
+                  disabled={readOnly}
                 />
               </Field>
 
@@ -239,6 +245,7 @@ export function AccessControlForm({
                     }}
                     placeholder="Selecione ou digite um departamento..."
                     createLabel="Criar novo departamento"
+                    disabled={readOnly}
                   />
                 </Field>
               )}
@@ -252,7 +259,7 @@ export function AccessControlForm({
                     Determine se o cargo está ativo e disponível para novos usuários.
                   </FieldDescription>
                 </FieldContent>
-                <Switch checked={isActive} onCheckedChange={setIsActive} />
+                <Switch checked={isActive} onCheckedChange={setIsActive} disabled={readOnly} />
               </Field>
             )}
           </CardContent>
@@ -324,6 +331,7 @@ export function AccessControlForm({
                                     checked={selectedAccesses.get(screen.id)?.has(perm.id) || false}
                                     onCheckedChange={() => togglePermission(screen.id, perm.id)}
                                     className="mx-auto h-3.5 w-3.5"
+                                    disabled={readOnly}
                                   />
                                 ) : (
                                   <div className="w-3.5 h-3.5 mx-auto border border-dashed rounded-[2px] opacity-10" />
@@ -338,6 +346,7 @@ export function AccessControlForm({
                                 toggleAllForScreen(screen.id, checked as boolean)
                               }
                               className="mx-auto h-3.5 w-3.5"
+                              disabled={readOnly}
                             />
                           </td>
                         </tr>

@@ -28,7 +28,7 @@ import {
 import type { SaveUserPayload, UserManagementOptions, UserManagementUser } from '@/types/user'
 
 interface UserFormProps {
-  mode: 'create' | 'edit'
+  mode: 'create' | 'edit' | 'view'
   user?: UserManagementUser | null
   options: UserManagementOptions
   onSuccess: () => void
@@ -208,22 +208,30 @@ export function UserForm({ mode, user, options, onSuccess, onCancel }: UserFormP
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-2 border-b mb-2 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-0.5">
           <h2 className="text-lg font-semibold tracking-tight">
-            {mode === 'edit' ? 'Editar Usuário' : 'Novo Usuário'}
+            {mode === 'edit'
+              ? 'Editar Usuário'
+              : mode === 'view'
+                ? 'Visualizar Usuário'
+                : 'Novo Usuário'}
           </h2>
           <p className="text-[11px] text-muted-foreground">
             {mode === 'edit'
               ? 'Atualize as permissões e dados de acesso'
-              : 'Cadastre um novo colaborador no sistema'}
+              : mode === 'view'
+                ? 'Dados de cadastro e acesso do colaborador'
+                : 'Cadastre um novo colaborador no sistema'}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Button type="button" variant="outline" onClick={onCancel}>
-            Cancelar
+            {mode === 'view' ? 'Voltar' : 'Cancelar'}
           </Button>
-          <Button type="submit" disabled={loading}>
-            {loading && <Spinner className="mr-2 h-4 w-4" />}
-            {mode === 'edit' ? 'Salvar Alterações' : 'Criar Usuário'}
-          </Button>
+          {mode !== 'view' && (
+            <Button type="submit" disabled={loading}>
+              {loading && <Spinner className="mr-2 h-4 w-4" />}
+              {mode === 'edit' ? 'Salvar Alterações' : 'Criar Usuário'}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -236,7 +244,13 @@ export function UserForm({ mode, user, options, onSuccess, onCancel }: UserFormP
             <FieldGroup className="grid gap-6 md:grid-cols-2">
               <Field>
                 <FieldLabel htmlFor="name">Nome</FieldLabel>
-                <Input id="name" name="name" defaultValue={user?.name || ''} required />
+                <Input
+                  id="name"
+                  name="name"
+                  defaultValue={user?.name || ''}
+                  required
+                  disabled={mode === 'view'}
+                />
               </Field>
 
               <Field>
@@ -247,6 +261,7 @@ export function UserForm({ mode, user, options, onSuccess, onCancel }: UserFormP
                   type="email"
                   defaultValue={user?.email || ''}
                   required
+                  disabled={mode === 'view'}
                 />
               </Field>
 
@@ -263,6 +278,7 @@ export function UserForm({ mode, user, options, onSuccess, onCancel }: UserFormP
                     name="isActive"
                     checked={isActive}
                     onCheckedChange={setIsActive}
+                    disabled={mode === 'view'}
                   />
                 </Field>
               </FieldLabel>
@@ -298,19 +314,21 @@ export function UserForm({ mode, user, options, onSuccess, onCancel }: UserFormP
                   Foto de Perfil
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-8 border-primary/20 hover:bg-primary/5 hover:text-primary transition-all active:scale-95 px-3"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
-                  >
-                    <Upload className="mr-2 h-3.5 w-3.5" />
-                    Trocar Foto
-                  </Button>
+                  {!mode || mode !== 'view' ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8 border-primary/20 hover:bg-primary/5 hover:text-primary transition-all active:scale-95 px-3"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                    >
+                      <Upload className="mr-2 h-3.5 w-3.5" />
+                      Trocar Foto
+                    </Button>
+                  ) : null}
 
-                  {avatarUrl && (
+                  {avatarUrl && mode !== 'view' && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -363,6 +381,7 @@ export function UserForm({ mode, user, options, onSuccess, onCancel }: UserFormP
                   <Select
                     value={assignment.teamId}
                     onValueChange={value => updateAssignment(assignment.key, { teamId: value })}
+                    disabled={mode === 'view'}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione o time" />
@@ -387,6 +406,7 @@ export function UserForm({ mode, user, options, onSuccess, onCancel }: UserFormP
                         positionId: '', // Reset position when department changes
                       })
                     }
+                    disabled={mode === 'view'}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione o depto." />
@@ -406,7 +426,7 @@ export function UserForm({ mode, user, options, onSuccess, onCancel }: UserFormP
                   <Select
                     value={assignment.positionId}
                     onValueChange={value => updateAssignment(assignment.key, { positionId: value })}
-                    disabled={!assignment.departmentId}
+                    disabled={!assignment.departmentId || mode === 'view'}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue
@@ -426,24 +446,28 @@ export function UserForm({ mode, user, options, onSuccess, onCancel }: UserFormP
                 </Field>
 
                 <div className="flex items-end justify-end">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => removeAssignment(assignment.key)}
-                    aria-label={`Remover atribuição ${index + 1}`}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {mode !== 'view' && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => removeAssignment(assignment.key)}
+                      aria-label={`Remover atribuição ${index + 1}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
             )
           })}
 
-          <Button type="button" variant="outline" onClick={addAssignment}>
-            <Plus className="mr-2 h-4 w-4" />
-            Adicionar Atribuição
-          </Button>
+          {mode !== 'view' && (
+            <Button type="button" variant="outline" onClick={addAssignment}>
+              <Plus className="mr-2 h-4 w-4" />
+              Adicionar Atribuição
+            </Button>
+          )}
         </CardContent>
       </Card>
 

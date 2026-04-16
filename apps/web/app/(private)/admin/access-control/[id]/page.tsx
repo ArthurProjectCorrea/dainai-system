@@ -13,6 +13,7 @@ function EditAccessControlContent() {
   const router = useRouter()
   const params = useParams<{ id: string }>()
   const searchParams = useSearchParams()
+  const mode = (searchParams.get('mode') as 'edit' | 'view') || 'edit'
 
   const id = params.id
   const type = (searchParams.get('type') as 'position' | 'department') || 'position'
@@ -56,10 +57,15 @@ function EditAccessControlContent() {
       }
     }
 
-    if (!loading && hasPermission('access_control', 'update')) {
+    const canAccess =
+      mode === 'view'
+        ? hasPermission('access_control', 'view')
+        : hasPermission('access_control', 'update')
+
+    if (!loading && canAccess) {
       fetchData()
     }
-  }, [loading, hasPermission, id, type, router])
+  }, [loading, hasPermission, id, type, router, mode])
 
   const screenName = React.useMemo(() => {
     return activeAccesses.find(a => a.nameKey === 'access_control')?.name || 'Controle de Acesso'
@@ -67,7 +73,12 @@ function EditAccessControlContent() {
 
   if (loading) return null
 
-  if (!hasPermission('access_control', 'update')) {
+  const canAccess =
+    mode === 'view'
+      ? hasPermission('access_control', 'view')
+      : hasPermission('access_control', 'update')
+
+  if (!canAccess) {
     return forbidden()
   }
 
@@ -94,6 +105,7 @@ function EditAccessControlContent() {
         type="edit"
         initialData={initialData}
         options={options}
+        readOnly={mode === 'view'}
         onSuccess={() => router.push('/admin/access-control')}
         onCancel={() => router.push('/admin/access-control')}
       />

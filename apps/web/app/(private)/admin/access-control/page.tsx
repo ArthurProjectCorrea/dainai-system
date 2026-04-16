@@ -4,44 +4,51 @@ import * as React from 'react'
 import { toast } from 'sonner'
 import { Shield, ShieldCheck, ShieldAlert } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { useAuth } from '@/hooks/use-auth'
+import { forbidden } from 'next/navigation'
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header'
 import { StatCard } from '@/components/stat-card'
 import type { ColumnDef } from '@tanstack/react-table'
 
-import { PageHeader } from '@/components/page-header'
+import { useAdminModule } from '@/hooks/use-admin-module'
+import { AdminPageLayout } from '@/components/admin/admin-page-layout'
 import { DataTable } from '@/components/ui/data-table/data-table'
 import type { AccessControlPayload, Position } from '@/types/access-control'
 
 export default function AccessControlPage() {
-  const { hasPermission, loading: authLoading, activeAccesses } = useAuth()
-  const [data, setData] = React.useState<AccessControlPayload | null>(null)
-  const [isLoadingData, setIsLoadingData] = React.useState(true)
+  // The access-control endpoint returns a complex object (not a simple list),
+  // so we manage raw payload separately and use useAdminModule for auth + screen name only.
+  const { canView, canCreate, canUpdate, canDelete, screenName, authLoading } =
+    useAdminModule<Position>({
+      moduleKey: 'access_control',
+      // No endpoint: this module has a unique payload shape, so fetching is managed manually below
+    })
+
+  const [acPayload, setAcPayload] = React.useState<AccessControlPayload | null>(null)
+  const [isLoading, setIsLoading] = React.useState(true)
 
   const fetchData = React.useCallback(async (options?: { silent?: boolean }) => {
-    if (!options?.silent) setIsLoadingData(true)
+    if (!options?.silent) setIsLoading(true)
     try {
       const response = await fetch('/api/v1/admin/access-control')
       if (!response.ok) throw new Error('Falha ao carregar dados')
       const result = await response.json()
-      setData(result.data)
+      setAcPayload(result.data)
     } catch (error) {
       toast.error('Erro ao carregar controle de acesso')
       console.error(error)
     } finally {
-      if (!options?.silent) setIsLoadingData(false)
+      if (!options?.silent) setIsLoading(false)
     }
   }, [])
 
   React.useEffect(() => {
-    if (!authLoading && hasPermission('access_control', 'view')) {
+    if (!authLoading && canView) {
       fetchData()
     }
-  }, [authLoading, hasPermission, fetchData])
+  }, [authLoading, canView, fetchData])
 
-  const screenName = React.useMemo(() => {
-    return activeAccesses.find(a => a.nameKey === 'access_control')?.name || 'Controle de Acesso'
-  }, [activeAccesses])
+  if (authLoading) return null
+  if (!canView) return forbidden()
 
   const handleDeletePosition = async (id: number) => {
     try {
@@ -49,9 +56,7 @@ export default function AccessControlPage() {
         method: 'DELETE',
       })
       const result = await response.json()
-
       if (!response.ok) throw new Error(result.message || 'Falha ao remover')
-
       toast.success('Cargo removido com sucesso')
       fetchData({ silent: true })
     } catch (error) {
@@ -80,7 +85,7 @@ export default function AccessControlPage() {
         <DataTableColumnHeader column={column} title="Nome do Departamento" />
       ),
       cell: ({ row }) => {
-        const dept = data?.departments.find(d => d.id === row.getValue('departmentId'))
+        const dept = acPayload?.departments.find(d => d.id === row.getValue('departmentId'))
         return <span className="text-muted-foreground">{dept?.name || 'N/A'}</span>
       },
       meta: { title: 'Nome do Departamento' },
@@ -103,62 +108,52 @@ export default function AccessControlPage() {
     },
   ]
 
-  if (authLoading) return null
-
-  const canCreate = hasPermission('access_control', 'create')
-  const canUpdate = hasPermission('access_control', 'update')
-  const canDelete = hasPermission('access_control', 'delete')
-
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-      <PageHeader breadcrumbs={[{ label: 'Administrador' }, { label: screenName }]} />
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard
-          icon={Shield}
-          title="Total de Cargos"
-          value={data?.positionIndicators?.total || 0}
-          description="Cargos cadastrados"
-          className="bg-primary/5 border-primary/10 transition-transform hover:scale-[1.01]"
-        />
-        <StatCard
-          icon={ShieldCheck}
-          title="Cargos Ativos"
-          value={data?.positionIndicators?.active || 0}
-          description="Operacionais"
-          iconClassName="bg-emerald-500/10 text-emerald-500"
-          className="transition-transform hover:scale-[1.01]"
-        />
-        <StatCard
-          icon={ShieldAlert}
-          title="Cargos Inativos"
-          value={data?.positionIndicators?.inactive || 0}
-          description="Bloqueados"
-          iconClassName="bg-amber-500/10 text-amber-500"
-          className="transition-transform hover:scale-[1.01]"
-        />
-      </div>
-
+    <AdminPageLayout
+      screenName={screenName || 'Controle de Acesso'}
+      stats={
+        <>
+          <StatCard
+            icon={Shield}
+            title="Total de Cargos"
+            value={acPayload?.positionIndicators?.total || 0}
+            description="Cargos cadastrados"
+            className="bg-primary/5 border-primary/10 transition-transform hover:scale-[1.01]"
+          />
+          <StatCard
+            icon={ShieldCheck}
+            title="Cargos Ativos"
+            value={acPayload?.positionIndicators?.active || 0}
+            description="Operacionais"
+            iconClassName="bg-emerald-500/10 text-emerald-500"
+            className="transition-transform hover:scale-[1.01]"
+          />
+          <StatCard
+            icon={ShieldAlert}
+            title="Cargos Inativos"
+            value={acPayload?.positionIndicators?.inactive || 0}
+            description="Bloqueados"
+            iconClassName="bg-amber-500/10 text-amber-500"
+            className="transition-transform hover:scale-[1.01]"
+          />
+        </>
+      }
+    >
       <DataTable
         columns={positionColumns}
-        data={data?.data || []}
+        data={acPayload?.data || []}
         filterColumn="name"
-        isLoading={isLoadingData}
+        isLoading={isLoading}
         onReload={fetchData}
         newConfig={{
           show: canCreate,
           url: '/admin/access-control/create',
           label: 'Novo Cargo',
         }}
-        editConfig={{
-          show: canUpdate,
-          url: '/admin/access-control/[id]',
-        }}
-        deleteConfig={{
-          show: canDelete,
-          onDelete: row => handleDeletePosition(row.id),
-        }}
+        editConfig={{ show: canUpdate, url: '/admin/access-control/[id]' }}
+        viewConfig={{ show: true, url: '/admin/access-control/[id]?mode=view' }}
+        deleteConfig={{ show: canDelete, onDelete: row => handleDeletePosition(row.id) }}
       />
-    </div>
+    </AdminPageLayout>
   )
 }

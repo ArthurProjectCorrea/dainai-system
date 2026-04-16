@@ -6,8 +6,8 @@ import { forbidden } from 'next/navigation'
 import { toast } from 'sonner'
 import { Users2, ShieldCheck, ShieldAlert, UserRound, Mail } from 'lucide-react'
 
-import { useAuth } from '@/hooks/use-auth'
-import { PageHeader } from '@/components/page-header'
+import { useAdminModule } from '@/hooks/use-admin-module'
+import { AdminPageLayout } from '@/components/admin/admin-page-layout'
 import { DataTable } from '@/components/ui/data-table/data-table'
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header'
 import { Badge } from '@/components/ui/badge'
@@ -15,63 +15,33 @@ import { StatCard } from '@/components/stat-card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 
-import type { UserManagementIndicators, UserManagementUser, UsersListPayload } from '@/types/user'
+import type { UserManagementIndicators, UserManagementUser } from '@/types/user'
 
 export default function UsersPage() {
-  const { hasPermission, loading, activeAccesses } = useAuth()
-  const [data, setData] = React.useState<UserManagementUser[]>([])
-  const [indicators, setIndicators] = React.useState<UserManagementIndicators>({
-    total: 0,
-    active: 0,
-    inactive: 0,
+  const {
+    data,
+    indicators,
+    isLoading,
+    canView,
+    canCreate,
+    canUpdate,
+    canDelete,
+    screenName,
+    fetchData,
+    authLoading,
+  } = useAdminModule<UserManagementUser, UserManagementIndicators>({
+    moduleKey: 'users_management',
+    endpoint: '/api/v1/admin/users',
+    dataKey: 'users',
+    indicatorsKey: 'indicators',
   })
-  const [isLoadingData, setIsLoadingData] = React.useState(true)
 
-  const fetchUsers = React.useCallback(async (options?: { silent?: boolean }) => {
-    if (!options?.silent) {
-      setIsLoadingData(true)
-    }
+  if (authLoading) return null
+  if (!canView) return forbidden()
 
-    try {
-      const response = await fetch('/api/v1/admin/users')
-      if (!response.ok) throw new Error('Falha ao carregar usuarios')
-
-      const result = await response.json()
-      const payload: UsersListPayload = result.data
-
-      setData(payload?.users || [])
-      setIndicators(
-        payload?.indicators || {
-          total: 0,
-          active: 0,
-          inactive: 0,
-        },
-      )
-    } catch (error) {
-      toast.error('Erro ao carregar lista de usuarios')
-      console.error(error)
-    } finally {
-      if (!options?.silent) {
-        setIsLoadingData(false)
-      }
-    }
-  }, [])
-
-  React.useEffect(() => {
-    if (!loading && hasPermission('users_management', 'view')) {
-      fetchUsers()
-    }
-  }, [loading, hasPermission, fetchUsers])
-
-  const screenName = React.useMemo(() => {
-    return activeAccesses.find(a => a.nameKey === 'users_management')?.name || 'Usuarios'
-  }, [activeAccesses])
-
-  if (loading) return null
-
-  if (!hasPermission('users_management', 'view')) {
-    return forbidden()
-  }
+  const stats: UserManagementIndicators = indicators ?? { total: 0, active: 0, inactive: 0 }
+  const createUserUrl = '/admin/users/create'
+  const updateUserUrl = '/admin/users/[id]'
 
   const columns: ColumnDef<UserManagementUser>[] = [
     {
@@ -159,98 +129,77 @@ export default function UsersPage() {
     },
   ]
 
-  const canCreate = hasPermission('users_management', 'create')
-  const canUpdate = hasPermission('users_management', 'update')
-  const canDelete = hasPermission('users_management', 'delete')
-  const createUserUrl = '/admin/users/create'
-  const updateUserUrl = '/admin/users/[id]'
-
   async function handleResendInvitation(user: UserManagementUser) {
     try {
       const response = await fetch(`/api/v1/admin/users/${user.id}/resend-invitation`, {
         method: 'POST',
       })
-
       if (!response.ok) {
         const errorResult = await response.json().catch(() => null)
         throw new Error(errorResult?.message || 'Erro ao reenviar convite')
       }
-
       toast.success('Link de convite enviado com sucesso!')
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao reenviar convite'
-      toast.error(message)
+      toast.error(error instanceof Error ? error.message : 'Erro ao reenviar convite')
     }
   }
 
   async function handleDelete(user: UserManagementUser) {
     try {
-      const response = await fetch(`/api/v1/admin/users/${user.id}`, {
-        method: 'DELETE',
-      })
-
+      const response = await fetch(`/api/v1/admin/users/${user.id}`, { method: 'DELETE' })
       if (!response.ok) {
         const errorResult = await response.json().catch(() => null)
         throw new Error(errorResult?.message || 'Erro ao excluir usuario')
       }
-
       toast.success('Usuario removido com sucesso')
-      fetchUsers({ silent: true })
+      fetchData({ silent: true })
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao excluir usuario'
-      toast.error(message)
+      toast.error(error instanceof Error ? error.message : 'Erro ao excluir usuario')
     }
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-      <PageHeader breadcrumbs={[{ label: 'Administrador' }, { label: screenName }]} />
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard
-          icon={Users2}
-          title="Total de Usuarios"
-          value={indicators.total}
-          description="Usuarios cadastrados no sistema"
-          className="bg-primary/5 border-primary/10 transition-transform hover:scale-[1.01]"
-        />
-        <StatCard
-          icon={ShieldCheck}
-          title="Usuarios Ativos"
-          value={indicators.active}
-          description="Com acesso liberado"
-          iconClassName="bg-emerald-500/10 text-emerald-500"
-          className="transition-transform hover:scale-[1.01]"
-        />
-        <StatCard
-          icon={ShieldAlert}
-          title="Usuarios Inativos"
-          value={indicators.inactive}
-          description="Bloqueados ou removidos"
-          iconClassName="bg-amber-500/10 text-amber-500"
-          className="transition-transform hover:scale-[1.01]"
-        />
-      </div>
-
+    <AdminPageLayout
+      screenName={screenName || 'Usuarios'}
+      stats={
+        <>
+          <StatCard
+            icon={Users2}
+            title="Total de Usuarios"
+            value={stats.total}
+            description="Usuarios cadastrados no sistema"
+            className="bg-primary/5 border-primary/10 transition-transform hover:scale-[1.01]"
+          />
+          <StatCard
+            icon={ShieldCheck}
+            title="Usuarios Ativos"
+            value={stats.active}
+            description="Com acesso liberado"
+            iconClassName="bg-emerald-500/10 text-emerald-500"
+            className="transition-transform hover:scale-[1.01]"
+          />
+          <StatCard
+            icon={ShieldAlert}
+            title="Usuarios Inativos"
+            value={stats.inactive}
+            description="Bloqueados ou removidos"
+            iconClassName="bg-amber-500/10 text-amber-500"
+            className="transition-transform hover:scale-[1.01]"
+          />
+        </>
+      }
+    >
       <DataTable
         columns={columns}
         data={data}
         filterColumn="email"
-        isLoading={isLoadingData}
-        onReload={fetchUsers}
-        onSuccess={() => fetchUsers({ silent: true })}
-        newConfig={{
-          show: canCreate,
-          url: createUserUrl,
-        }}
-        editConfig={{
-          show: canUpdate,
-          url: updateUserUrl,
-        }}
-        deleteConfig={{
-          show: canDelete,
-          onDelete: handleDelete,
-        }}
+        isLoading={isLoading}
+        onReload={fetchData}
+        onSuccess={() => fetchData({ silent: true })}
+        newConfig={{ show: canCreate, url: createUserUrl }}
+        editConfig={{ show: canUpdate, url: updateUserUrl }}
+        viewConfig={{ show: true, url: updateUserUrl + '?mode=view' }}
+        deleteConfig={{ show: canDelete, onDelete: handleDelete }}
         rowActions={[
           {
             icon: Mail,
@@ -260,6 +209,6 @@ export default function UsersPage() {
           },
         ]}
       />
-    </div>
+    </AdminPageLayout>
   )
 }

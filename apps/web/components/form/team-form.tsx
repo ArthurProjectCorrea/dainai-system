@@ -20,9 +20,10 @@ import { Switch } from '@/components/ui/switch'
 interface TeamFormProps {
   data?: Team | null
   onSuccess: () => void
+  readOnly?: boolean
 }
 
-export function TeamForm({ data, onSuccess }: TeamFormProps) {
+export function TeamForm({ data, onSuccess, readOnly }: TeamFormProps) {
   const [loading, setLoading] = React.useState(false)
   const [uploading, setUploading] = React.useState(false)
   const [logotipoUrl, setLogotipoUrl] = React.useState(data?.logotipoUrl || '')
@@ -112,6 +113,7 @@ export function TeamForm({ data, onSuccess }: TeamFormProps) {
             defaultValue={data?.name || ''}
             placeholder="Ex: Marketing, Desenvolvimento..."
             required
+            disabled={readOnly}
           />
         </Field>
 
@@ -128,17 +130,19 @@ export function TeamForm({ data, onSuccess }: TeamFormProps) {
             </div>
             <div className="flex-1 space-y-2">
               <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
-                >
-                  {uploading ? <Spinner className="mr-2" /> : <Upload className="mr-2 h-4 w-4" />}
-                  Selecionar Imagem
-                </Button>
-                {logotipoUrl && (
+                {!readOnly && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                  >
+                    {uploading ? <Spinner className="mr-2" /> : <Upload className="mr-2 h-4 w-4" />}
+                    Selecionar Imagem
+                  </Button>
+                )}
+                {logotipoUrl && !readOnly && (
                   <Button
                     type="button"
                     variant="ghost"
@@ -150,7 +154,9 @@ export function TeamForm({ data, onSuccess }: TeamFormProps) {
                   </Button>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground">PNG, JPG ou WEBP. Máx 2MB.</p>
+              {!readOnly && (
+                <p className="text-xs text-muted-foreground">PNG, JPG ou WEBP. Máx 2MB.</p>
+              )}
             </div>
             <input
               type="file"
@@ -176,17 +182,20 @@ export function TeamForm({ data, onSuccess }: TeamFormProps) {
               name="isActive"
               checked={isActive}
               onCheckedChange={setIsActive}
+              disabled={readOnly}
             />
           </Field>
         </FieldLabel>
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 text-right">
-        <Button type="submit" disabled={loading || uploading}>
-          {loading ? <Spinner className="mr-2" /> : null}
-          {data?.id ? 'Atualizar' : 'Salvar'}
-        </Button>
-      </div>
+      {!readOnly && (
+        <div className="flex justify-end gap-2 text-right">
+          <Button type="submit" disabled={loading || uploading}>
+            {loading ? <Spinner className="mr-2" /> : null}
+            {data?.id ? 'Atualizar' : 'Salvar'}
+          </Button>
+        </div>
+      )}
     </form>
   )
 }
