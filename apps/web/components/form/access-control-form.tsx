@@ -4,12 +4,11 @@ import * as React from 'react'
 import { toast } from 'sonner'
 import { Shield } from 'lucide-react'
 
-import { FormHeader } from '@/components/form-header'
-import { FormButtons } from '@/components/form-buttons'
+import { FormLayout } from '@/components/layouts/form-layout'
+import { FormSection, FormGrid } from '@/components/form-section'
 
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
 import {
@@ -192,38 +191,33 @@ export function AccessControlForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 relative">
-      <FormHeader
+      <FormLayout
         title={`${readOnly ? 'Visualizar' : type === 'edit' ? 'Editar' : 'Novo'} ${mode === 'department' ? 'Departamento' : 'Cargo'}`}
         description={
           mode === 'department'
             ? 'Gerencie divisões organizacionais da empresa'
             : 'Defina responsabilidades e permissões de acesso'
         }
+        mode={readOnly ? 'view' : type}
+        loading={loading}
+        onCancel={onCancel ?? (() => window.history.back())}
+        variant="page"
+        saveLabel={
+          type === 'edit'
+            ? 'Salvar Alterações'
+            : `Criar ${mode === 'department' ? 'Departamento' : 'Cargo'}`
+        }
       >
-        <FormButtons
-          mode={readOnly ? 'view' : type}
-          loading={loading}
-          onCancel={onCancel ?? (() => window.history.back())}
-          saveLabel={
-            type === 'edit'
-              ? 'Salvar Alterações'
-              : `Criar ${mode === 'department' ? 'Departamento' : 'Cargo'}`
-          }
-        />
-      </FormHeader>
-
-      <div className="w-full space-y-6">
-        {/* Basic Info */}
-        <Card className="shadow-sm">
-          <CardHeader className="pb-3">
-            <CardTitle>Informações Básicas</CardTitle>
-            <CardDescription className="text-xs">
-              {mode === 'department'
+        <FormGrid className="lg:grid-cols-1">
+          {/* Basic Info */}
+          <FormSection
+            title="Informações Básicas"
+            description={
+              mode === 'department'
                 ? 'Defina o nome do departamento.'
-                : 'Defina o nome e o departamento vinculado a este cargo.'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+                : 'Defina o nome e o departamento vinculado a este cargo.'
+            }
+          >
             <div className={cn(mode === 'position' && 'grid grid-cols-1 md:grid-cols-2 gap-4')}>
               <Field>
                 <FieldLabel htmlFor="name">
@@ -245,7 +239,10 @@ export function AccessControlForm({
                 <Field>
                   <FieldLabel htmlFor="departmentId">Departamento</FieldLabel>
                   <CreatableCombobox
-                    options={options.departments.map(d => ({ value: String(d.id), label: d.name }))}
+                    options={options.departments.map(d => ({
+                      value: String(d.id),
+                      label: d.name,
+                    }))}
                     value={newDepartmentName || departmentId}
                     onValueChange={(val, isNew) => {
                       if (isNew) {
@@ -265,7 +262,7 @@ export function AccessControlForm({
             </div>
 
             {mode === 'position' && (
-              <Field orientation="horizontal" className="rounded-lg border p-3 shadow-sm">
+              <Field orientation="horizontal" className="rounded-lg border p-3 shadow-sm mt-4">
                 <FieldContent>
                   <FieldTitle>Status do Cargo</FieldTitle>
                   <FieldDescription>
@@ -275,28 +272,15 @@ export function AccessControlForm({
                 <Switch checked={isActive} onCheckedChange={setIsActive} disabled={readOnly} />
               </Field>
             )}
-          </CardContent>
-        </Card>
+          </FormSection>
 
-        {/* Permissions Matrix */}
-        {mode === 'position' && (
-          <Card className="shadow-sm">
-            <CardHeader className="pb-3 border-b mb-4 flex flex-row items-center justify-between">
-              <div className="space-y-1">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-primary" />
-                  Gerenciamento de Acessos
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  Selecione quais ações este cargo pode realizar em cada módulo do sistema.
-                </CardDescription>
-              </div>
-              <span className="text-[10px] font-normal text-muted-foreground uppercase tracking-widest hidden md:block">
-                Matriz de Permissões
-              </span>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto rounded-md border">
+          {/* Permissions Matrix */}
+          {mode === 'position' && (
+            <FormSection
+              title="Gerenciamento de Acessos"
+              description="Selecione quais ações este cargo pode realizar em cada módulo do sistema."
+            >
+              <div className="overflow-x-auto rounded-md border mt-2">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-muted/50 border-b">
@@ -394,10 +378,10 @@ export function AccessControlForm({
                   </tbody>
                 </table>
               </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+            </FormSection>
+          )}
+        </FormGrid>
+      </FormLayout>
     </form>
   )
 }

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 
 interface FormButtonsProps {
-  onCancel: () => void
+  onCancel?: () => void
   loading?: boolean
   mode: 'create' | 'edit' | 'view'
   formId?: string
@@ -15,7 +15,7 @@ interface FormButtonsProps {
 }
 
 export function FormButtons({
-  onCancel,
+  onCancel = () => window.history.back(),
   loading,
   mode,
   formId,

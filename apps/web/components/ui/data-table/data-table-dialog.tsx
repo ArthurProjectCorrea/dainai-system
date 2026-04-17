@@ -13,7 +13,12 @@ interface DataTableDialogProps<T> {
   open: boolean
   onOpenChange: (open: boolean) => void
   title: string
-  form: React.ComponentType<{ data?: T | null; onSuccess: () => void; readOnly?: boolean }> | null
+  form: React.ComponentType<{
+    data?: T | null
+    onSuccess: () => void
+    onCancel?: () => void
+    readOnly?: boolean
+  }> | null
   formData?: T | null
   onSuccess?: () => void
   readOnly?: boolean
@@ -43,6 +48,7 @@ export function DataTableDialog<T>({
           <Form
             data={formData}
             readOnly={readOnly}
+            onCancel={() => onOpenChange(false)}
             onSuccess={() => {
               onOpenChange(false)
               onSuccess?.()

@@ -33,7 +33,7 @@ Diretorio: apps/web/components/ui/data-table/
 
 Componentes:
 
-- data-table.tsx
+- data-table.tsx (Componente base genericamente tipado como `<TData>`)
 - data-table-toolbar.tsx
 - data-table-column-header.tsx
 - data-table-pagination.tsx
@@ -41,15 +41,30 @@ Componentes:
 - data-table-view-options.tsx
 - data-table-skeleton.tsx
 - data-table-faceted-filter.tsx
+- data-table-quick-filter.tsx (Busca textual rapida)
+- data-table-detailed-filter.tsx (Filtros avancados por coluna)
 
 Responsabilidades:
 
 - listagem com busca e ordenacao
+- suporte a tipagem estrita via generics `<TData>`
 - controle de colunas visiveis
 - paginacao
 - acao de recarregar
 - dialogo de novo/edicao
 - confirmacao para exclusao
+
+## Hooks de Infraestrutura
+
+### useFormMode
+
+Local: `apps/web/hooks/use-form-mode.ts`
+Detecta o estado do formulario (create, edit, view) baseado na URL.
+
+### useAdminModule
+
+Local: `apps/web/hooks/use-admin-module.ts`
+Gerencia autorizacao automatica, nome da tela e indicadores para paginas administrativas.
 
 ## Componentes de Formulario Avancados
 

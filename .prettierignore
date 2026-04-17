@@ -9,6 +9,7 @@ dist/
 build/
 bin/
 obj/
+docs/
 
 # API (Handled by dotnet format)
 apps/api/

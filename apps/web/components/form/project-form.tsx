@@ -2,22 +2,11 @@
 
 import * as React from 'react'
 import { toast } from 'sonner'
-import { Building2, RotateCw, CopyIcon } from 'lucide-react'
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis } from 'recharts'
-
+import { Building2, CopyIcon, RotateCw, Upload, XIcon } from 'lucide-react'
 import { Spinner } from '@/components/ui/spinner'
-import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis } from 'recharts'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldTitle,
-} from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -27,8 +16,18 @@ import {
 } from '@/components/ui/select'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
-import { FormHeader } from '@/components/form-header'
-import { FormButtons } from '@/components/form-buttons'
+import { FormLayout } from '@/components/layouts/form-layout'
+import { FormSection, FormGrid } from '@/components/form-section'
+import { cn } from '@/lib/utils'
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldTitle,
+} from '@/components/ui/field'
+import { Switch } from '@/components/ui/switch'
 
 import {
   AlertDialog,
@@ -57,9 +56,10 @@ interface ProjectFormProps {
   onSuccess?: () => void
   onCancel?: () => void
   readOnly?: boolean
+  isDialog?: boolean
 }
 
-export function ProjectForm({ data, onSuccess, onCancel, readOnly }: ProjectFormProps) {
+export function ProjectForm({ data, onSuccess, onCancel, readOnly, isDialog }: ProjectFormProps) {
   const { activeAccesses, activeTeamId, hasPermission } = useAuth()
   const [loading, setLoading] = React.useState(false)
   const [teams, setTeams] = React.useState<Team[]>([])
@@ -165,107 +165,100 @@ export function ProjectForm({ data, onSuccess, onCancel, readOnly }: ProjectForm
     }))
   }, [data?.scoreDistribution])
 
+  const basicFields = (
+    <FieldGroup className="grid gap-6 md:grid-cols-2">
+      <Field>
+        <FieldLabel htmlFor="name">Nome do Projeto</FieldLabel>
+        <Input
+          id="name"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          placeholder="Ex: App Portal..."
+          required
+          disabled={readOnly}
+        />
+      </Field>
+
+      <Field>
+        <FieldLabel htmlFor="teamId">Equipe Responsável</FieldLabel>
+        {!canChangeTeam ? (
+          <div className="h-8 flex items-center px-2.5 border rounded-lg bg-input/20 cursor-not-allowed opacity-80">
+            <Building2 className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+            <span className="text-xs">{data?.teamName || 'Carregando...'}</span>
+          </div>
+        ) : fetchingTeams ? (
+          <div className="h-10 flex items-center px-3 border rounded-md bg-muted/20">
+            {/* Using raw spinner as text here or keep consistent */}
+            <span className="text-xs text-muted-foreground">Carregando...</span>
+          </div>
+        ) : (
+          <Select value={teamId} onValueChange={setTeamId} disabled={readOnly}>
+            <SelectTrigger id="teamId">
+              <SelectValue placeholder="Selecione uma equipe" />
+            </SelectTrigger>
+            <SelectContent>
+              {teams.map(team => (
+                <SelectItem key={team.id} value={team.id}>
+                  {team.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      </Field>
+
+      <FieldLabel htmlFor="isActive" className="md:col-span-2">
+        <Field orientation="horizontal">
+          <FieldContent>
+            <FieldTitle>Status do Projeto</FieldTitle>
+            <FieldDescription>
+              Define se o projeto está ativo para coleta de feedbacks.
+            </FieldDescription>
+          </FieldContent>
+          <Switch
+            id="isActive"
+            checked={isActive}
+            onCheckedChange={setIsActive}
+            disabled={readOnly}
+          />
+        </Field>
+      </FieldLabel>
+    </FieldGroup>
+  )
+
   return (
-    <form id="project-form" onSubmit={handleSubmit} className="flex flex-col relative min-h-full">
-      <FormHeader
-        title={!isEdit ? 'Novo Projeto' : data?.name || 'Carregando...'}
+    <form id="project-form" onSubmit={handleSubmit} className="flex flex-col relative h-full">
+      <FormLayout
+        title={!isEdit ? 'Novo Projeto' : data?.name || 'Projeto'}
         description={
           !isEdit
-            ? 'Configuração de novo produto e central de feedbacks'
-            : 'Gestão de projeto, integrações e estatísticas estratégicas'
+            ? 'Crie uma nova central de feedbacks para seus usuários'
+            : 'Gestão de integrações e estatísticas do projeto'
         }
+        mode={readOnly ? 'view' : isEdit ? 'edit' : 'create'}
+        loading={loading}
+        onCancel={onCancel || (() => window.history.back())}
+        variant={{
+          create: 'dialog',
+          edit: 'page',
+          view: 'page',
+        }}
+        formId="project-form"
       >
-        <FormButtons
-          mode={readOnly ? 'view' : isEdit ? 'edit' : 'create'}
-          loading={loading}
-          onCancel={onCancel || (() => window.history.back())}
-        />
-      </FormHeader>
+        <FormGrid className={cn(!isEdit || isDialog ? 'lg:grid-cols-1' : 'lg:grid-cols-2')}>
+          {/* Left Column: Form & Integration */}
+          <div className="flex flex-col gap-6">
+            <FormSection title="Dados do Projeto" hideTitleInDialog>
+              {basicFields}
+            </FormSection>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch min-h-full">
-        {/* Left Column: Form & Integration */}
-        <div className="flex flex-col gap-6 h-full">
-          {/* Basic Info Card */}
-          <Card className="flex flex-col shadow-sm">
-            <CardHeader className="pb-3 px-4 md:px-6">
-              <CardTitle>Dados do Projeto</CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 md:px-6">
-              <FieldGroup className="grid gap-6 md:grid-cols-2">
-                <Field>
-                  <FieldLabel htmlFor="name">Nome do Projeto</FieldLabel>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    placeholder="Ex: App Portal..."
-                    required
-                    disabled={readOnly}
-                  />
-                </Field>
-
-                <Field>
-                  <FieldLabel htmlFor="teamId">Equipe Responsável</FieldLabel>
-                  {!canChangeTeam ? (
-                    <div className="h-8 flex items-center px-2.5 border rounded-lg bg-input/20 cursor-not-allowed opacity-80">
-                      <Building2 className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-                      <span className="text-xs">{data?.teamName || 'Carregando...'}</span>
-                    </div>
-                  ) : fetchingTeams ? (
-                    <div className="h-10 flex items-center px-3 border rounded-md bg-muted/20">
-                      <Spinner className="h-3 w-3 mr-2" />
-                      <span className="text-xs text-muted-foreground">Carregando...</span>
-                    </div>
-                  ) : (
-                    <Select value={teamId} onValueChange={setTeamId} disabled={readOnly}>
-                      <SelectTrigger id="teamId">
-                        <SelectValue placeholder="Selecione uma equipe" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {teams.map(team => (
-                          <SelectItem key={team.id} value={team.id}>
-                            {team.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </Field>
-
-                <FieldLabel htmlFor="isActive" className="md:col-span-2">
-                  <Field orientation="horizontal">
-                    <FieldContent>
-                      <FieldTitle>Status do Projeto</FieldTitle>
-                      <FieldDescription>
-                        Define se o projeto está ativo para coleta de feedbacks.
-                      </FieldDescription>
-                    </FieldContent>
-                    <Switch
-                      id="isActive"
-                      checked={isActive}
-                      onCheckedChange={setIsActive}
-                      disabled={readOnly}
-                    />
-                  </Field>
-                </FieldLabel>
-              </FieldGroup>
-            </CardContent>
-          </Card>
-
-          {/* Integration Card */}
-          {isEdit && (
-            <Card className="flex flex-col shadow-sm flex-1">
-              <CardHeader className="pb-3 px-4 md:px-6">
-                <CardTitle>Integração (API)</CardTitle>
-                <CardDescription className="text-xs">
-                  Chave utilizada para invocar o Webhook Público via header{' '}
-                  <code className="bg-muted px-1 rounded font-mono text-[10px]">
-                    x-project-token
-                  </code>
-                  .
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="px-4 md:px-6">
+            {/* Integration Section - Only in Edit mode */}
+            {!isDialog && isEdit && (
+              <FormSection
+                title="Integração (API)"
+                description="Chave utilizada para invocar o Webhook Público via header x-project-token."
+                className="flex-1"
+              >
                 {rawToken ? (
                   <Alert className="bg-muted/50 border-muted">
                     <AlertTitle className="text-sm font-bold">Token Gerado</AlertTitle>
@@ -299,7 +292,7 @@ export function ProjectForm({ data, onSuccess, onCancel, readOnly }: ProjectForm
                           className="h-8 gap-2"
                         >
                           {isGenerating ? (
-                            <Spinner className="h-3 w-3" />
+                            <RotateCw className="h-3 w-3 animate-spin" />
                           ) : (
                             <RotateCw className="h-3 w-3" />
                           )}
@@ -328,68 +321,63 @@ export function ProjectForm({ data, onSuccess, onCancel, readOnly }: ProjectForm
                     </AlertDialog>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Right Column: Statistics */}
-        {isEdit && (
-          <div className="flex flex-col h-full">
-            <Card className="flex flex-col h-full shadow-sm">
-              <CardHeader className="pb-4 px-4 items-center text-center">
-                <CardTitle>Perfil de Avaliações</CardTitle>
-                <CardDescription className="text-[10px]">
-                  Distribuição por nota (1 a 5)
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="px-4 pb-6 flex-1 flex flex-col justify-between gap-6">
-                <div className="flex-1 flex items-center justify-center min-h-[300px]">
-                  <ChartContainer
-                    config={chartConfig}
-                    className="mx-auto aspect-square w-full max-h-[350px]"
-                  >
-                    <RadarChart data={transformedChartData}>
-                      <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                      <PolarGrid gridType="circle" radialLines={false} />
-                      <PolarAngleAxis dataKey="score" tick={{ fontSize: 10 }} />
-                      <Radar
-                        dataKey="count"
-                        fill="var(--color-count)"
-                        fillOpacity={0.6}
-                        dot={{
-                          r: 4,
-                          fillOpacity: 1,
-                        }}
-                      />
-                    </RadarChart>
-                  </ChartContainer>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 pt-6 border-t mt-auto">
-                  <Field>
-                    <FieldLabel className="text-[10px] uppercase tracking-wider opacity-60">
-                      Total Capturado
-                    </FieldLabel>
-                    <div className="text-xl font-bold">{data?.totalFeedbacks || 0}</div>
-                  </Field>
-
-                  <Field>
-                    <FieldLabel className="text-[10px] uppercase tracking-wider opacity-60">
-                      Média Global
-                    </FieldLabel>
-                    <div className="text-xl font-bold">
-                      {data && data.averageFeedbackNote > 0
-                        ? data.averageFeedbackNote.toFixed(1)
-                        : '0.0'}
-                    </div>
-                  </Field>
-                </div>
-              </CardContent>
-            </Card>
+              </FormSection>
+            )}
           </div>
-        )}
-      </div>
+
+          {/* Right Column: Statistics - Only in Page mode and Edit mode */}
+          {!isDialog && isEdit && (
+            <FormSection
+              title="Perfil de Avaliações"
+              description="Distribuição por nota (1 a 5)"
+              className="h-full"
+              contentClassName="flex flex-col justify-between"
+            >
+              <div className="flex-1 flex items-center justify-center min-h-[300px]">
+                <ChartContainer
+                  config={chartConfig}
+                  className="mx-auto aspect-square w-full max-h-[350px]"
+                >
+                  <RadarChart data={transformedChartData}>
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                    <PolarGrid gridType="circle" radialLines={false} />
+                    <PolarAngleAxis dataKey="score" tick={{ fontSize: 10 }} />
+                    <Radar
+                      dataKey="count"
+                      fill="var(--color-count)"
+                      fillOpacity={0.6}
+                      dot={{
+                        r: 4,
+                        fillOpacity: 1,
+                      }}
+                    />
+                  </RadarChart>
+                </ChartContainer>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-6 border-t mt-auto">
+                <Field>
+                  <FieldLabel className="text-[10px] uppercase tracking-wider opacity-60">
+                    Total Capturado
+                  </FieldLabel>
+                  <div className="text-xl font-bold">{data?.totalFeedbacks || 0}</div>
+                </Field>
+
+                <Field>
+                  <FieldLabel className="text-[10px] uppercase tracking-wider opacity-60">
+                    Média Global
+                  </FieldLabel>
+                  <div className="text-xl font-bold">
+                    {data && data.averageFeedbackNote > 0
+                      ? data.averageFeedbackNote.toFixed(1)
+                      : '0.0'}
+                  </div>
+                </Field>
+              </div>
+            </FormSection>
+          )}
+        </FormGrid>
+      </FormLayout>
     </form>
   )
 }

@@ -17,6 +17,7 @@ import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
 import type { Project, ProjectIndicator } from '@/types/project'
+import { ProjectForm } from '@/components/form/project-form'
 
 export default function ProjectsPage() {
   const {
@@ -130,7 +131,11 @@ export default function ProjectsPage() {
         isLoading={isLoading}
         onReload={fetchData}
         onSuccess={() => fetchData({ silent: true })}
-        newConfig={{ show: canCreate, url: '/projects/create', label: 'Novo Projeto' }}
+        newConfig={{
+          show: canCreate,
+          dialog: ProjectForm,
+          label: 'Novo Projeto',
+        }}
         editConfig={{ show: canUpdate, url: '/projects/[id]/edit' }}
         viewConfig={{ show: true, url: '/projects/[id]/view' }}
         deleteConfig={{ show: canDelete, onDelete: handleDelete }}

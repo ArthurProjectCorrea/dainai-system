@@ -17,8 +17,8 @@ import {
 } from '@/components/ui/field'
 import { Switch } from '@/components/ui/switch'
 
-import { FormHeader } from '@/components/form-header'
-import { FormButtons } from '@/components/form-buttons'
+import { FormLayout } from '@/components/layouts/form-layout'
+import { FormSection } from '@/components/form-section'
 
 interface TeamFormProps {
   data?: Team | null
@@ -108,104 +108,108 @@ export function TeamForm({ data, onSuccess, onCancel, readOnly }: TeamFormProps)
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 relative">
-      <FormHeader
+      <FormLayout
         title={readOnly ? 'Visualizar Equipe' : data?.id ? 'Editar Equipe' : 'Nova Equipe'}
         description={
           readOnly
             ? 'Dados e logotipo da unidade operacional'
             : 'Gerencie identidades e configurações das equipes do sistema'
         }
+        mode={readOnly ? 'view' : data?.id ? 'edit' : 'create'}
+        loading={loading || uploading}
+        onCancel={onCancel ?? (() => window.history.back())}
+        variant="dialog"
       >
-        <FormButtons
-          mode={readOnly ? 'view' : data?.id ? 'edit' : 'create'}
-          loading={loading || uploading}
-          onCancel={onCancel ?? (() => window.history.back())}
-        />
-      </FormHeader>
+        <FormSection>
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="name">Nome da Equipe</FieldLabel>
+              <Input
+                id="name"
+                name="name"
+                defaultValue={data?.name || ''}
+                placeholder="Ex: Marketing, Desenvolvimento..."
+                required
+                disabled={readOnly}
+              />
+            </Field>
 
-      <FieldGroup>
-        <Field>
-          <FieldLabel htmlFor="name">Nome da Equipe</FieldLabel>
-          <Input
-            id="name"
-            name="name"
-            defaultValue={data?.name || ''}
-            placeholder="Ex: Marketing, Desenvolvimento..."
-            required
-            disabled={readOnly}
-          />
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="logotipo">Logotipo</FieldLabel>
-          <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
-              {logotipoUrl ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={logotipoUrl} alt="Logo" className="h-full w-full object-cover" />
-              ) : (
-                <Building2 className="h-8 w-8 text-muted-foreground/40" />
-              )}
-            </div>
-            <div className="flex-1 space-y-2">
-              <div className="flex gap-2">
-                {!readOnly && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
-                  >
-                    {uploading ? <Spinner className="mr-2" /> : <Upload className="mr-2 h-4 w-4" />}
-                    Selecionar Imagem
-                  </Button>
-                )}
-                {logotipoUrl && !readOnly && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setLogotipoUrl('')}
-                  >
-                    <XIcon className="mr-2 h-4 w-4" />
-                    Remover
-                  </Button>
-                )}
+            <Field>
+              <FieldLabel htmlFor="logotipo">Logotipo</FieldLabel>
+              <div className="flex items-center gap-4">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
+                  {logotipoUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={logotipoUrl} alt="Logo" className="h-full w-full object-cover" />
+                  ) : (
+                    <Building2 className="h-8 w-8 text-muted-foreground/40" />
+                  )}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <div className="flex gap-2">
+                    {!readOnly && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                      >
+                        {uploading ? (
+                          <Spinner className="mr-2" />
+                        ) : (
+                          <Upload className="mr-2 h-4 w-4" />
+                        )}
+                        Selecionar Imagem
+                      </Button>
+                    )}
+                    {logotipoUrl && !readOnly && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setLogotipoUrl('')}
+                      >
+                        <XIcon className="mr-2 h-4 w-4" />
+                        Remover
+                      </Button>
+                    )}
+                  </div>
+                  {!readOnly && (
+                    <p className="text-xs text-muted-foreground">PNG, JPG ou WEBP. Máx 2MB.</p>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={onFileChange}
+                />
               </div>
-              {!readOnly && (
-                <p className="text-xs text-muted-foreground">PNG, JPG ou WEBP. Máx 2MB.</p>
-              )}
-            </div>
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              accept="image/*"
-              onChange={onFileChange}
-            />
-          </div>
-          <input type="hidden" name="logotipoUrl" value={logotipoUrl} />
-        </Field>
+              <input type="hidden" name="logotipoUrl" value={logotipoUrl} />
+            </Field>
 
-        <FieldLabel htmlFor="isActive">
-          <Field orientation="horizontal">
-            <FieldContent>
-              <FieldTitle>Status da Equipe</FieldTitle>
-              <FieldDescription>
-                Define se a equipe está ativa e disponível para seleção no sistema.
-              </FieldDescription>
-            </FieldContent>
-            <Switch
-              id="isActive"
-              name="isActive"
-              checked={isActive}
-              onCheckedChange={setIsActive}
-              disabled={readOnly}
-            />
-          </Field>
-        </FieldLabel>
-      </FieldGroup>
+            <FieldLabel htmlFor="isActive">
+              <Field orientation="horizontal">
+                <FieldContent>
+                  <FieldTitle>Status da Equipe</FieldTitle>
+                  <FieldDescription>
+                    Define se a equipe está ativa e disponível para seleção no sistema.
+                  </FieldDescription>
+                </FieldContent>
+                <Switch
+                  id="isActive"
+                  name="isActive"
+                  checked={isActive}
+                  onCheckedChange={setIsActive}
+                  disabled={readOnly}
+                />
+              </Field>
+            </FieldLabel>
+          </FieldGroup>
+        </FormSection>
+      </FormLayout>
     </form>
   )
 }

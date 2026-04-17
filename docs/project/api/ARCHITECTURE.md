@@ -420,12 +420,25 @@ Cliente recebe JSON
 
 ---
 
+## 🛡️ Padrões de Qualidade e Segurança (Abril 2026)
+
+### Tipagem Estrita e Null Safety
+
+- **Nullability**: O projeto agora utiliza verificação de nulidade estrita em todas as camadas, resolvendo avisos de `CS8604` e `CS8602`. Isso garante que referências nulas sejam tratadas preventivamente antes de atingir o runtime.
+- **Async/Await**: Padronização de padrões assíncronos em todos os serviços e repositórios para garantir escalabilidade sob carga.
+
+### Estabilização de Build
+
+- **CI/CD Readiness**: O build da solução (`dotnet build`) foi estabilizado para 0 erros e 0 warnings significativos, garantindo que o projeto esteja pronto para pipelines de integração contínua.
+- **Auditoria Automática**: O `AppDbContext` foi estendido para injetar automaticamente IDs de correlação e rastreamento em todas as transações, facilitando debugging e rastreabilidade (observabilidade).
+
+---
+
 ## 📝 Última Atualização
 
 - **Data**: Abril 2026
-- **Versão**: v1.0
-- **Camadas**: 4 (Web, Application, Infrastructure, Domain)
-- **Padrão**: Layered Architecture + DI + Repository Pattern (via EF Core)
+- **Versão**: v1.1
+- **Foco**: Estabilidade, Null Safety e Gestão de Arquivos.
 
 ---
 

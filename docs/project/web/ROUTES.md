@@ -28,8 +28,20 @@
 
 ## Observacao de navegacao administrativa
 
-Itens administrativos da sidebar foram ajustados para:
+Itens administrativos da sidebar foram padronizados para o uso de rotas catch-all (`[...action]`):
 
-- /admin/access-control
-- /admin/users
-- /admin/teams
+- `/admin/access-control` (Listagem)
+- `/admin/access-control/[...action]` (Gerenciamento)
+- `/admin/users` (Listagem)
+- `/admin/users/[...action]` (Gerenciamento)
+- `/admin/teams` (Listagem)
+
+### Padrao de Acoes Administrativas
+
+As rotas `[...action]` derivam o comportamento do formulario a partir da URL:
+
+1. **Create**: `/admin/{modulo}/create` -> Inicia formulario vazio.
+2. **Edit**: `/admin/{modulo}/{id}/edit` -> Busca dados por ID para edicao.
+3. **View**: `/admin/{modulo}/{id}/view` -> Busca dados por ID para visualizacao (Read-Only).
+
+Este padrao e sustentado pelo hook `useFormMode` e permite a centralizacao de permissoes e logica de fetch em um unico arquivo de pagina.

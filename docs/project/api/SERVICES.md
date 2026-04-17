@@ -680,10 +680,43 @@ Request → Controller → Service → Database
 - `GetTeamsAsync` agora ignora registros com `DeletedAt` (soft delete).
 - `CreateTeamAsync` e `UpdateTeamAsync` trabalham com `iconUrl`, `logotipoUrl` e `isActive`.
 - `DeleteTeamAsync` aplica remoção lógica e bloqueia exclusão quando há vínculos em `ProfileTeams`.
-- `UpdateTeamAsync` remove arquivos antigos quando logo/icone muda.
+- `UpdateTeamAsync` remove arquivos antigos quando## 📁 IFileService
 
-### FileService
+Novo serviço centralizado para gerenciamento de arquivos físicos (como logotipos de equipes).
 
-- salva arquivos em `wwwroot/uploads`
-- retorna URL relativa (`/uploads/{arquivo}`)
-- restringe remoção ao diretório local de uploads
+```csharp
+public interface IFileService
+{
+    /// <summary>
+    /// Salva um arquivo no sistema de arquivos local.
+    /// </summary>
+    Task<string> SaveFileAsync(IFormFile file, string subFolder = "uploads");
+
+    /// <summary>
+    /// Remove um arquivo físico no sistema de arquivos local.
+    /// </summary>
+    void DeleteFile(string? fileUrl);
+}
+```
+
+### FileService (Implementação)
+
+- **Localização**: `wwwroot/uploads` é o diretório raiz para persistência.
+- **Segurança**: Métodos de exclusão validam se o arquivo está dentro do escopo permitido antes de tentar a remoção.
+- **URLs**: Retorna caminhos relativos (ex: `/uploads/logo.png`) que são servidos como arquivos estáticos pela API.
+
+---
+
+## 🚀 Melhorias no AdminService (Abril 2026)
+
+### Gestão de Arquivos e Limpeza
+
+O `AdminService` agora integra o `IFileService` para garantir que arquivos órfãos não acumulem no servidor:
+
+- **Update**: Ao atualizar o logotipo de uma equipe, o arquivo anterior é detectado e excluído fisicamente se for diferente do novo.
+- **Delete**: Ao realizar a exclusão lógica de um registro, os assets vinculados podem ser removidos conforme a política de retenção.
+
+### Tipagem e Segurança
+
+- Implementação rigorosa de null-conditional operators e validações de nulidade para evitar `NullReferenceException`.
+- Ajuste nos contratos de `UpdateTeamAsync` e `CreatePositionAsync` para suportar novos campos de metadados.
