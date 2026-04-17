@@ -398,7 +398,7 @@ namespace Api.Infrastructure.Services
                 pos.Name,
                 pos.DepartmentId,
                 pos.IsActive,
-                pos.Accesses.Select(a => new PositionAccessRequest(a.ScreenId, a.PermissionId)).ToList()
+                pos.Accesses.Select(a => new PositionAccessRequest(a.ScreenId, a.PermissionId, a.Scope ?? "team")).ToList()
             );
 
             return new ApiResponse<PositionDetailResponse>("200", "", response);
@@ -487,7 +487,8 @@ namespace Api.Infrastructure.Services
                     {
                         PositionId = position.Id,
                         ScreenId = acc.ScreenId,
-                        PermissionId = acc.PermissionId
+                        PermissionId = acc.PermissionId,
+                        Scope = acc.Scope
                     });
                 }
                 await _context.SaveChangesAsync();
@@ -520,7 +521,8 @@ namespace Api.Infrastructure.Services
                     {
                         PositionId = position.Id,
                         ScreenId = acc.ScreenId,
-                        PermissionId = acc.PermissionId
+                        PermissionId = acc.PermissionId,
+                        Scope = acc.Scope
                     });
                 }
             }
@@ -569,6 +571,16 @@ namespace Api.Infrastructure.Services
                 .ToListAsync();
             var response = teams.Select(t => new TeamResponse(t.Id, t.Name, t.IconUrl, t.LogotipoUrl, t.IsActive)).ToList();
             return new ApiResponse<List<TeamResponse>>("200", "", response);
+        }
+
+        public async Task<ApiResponse<TeamResponse>> GetTeamByIdAsync(Guid id)
+        {
+            var team = await _context.Teams.FindAsync(id);
+            if (team == null || team.DeletedAt != null)
+                return new ApiResponse<TeamResponse>("404", "Equipe não encontrada", null);
+
+            var response = new TeamResponse(team.Id, team.Name, team.IconUrl, team.LogotipoUrl, team.IsActive);
+            return new ApiResponse<TeamResponse>("200", "", response);
         }
 
         public async Task<ApiResponse<TeamResponse>> CreateTeamAsync(SaveTeamRequest request)
@@ -671,6 +683,12 @@ namespace Api.Infrastructure.Services
                 .ToListAsync();
 
             return new UserManagementOptionsResponse(teams, positions);
+        }
+
+        public async Task<ApiResponse<UserManagementOptionsResponse>> GetUserOptionsAsync()
+        {
+            var options = await BuildUserOptionsAsync();
+            return new ApiResponse<UserManagementOptionsResponse>("200", "", options);
         }
 
         private static UserManagementUserResponse MapUser(Profile profile)

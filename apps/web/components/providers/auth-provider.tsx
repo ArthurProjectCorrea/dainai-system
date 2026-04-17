@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useEffect, useState } from 'react'
-import { logoutAction } from '@/app/auth/actions'
+import { logoutAction } from '@/lib/actions'
 import { User, UserMeResponse } from '@/types/auth'
 
 type PermissionMap = Record<string, string[]>
@@ -110,6 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 Name?: string
                 NameSidebar?: string
                 Permissions?: string[]
+                Scope?: string
               }
 
               return {
@@ -117,6 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 name: access.name ?? accessAny.Name ?? '',
                 nameSidebar: access.nameSidebar ?? accessAny.NameSidebar ?? '',
                 permissions: access.permissions ?? accessAny.Permissions ?? [],
+                scope: access.scope ?? accessAny.Scope ?? 'team',
               }
             })
             .filter(access => access.nameKey.length > 0)

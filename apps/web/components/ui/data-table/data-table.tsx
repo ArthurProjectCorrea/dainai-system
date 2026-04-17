@@ -43,11 +43,13 @@ import { DataTablePagination } from './data-table-pagination'
 import { DataTableToolbar } from './data-table-toolbar'
 import { DataTableSkeleton } from './data-table-skeleton'
 import { DataTableDialog } from './data-table-dialog'
+import { QuickFilterConfig, DetailedFilterConfig } from './data-table-types'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  filterColumn?: string
+  quickFilter?: QuickFilterConfig
+  detailedFilter?: DetailedFilterConfig<TData>
   isLoading?: boolean
   onReload?: () => void
   newConfig?: {
@@ -83,7 +85,8 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns: initialColumns,
   data,
-  filterColumn,
+  quickFilter,
+  detailedFilter,
   isLoading,
   onReload,
   newConfig,
@@ -247,6 +250,7 @@ export function DataTable<TData, TValue>({
     return cols
   }, [initialColumns, editConfig, viewConfig, deleteConfig, rowActions])
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -273,7 +277,8 @@ export function DataTable<TData, TValue>({
     <div className="space-y-4">
       <DataTableToolbar
         table={table}
-        filterColumn={filterColumn}
+        quickFilter={quickFilter}
+        detailedFilter={detailedFilter}
         onReload={onReload}
         newConfig={
           newConfig?.show !== false && (newConfig?.url || newConfig?.dialog)

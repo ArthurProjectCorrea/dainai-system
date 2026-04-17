@@ -8,7 +8,7 @@ import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@/comp
 import Link from 'next/link'
 import { RefreshCwIcon } from 'lucide-react'
 
-import { verifyOtpAction, forgotPasswordAction } from '@/app/auth/actions'
+import { verifyOtpAction, forgotPasswordAction } from '@/lib/actions'
 import { toast } from 'sonner'
 import * as React from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'

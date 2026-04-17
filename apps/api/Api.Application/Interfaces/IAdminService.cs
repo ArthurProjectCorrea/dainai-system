@@ -17,6 +17,7 @@ namespace Api.Application.Interfaces
         Task<ApiResponse<UserManagementUserResponse>> CreateUserAsync(SaveUserRequest request);
         Task<ApiResponse<UserManagementUserResponse>> UpdateUserAsync(Guid id, SaveUserRequest request);
         Task<ApiResponse<object>> DeleteUserAsync(Guid id);
+        Task<ApiResponse<UserManagementOptionsResponse>> GetUserOptionsAsync();
         Task<ApiResponse<object>> ResendInvitationAsync(Guid id);
 
         // Access Control
@@ -36,6 +37,7 @@ namespace Api.Application.Interfaces
 
         // Teams
         Task<ApiResponse<List<TeamResponse>>> GetTeamsAsync();
+        Task<ApiResponse<TeamResponse>> GetTeamByIdAsync(Guid id);
         Task<ApiResponse<TeamResponse>> CreateTeamAsync(SaveTeamRequest request);
         Task<ApiResponse<TeamResponse>> UpdateTeamAsync(Guid id, SaveTeamRequest request);
         Task<ApiResponse<object>> DeleteTeamAsync(Guid id);

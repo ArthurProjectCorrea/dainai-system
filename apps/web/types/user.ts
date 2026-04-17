@@ -51,7 +51,7 @@ export interface UsersListPayload {
 }
 
 export interface UserDetailPayload {
-  user: UserManagementUser
+  user: UserManagementUser | null
   options: UserManagementOptions
 }
 

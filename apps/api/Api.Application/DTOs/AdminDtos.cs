@@ -79,7 +79,7 @@ namespace Api.Application.DTOs
 
     public record SaveDepartmentRequest(string Name);
 
-    public record PositionAccessRequest(int ScreenId, int PermissionId);
+    public record PositionAccessRequest(int ScreenId, int PermissionId, string Scope = "team");
 
     public record PositionDetailResponse(
         int Id,

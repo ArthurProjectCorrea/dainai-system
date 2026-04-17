@@ -261,6 +261,21 @@ namespace Api.Infrastructure.Services
             return scopedAccesses.Any(a => a.NameKey == screen && a.Permissions.Contains(permission));
         }
 
+        public async Task<string> GetScopeAsync(Guid userId, Guid? activeTeamId, string screen)
+        {
+            var meResponse = await GetMeAsync(userId);
+            if (meResponse.Data == null) return "team";
+
+            var scopedAccesses = activeTeamId.HasValue
+                ? meResponse.Data.TeamAccesses
+                    .Where(t => t.TeamId == activeTeamId.Value)
+                    .SelectMany(t => t.Accesses)
+                : meResponse.Data.TeamAccesses.SelectMany(t => t.Accesses);
+
+            var access = scopedAccesses.FirstOrDefault(a => a.NameKey == screen);
+            return access?.Scope ?? "team";
+        }
+
         private static string HashValue(string value)
         {
             using var sha256 = SHA256.Create();
@@ -276,7 +291,8 @@ namespace Api.Infrastructure.Services
                     g.Key,
                     g.Select(a => a.Screen.Name).FirstOrDefault() ?? g.Key,
                     g.Select(a => a.Screen.NameSidebar).FirstOrDefault() ?? g.Key,
-                    g.Select(a => a.Permission.NameKey).Distinct().ToList()
+                    g.Select(a => a.Permission.NameKey).Distinct().ToList(),
+                    g.Select(a => a.Scope).FirstOrDefault() ?? "team"
                 ))
                 .ToList();
         }

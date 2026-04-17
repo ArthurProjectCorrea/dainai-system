@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
@@ -46,7 +47,9 @@ export function PageHeader({ breadcrumbs }: PageHeaderProps) {
                     {isLast ? (
                       <BreadcrumbPage>{item.label}</BreadcrumbPage>
                     ) : item.href ? (
-                      <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
+                      <BreadcrumbLink asChild>
+                        <Link href={item.href}>{item.label}</Link>
+                      </BreadcrumbLink>
                     ) : (
                       <span className="cursor-default">{item.label}</span>
                     )}

@@ -9,9 +9,16 @@ import { TeamSwitcher } from '@/components/sidebar/team-switcher'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from '@/components/ui/sidebar'
 import { sidebarData, type SidebarMainItem } from '@/components/sidebar/sidebar'
 import { useAuth } from '@/hooks/use-auth'
+import { useRouter } from 'next/navigation'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading, hasPermission, activeTeamId, setActiveTeam, activeAccesses } = useAuth()
+  const router = useRouter()
+
+  const handleTeamChange = (teamId: string) => {
+    setActiveTeam(teamId)
+    router.push('/dashboard')
+  }
 
   const teamsForSwitcher = React.useMemo(() => {
     const teamContextById = new Map(
@@ -36,6 +43,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const resolvedItems: SidebarMainItem[] = sidebarData.navMain
       .map(item => {
         if (!item.items?.length) {
+          // If it's a top-level item with permission check
+          if (item.is_permission) {
+            if (!item.name_key || !hasPermission(item.name_key, 'view')) {
+              return null
+            }
+            const dbTitle = accessTitleByScreen.get(item.name_key)
+            return {
+              ...item,
+              title: dbTitle || item.title || 'Sem nome',
+            }
+          }
           return item
         }
 
@@ -80,7 +98,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher
           teams={teamsForSwitcher}
           activeTeamId={activeTeamId}
-          onTeamChange={setActiveTeam}
+          onTeamChange={handleTeamChange}
           loading={loading}
         />
       </SidebarHeader>

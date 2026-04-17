@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ChevronRightIcon } from 'lucide-react'
 import {
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -20,10 +21,10 @@ export function NavMain({ items }: { items: SidebarMainItem[] }) {
   const { state, toggleSidebar } = useSidebar()
   const [openGroup, setOpenGroup] = React.useState<string | null>(() => {
     const activeGroupedItem = items.find(item => item.items?.length && item.isActive)
-    return activeGroupedItem ? (activeGroupedItem.url ?? activeGroupedItem.title) : null
+    return activeGroupedItem ? (activeGroupedItem.url ?? activeGroupedItem.title ?? null) : null
   })
 
-  const openGroupedItem = (itemKey: string) => {
+  const openGroupedItem = (itemKey: string | null) => {
     setOpenGroup(itemKey)
     if (state === 'collapsed') {
       toggleSidebar()
@@ -32,10 +33,11 @@ export function NavMain({ items }: { items: SidebarMainItem[] }) {
 
   return (
     <SidebarGroup>
+      <SidebarGroupLabel>Geral</SidebarGroupLabel>
       <SidebarMenu>
         {items.map(item =>
           (() => {
-            const itemKey = item.url ?? item.title
+            const itemKey = item.url ?? item.title ?? null
             const hasChildren = Boolean(item.items?.length)
             const isOpen = hasChildren && openGroup === itemKey
 

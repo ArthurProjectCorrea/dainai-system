@@ -9,6 +9,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import { FeedbackDialog } from '@/components/feedback-dialog'
 
 export function NavSecondary({
   items,
@@ -20,6 +21,15 @@ export function NavSecondary({
     icon: React.ReactNode
   }[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+  const [feedbackOpen, setFeedbackOpen] = React.useState(false)
+
+  const handleClick = (e: React.MouseEvent, title: string) => {
+    if (title === 'Feedback') {
+      e.preventDefault()
+      setFeedbackOpen(true)
+    }
+  }
+
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
@@ -27,7 +37,7 @@ export function NavSecondary({
           {items.map(item => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild size="sm">
-                <a href={item.url}>
+                <a href={item.url} onClick={e => handleClick(e, item.title)}>
                   {item.icon}
                   <span>{item.title}</span>
                 </a>
@@ -36,6 +46,8 @@ export function NavSecondary({
           ))}
         </SidebarMenu>
       </SidebarGroupContent>
+
+      <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
     </SidebarGroup>
   )
 }

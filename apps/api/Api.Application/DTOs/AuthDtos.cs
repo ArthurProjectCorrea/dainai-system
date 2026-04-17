@@ -15,7 +15,7 @@ namespace Api.Application.DTOs
     public record PermissionDto(int Id, string Name, string NameKey);
     public record ScreenDto(int Id, string Name, string NameSidebar, string NameKey);
 
-    public record AccessDto(string NameKey, string Name, string NameSidebar, List<string> Permissions);
+    public record AccessDto(string NameKey, string Name, string NameSidebar, List<string> Permissions, string Scope);
 
     public record TeamAccessDto(
         Guid TeamId,

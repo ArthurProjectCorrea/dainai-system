@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { toast } from 'sonner'
-import { Shield, ShieldCheck, ShieldAlert } from 'lucide-react'
+import { Building2, ShieldCheck, ShieldAlert } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { forbidden } from 'next/navigation'
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header'
@@ -10,18 +10,17 @@ import { StatCard } from '@/components/stat-card'
 import type { ColumnDef } from '@tanstack/react-table'
 
 import { useAdminModule } from '@/hooks/use-admin-module'
-import { AdminPageLayout } from '@/components/admin/admin-page-layout'
+import { ModulePageLayout } from '@/components/layouts/module-page-layout'
 import { DataTable } from '@/components/ui/data-table/data-table'
 import type { AccessControlPayload, Position } from '@/types/access-control'
 
 export default function AccessControlPage() {
   // The access-control endpoint returns a complex object (not a simple list),
   // so we manage raw payload separately and use useAdminModule for auth + screen name only.
-  const { canView, canCreate, canUpdate, canDelete, screenName, authLoading } =
-    useAdminModule<Position>({
-      moduleKey: 'access_control',
-      // No endpoint: this module has a unique payload shape, so fetching is managed manually below
-    })
+  const { canView, canCreate, canUpdate, canDelete, authLoading } = useAdminModule<Position>({
+    moduleKey: 'access_control',
+    // No endpoint: this module has a unique payload shape, so fetching is managed manually below
+  })
 
   const [acPayload, setAcPayload] = React.useState<AccessControlPayload | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
@@ -109,32 +108,27 @@ export default function AccessControlPage() {
   ]
 
   return (
-    <AdminPageLayout
-      screenName={screenName || 'Controle de Acesso'}
+    <ModulePageLayout
+      breadcrumbItems={[{ label: 'Administrador' }, { label: 'Controle de Acesso' }]}
       stats={
         <>
           <StatCard
-            icon={Shield}
-            title="Total de Cargos"
+            icon={<Building2 className="h-4 w-4 text-primary" />}
+            title="Departamentos"
+            value={acPayload?.departments.length || 0}
+            description="Estrutura organizacional"
+          />
+          <StatCard
+            icon={<ShieldCheck className="h-4 w-4 text-emerald-500" />}
+            title="Cargos e Permissões"
             value={acPayload?.positionIndicators?.total || 0}
-            description="Cargos cadastrados"
-            className="bg-primary/5 border-primary/10 transition-transform hover:scale-[1.01]"
+            description="Regras de acesso ativas"
           />
           <StatCard
-            icon={ShieldCheck}
-            title="Cargos Ativos"
-            value={acPayload?.positionIndicators?.active || 0}
-            description="Operacionais"
-            iconClassName="bg-emerald-500/10 text-emerald-500"
-            className="transition-transform hover:scale-[1.01]"
-          />
-          <StatCard
-            icon={ShieldAlert}
-            title="Cargos Inativos"
-            value={acPayload?.positionIndicators?.inactive || 0}
-            description="Bloqueados"
-            iconClassName="bg-amber-500/10 text-amber-500"
-            className="transition-transform hover:scale-[1.01]"
+            icon={<ShieldAlert className="h-4 w-4 text-blue-500" />}
+            title="Telas do Sistema"
+            value={acPayload?.screens?.length || 0}
+            description="Módulos operacionais"
           />
         </>
       }
@@ -142,7 +136,11 @@ export default function AccessControlPage() {
       <DataTable
         columns={positionColumns}
         data={acPayload?.data || []}
-        filterColumn="name"
+        quickFilter={{
+          type: 'text',
+          column: 'name',
+          placeholder: 'Pesquisar por cargo...',
+        }}
         isLoading={isLoading}
         onReload={fetchData}
         newConfig={{
@@ -150,10 +148,10 @@ export default function AccessControlPage() {
           url: '/admin/access-control/create',
           label: 'Novo Cargo',
         }}
-        editConfig={{ show: canUpdate, url: '/admin/access-control/[id]' }}
-        viewConfig={{ show: true, url: '/admin/access-control/[id]?mode=view' }}
+        editConfig={{ show: canUpdate, url: '/admin/access-control/[id]/edit' }}
+        viewConfig={{ show: true, url: '/admin/access-control/[id]/view' }}
         deleteConfig={{ show: canDelete, onDelete: row => handleDeletePosition(row.id) }}
       />
-    </AdminPageLayout>
+    </ModulePageLayout>
   )
 }

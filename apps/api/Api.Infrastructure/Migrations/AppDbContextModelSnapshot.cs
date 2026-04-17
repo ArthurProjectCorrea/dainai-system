@@ -42,6 +42,9 @@ namespace Api.Infrastructure.Migrations
                     b.Property<int>("PositionId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Scope")
+                        .HasColumnType("text");
+
                     b.Property<int>("ScreenId")
                         .HasColumnType("integer");
 
@@ -255,6 +258,78 @@ namespace Api.Infrastructure.Migrations
                     b.HasIndex("TeamId");
 
                     b.ToTable("ProfileTeams");
+                });
+
+            modelBuilder.Entity("Api.Domain.Project", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IntegrationToken")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TeamId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IntegrationToken")
+                        .IsUnique();
+
+                    b.HasIndex("TeamId");
+
+                    b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("Api.Domain.ProjectFeedback", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Note")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RefUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId", "RefUserId")
+                        .IsUnique();
+
+                    b.ToTable("ProjectFeedbacks");
                 });
 
             modelBuilder.Entity("Api.Domain.Screen", b =>
@@ -598,6 +673,28 @@ namespace Api.Infrastructure.Migrations
                     b.Navigation("Team");
                 });
 
+            modelBuilder.Entity("Api.Domain.Project", b =>
+                {
+                    b.HasOne("Api.Domain.Team", "Team")
+                        .WithMany()
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Team");
+                });
+
+            modelBuilder.Entity("Api.Domain.ProjectFeedback", b =>
+                {
+                    b.HasOne("Api.Domain.Project", "Project")
+                        .WithMany("Feedbacks")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
@@ -669,6 +766,11 @@ namespace Api.Infrastructure.Migrations
             modelBuilder.Entity("Api.Domain.Profile", b =>
                 {
                     b.Navigation("ProfileTeams");
+                });
+
+            modelBuilder.Entity("Api.Domain.Project", b =>
+                {
+                    b.Navigation("Feedbacks");
                 });
 
             modelBuilder.Entity("Api.Domain.Screen", b =>

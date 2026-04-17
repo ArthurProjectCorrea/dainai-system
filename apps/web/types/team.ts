@@ -15,5 +15,6 @@ export type TeamAccess = {
     name: string
     nameSidebar: string
     permissions: string[]
+    scope: string
   }[]
 }

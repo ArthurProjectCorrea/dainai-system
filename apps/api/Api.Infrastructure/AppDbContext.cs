@@ -20,6 +20,10 @@ namespace Api.Infrastructure
         public DbSet<Access> Accesses { get; set; } = null!;
         public DbSet<OtpAttempt> OtpAttempts { get; set; } = null!;
 
+        // Projects & Feedbacks Module
+        public DbSet<Project> Projects { get; set; } = null!;
+        public DbSet<ProjectFeedback> ProjectFeedbacks { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -50,6 +54,16 @@ namespace Api.Infrastructure
             // Unique Key for Screens
             builder.Entity<Screen>()
                 .HasIndex(s => s.NameKey)
+                .IsUnique();
+
+            // Project Integration Token UK
+            builder.Entity<Project>()
+                .HasIndex(p => p.IntegrationToken)
+                .IsUnique();
+
+            // Project Feedback Prevent Duplicates UK (Upsert Anchor)
+            builder.Entity<ProjectFeedback>()
+                .HasIndex(pf => new { pf.ProjectId, pf.RefUserId })
                 .IsUnique();
         }
     }

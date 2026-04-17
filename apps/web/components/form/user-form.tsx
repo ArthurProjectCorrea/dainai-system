@@ -24,6 +24,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { FormHeader } from '@/components/form-header'
+import { FormButtons } from '@/components/form-buttons'
 
 import type { SaveUserPayload, UserManagementOptions, UserManagementUser } from '@/types/user'
 
@@ -205,35 +207,24 @@ export function UserForm({ mode, user, options, onSuccess, onCancel }: UserFormP
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 relative">
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-2 border-b mb-2 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-0.5">
-          <h2 className="text-lg font-semibold tracking-tight">
-            {mode === 'edit'
-              ? 'Editar Usuário'
-              : mode === 'view'
-                ? 'Visualizar Usuário'
-                : 'Novo Usuário'}
-          </h2>
-          <p className="text-[11px] text-muted-foreground">
-            {mode === 'edit'
-              ? 'Atualize as permissões e dados de acesso'
-              : mode === 'view'
-                ? 'Dados de cadastro e acesso do colaborador'
-                : 'Cadastre um novo colaborador no sistema'}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            {mode === 'view' ? 'Voltar' : 'Cancelar'}
-          </Button>
-          {mode !== 'view' && (
-            <Button type="submit" disabled={loading}>
-              {loading && <Spinner className="mr-2 h-4 w-4" />}
-              {mode === 'edit' ? 'Salvar Alterações' : 'Criar Usuário'}
-            </Button>
-          )}
-        </div>
-      </div>
+      <FormHeader
+        title={
+          mode === 'edit'
+            ? 'Editar Usuário'
+            : mode === 'view'
+              ? 'Visualizar Usuário'
+              : 'Novo Usuário'
+        }
+        description={
+          mode === 'edit'
+            ? 'Atualize as permissões e dados de acesso'
+            : mode === 'view'
+              ? 'Dados de cadastro e acesso do colaborador'
+              : 'Cadastre um novo colaborador no sistema'
+        }
+      >
+        <FormButtons mode={mode} loading={loading} onCancel={onCancel} />
+      </FormHeader>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="flex flex-col">

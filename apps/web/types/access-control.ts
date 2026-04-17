@@ -45,6 +45,7 @@ export interface SavePositionRequest {
   accesses: {
     screenId: number
     permissionId: number
+    scope: string
   }[]
 }
 

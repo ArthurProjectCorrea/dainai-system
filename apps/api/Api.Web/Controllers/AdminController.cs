@@ -55,6 +55,14 @@ namespace Api.Web.Controllers
             return Ok(response);
         }
 
+        [HttpGet("users/options")]
+        [HasPermission("users_management", "view")]
+        public async Task<IActionResult> GetUserOptions()
+        {
+            var response = await _adminService.GetUserOptionsAsync();
+            return Ok(response);
+        }
+
         [HttpGet("users/{id}")]
         [HasPermission("users_management", "view")]
         public async Task<IActionResult> GetUserById(Guid id)
@@ -188,12 +196,20 @@ namespace Api.Web.Controllers
             return Ok(response);
         }
 
-        // --- TEAMS ---
         [HttpGet("teams")]
         [HasPermission("teams_management", "view")]
         public async Task<IActionResult> GetTeams()
         {
             var response = await _adminService.GetTeamsAsync();
+            return Ok(response);
+        }
+
+        [HttpGet("teams/{id}")]
+        [HasPermission("teams_management", "view")]
+        public async Task<IActionResult> GetTeamById(Guid id)
+        {
+            var response = await _adminService.GetTeamByIdAsync(id);
+            if (response.Code == "404") return NotFound(response);
             return Ok(response);
         }
 

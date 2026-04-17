@@ -1,5 +1,11 @@
 import * as React from 'react'
-import { LayoutDashboardIcon, ShieldCheckIcon, LifeBuoyIcon, SendIcon } from 'lucide-react'
+import {
+  LayoutDashboardIcon,
+  ShieldCheckIcon,
+  LifeBuoyIcon,
+  SendIcon,
+  FolderGit2,
+} from 'lucide-react'
 
 const name_sidebar: string | undefined = undefined
 
@@ -11,11 +17,13 @@ export type SidebarSubItem = {
 }
 
 export type SidebarMainItem = {
-  title: string
+  title: string | undefined
   icon: React.ReactNode
   isActive?: boolean
   url?: string
   items?: SidebarSubItem[]
+  name_key?: string
+  is_permission?: boolean
 }
 
 export const sidebarData = {
@@ -26,22 +34,30 @@ export const sidebarData = {
       url: '/dashboard',
     },
     {
+      title: name_sidebar,
+      icon: <FolderGit2 />,
+      url: '/projects',
+      name_key: 'projects_management',
+      is_permission: true,
+    },
+    {
       title: 'Administrador',
       icon: <ShieldCheckIcon />,
       isActive: true,
       items: [
         {
           title: name_sidebar,
-          url: '/admin/access-control',
-          name_key: 'access_control',
-          is_permission: true,
-        },
-        {
-          title: name_sidebar,
           url: '/admin/users',
           name_key: 'users_management',
           is_permission: true,
         },
+        {
+          title: name_sidebar,
+          url: '/admin/access-control',
+          name_key: 'access_control',
+          is_permission: true,
+        },
+
         {
           title: name_sidebar,
           url: '/admin/teams',

@@ -2,14 +2,23 @@
 
 import * as React from 'react'
 import { toast } from 'sonner'
-import { Loader2, Shield, Building2 } from 'lucide-react'
+import { Shield } from 'lucide-react'
+
+import { FormHeader } from '@/components/form-header'
+import { FormButtons } from '@/components/form-buttons'
 
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Field,
   FieldContent,
@@ -19,7 +28,7 @@ import {
 } from '@/components/ui/field'
 import { CreatableCombobox } from '@/components/creatable-combobox'
 
-import { isPermissionSupported } from '@/lib/permissions'
+import { isPermissionSupported, SCOPES_SUPPORTED_SCREENS } from '@/lib/permissions'
 import type {
   Department,
   Screen,
@@ -30,7 +39,7 @@ import type {
 } from '@/types/access-control'
 
 type PositionWithAccesses = Position & {
-  accesses?: { screenId: number; permissionId: number }[]
+  accesses?: { screenId: number; permissionId: number; scope?: string }[]
 }
 
 interface AccessControlFormProps {
@@ -75,6 +84,20 @@ export function AccessControlForm({
         accesses.forEach(a => {
           if (!map.has(a.screenId)) map.set(a.screenId, new Set())
           map.get(a.screenId)!.add(a.permissionId)
+        })
+      }
+    }
+    return map
+  })
+
+  // Matrix State: screenId -> scope
+  const [screenScopes, setScreenScopes] = React.useState<Map<number, string>>(() => {
+    const map = new Map<number, string>()
+    if (initialData?.id && mode === 'position') {
+      const accesses = (initialData as PositionWithAccesses).accesses
+      if (accesses) {
+        accesses.forEach(a => {
+          if (a.scope) map.set(a.screenId, a.scope)
         })
       }
     }
@@ -137,7 +160,11 @@ export function AccessControlForm({
               newDepartmentName: newDepartmentName,
               isActive,
               accesses: Array.from(selectedAccesses.entries()).flatMap(([screenId, perms]) =>
-                Array.from(perms).map(permissionId => ({ screenId, permissionId })),
+                Array.from(perms).map(permissionId => ({
+                  screenId,
+                  permissionId,
+                  scope: screenScopes.get(screenId) || 'team',
+                })),
               ),
             } as SavePositionRequest)
 
@@ -165,45 +192,31 @@ export function AccessControlForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 relative">
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-2 border-b mb-2 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-0.5">
-          <h2 className="text-lg font-semibold tracking-tight">
-            {readOnly ? 'Visualizar' : type === 'edit' ? 'Editar' : 'Novo'}{' '}
-            {mode === 'department' ? 'Departamento' : 'Cargo'}
-          </h2>
-          <p className="text-[11px] text-muted-foreground">
-            {mode === 'department'
-              ? 'Gerencie divisões organizacionais da empresa'
-              : 'Defina responsabilidades e permissões de acesso'}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            {readOnly ? 'Voltar' : 'Cancelar'}
-          </Button>
-          {!readOnly && (
-            <Button type="submit" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {type === 'edit'
-                ? 'Salvar Alterações'
-                : `Criar ${mode === 'department' ? 'Departamento' : 'Cargo'}`}
-            </Button>
-          )}
-        </div>
-      </div>
+      <FormHeader
+        title={`${readOnly ? 'Visualizar' : type === 'edit' ? 'Editar' : 'Novo'} ${mode === 'department' ? 'Departamento' : 'Cargo'}`}
+        description={
+          mode === 'department'
+            ? 'Gerencie divisões organizacionais da empresa'
+            : 'Defina responsabilidades e permissões de acesso'
+        }
+      >
+        <FormButtons
+          mode={readOnly ? 'view' : type}
+          loading={loading}
+          onCancel={onCancel ?? (() => window.history.back())}
+          saveLabel={
+            type === 'edit'
+              ? 'Salvar Alterações'
+              : `Criar ${mode === 'department' ? 'Departamento' : 'Cargo'}`
+          }
+        />
+      </FormHeader>
 
       <div className="w-full space-y-6">
         {/* Basic Info */}
         <Card className="shadow-sm">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              {mode === 'department' ? (
-                <Building2 className="h-4 w-4 text-primary" />
-              ) : (
-                <Shield className="h-4 w-4 text-primary" />
-              )}
-              Informações Básicas
-            </CardTitle>
+            <CardTitle>Informações Básicas</CardTitle>
             <CardDescription className="text-xs">
               {mode === 'department'
                 ? 'Defina o nome do departamento.'
@@ -290,6 +303,9 @@ export function AccessControlForm({
                       <th className="p-3 text-left font-medium text-muted-foreground">
                         Nome da Tela
                       </th>
+                      <th className="p-3 text-left font-medium text-muted-foreground w-32">
+                        Escopo
+                      </th>
                       {options.permissions.map(perm => (
                         <th
                           key={perm.id}
@@ -320,6 +336,29 @@ export function AccessControlForm({
                             <div className="text-[9px] text-muted-foreground/60 font-mono uppercase tracking-tighter">
                               {screen.nameKey}
                             </div>
+                          </td>
+                          <td className="p-1 px-3">
+                            {supportedPerms.length > 0 &&
+                            SCOPES_SUPPORTED_SCREENS.includes(screen.nameKey) ? (
+                              <Select
+                                value={screenScopes.get(screen.id) || 'team'}
+                                onValueChange={value => {
+                                  const newScopes = new Map(screenScopes)
+                                  newScopes.set(screen.id, value)
+                                  setScreenScopes(newScopes)
+                                }}
+                                disabled={readOnly}
+                              >
+                                <SelectTrigger className="flex h-7 w-[120px] text-xs">
+                                  <SelectValue placeholder="Selecione" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="all">Global</SelectItem>
+                                  <SelectItem value="team">Equipe</SelectItem>
+                                  <SelectItem value="user">Usuário</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            ) : null}
                           </td>
                           {options.permissions.map(perm => {
                             const isSupported = isPermissionSupported(screen.nameKey, perm.nameKey)

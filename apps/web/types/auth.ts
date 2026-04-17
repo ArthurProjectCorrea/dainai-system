@@ -19,6 +19,7 @@ export interface UserAccess {
   name: string
   nameSidebar: string
   permissions: string[]
+  scope: string
 }
 
 import { Team, TeamAccess } from './team'

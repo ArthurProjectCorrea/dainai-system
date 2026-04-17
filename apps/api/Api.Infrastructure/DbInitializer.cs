@@ -19,7 +19,8 @@ namespace Api.Infrastructure
             {
                 new Screen { Id = 1, Name = "Controle de Acesso", NameSidebar = "Controle de Acesso", NameKey = "access_control" },
                 new Screen { Id = 2, Name = "Gerência de Usuários", NameSidebar = "Usuários", NameKey = "users_management" },
-                new Screen { Id = 3, Name = "Gerência de Equipes", NameSidebar = "Equipes", NameKey = "teams_management" }
+                new Screen { Id = 3, Name = "Gerência de Equipes", NameSidebar = "Equipes", NameKey = "teams_management" },
+                new Screen { Id = 4, Name = "Gerência de Projetos", NameSidebar = "Projetos", NameKey = "projects_management" }
             };
 
             foreach (var screenSeed in screenSeeds)
@@ -133,7 +134,14 @@ namespace Api.Infrastructure
                     var accessExists = context.Accesses.Any(a => a.PositionId == posAdmin.Id && a.ScreenId == screen.Id && a.PermissionId == permission.Id);
                     if (!accessExists)
                     {
-                        context.Accesses.Add(new Access { PositionId = posAdmin.Id, ScreenId = screen.Id, PermissionId = permission.Id });
+                        var scopeValue = screen.NameKey == "projects_management" ? "all" : null;
+                        context.Accesses.Add(new Access { PositionId = posAdmin.Id, ScreenId = screen.Id, PermissionId = permission.Id, Scope = scopeValue });
+                    }
+                    else
+                    {
+                        // Update existing seeds to respect the new null requirement
+                        var existingAccess = context.Accesses.First(a => a.PositionId == posAdmin.Id && a.ScreenId == screen.Id && a.PermissionId == permission.Id);
+                        existingAccess.Scope = screen.NameKey == "projects_management" ? "all" : null;
                     }
                 }
             }

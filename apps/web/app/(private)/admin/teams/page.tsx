@@ -6,7 +6,7 @@ import { forbidden } from 'next/navigation'
 import { Building2, Users2, ShieldCheck, ShieldAlert } from 'lucide-react'
 
 import { useAdminModule } from '@/hooks/use-admin-module'
-import { AdminPageLayout } from '@/components/admin/admin-page-layout'
+import { ModulePageLayout } from '@/components/layouts/module-page-layout'
 import { DataTable } from '@/components/ui/data-table/data-table'
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header'
 import { TeamForm } from '@/components/form/team-form'
@@ -94,32 +94,27 @@ export default function TeamsPage() {
   const inactive = data.filter(t => !t.isActive).length
 
   return (
-    <AdminPageLayout
-      screenName={screenName || 'Equipes'}
+    <ModulePageLayout
+      breadcrumbItems={[{ label: 'Administrador' }, { label: screenName || 'Equipes' }]}
       stats={
         <>
           <StatCard
-            icon={Users2}
+            icon={<Users2 className="h-4 w-4 text-primary" />}
             title="Total de Equipes"
             value={data.length}
             description="Equipes cadastradas no sistema"
-            className="bg-primary/5 border-primary/10 transition-transform hover:scale-[1.01]"
           />
           <StatCard
-            icon={ShieldCheck}
+            icon={<ShieldCheck className="h-4 w-4 text-emerald-500" />}
             title="Equipes Ativas"
             value={active}
             description="Operacionais no momento"
-            iconClassName="bg-emerald-500/10 text-emerald-500"
-            className="transition-transform hover:scale-[1.01]"
           />
           <StatCard
-            icon={ShieldAlert}
+            icon={<ShieldAlert className="h-4 w-4 text-amber-500" />}
             title="Equipes Inativas"
             value={inactive}
             description="Aguardando ativação ou inativas"
-            iconClassName="bg-amber-500/10 text-amber-500"
-            className="transition-transform hover:scale-[1.01]"
           />
         </>
       }
@@ -127,7 +122,11 @@ export default function TeamsPage() {
       <DataTable
         columns={columns}
         data={data}
-        filterColumn="name"
+        quickFilter={{
+          type: 'text',
+          column: 'name',
+          placeholder: 'Pesquisar por nome...',
+        }}
         isLoading={isLoading}
         onReload={fetchData}
         onSuccess={() => fetchData({ silent: true })}
@@ -136,6 +135,6 @@ export default function TeamsPage() {
         viewConfig={{ show: true, dialog: TeamForm }}
         deleteConfig={{ show: canDelete, onDelete: handleDelete }}
       />
-    </AdminPageLayout>
+    </ModulePageLayout>
   )
 }

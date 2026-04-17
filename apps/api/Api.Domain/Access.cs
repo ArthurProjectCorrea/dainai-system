@@ -12,5 +12,11 @@ namespace Api.Domain
 
         public int PermissionId { get; set; }
         public virtual Permission Permission { get; set; } = null!;
+
+        /// <summary>
+        /// The Data-Level scope filter applied to this permission (all, team, user).
+        /// Defaults to team.
+        /// </summary>
+        public string? Scope { get; set; }
     }
 }

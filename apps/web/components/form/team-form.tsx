@@ -17,13 +17,17 @@ import {
 } from '@/components/ui/field'
 import { Switch } from '@/components/ui/switch'
 
+import { FormHeader } from '@/components/form-header'
+import { FormButtons } from '@/components/form-buttons'
+
 interface TeamFormProps {
   data?: Team | null
   onSuccess: () => void
+  onCancel?: () => void
   readOnly?: boolean
 }
 
-export function TeamForm({ data, onSuccess, readOnly }: TeamFormProps) {
+export function TeamForm({ data, onSuccess, onCancel, readOnly }: TeamFormProps) {
   const [loading, setLoading] = React.useState(false)
   const [uploading, setUploading] = React.useState(false)
   const [logotipoUrl, setLogotipoUrl] = React.useState(data?.logotipoUrl || '')
@@ -103,7 +107,22 @@ export function TeamForm({ data, onSuccess, readOnly }: TeamFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4 relative">
+      <FormHeader
+        title={readOnly ? 'Visualizar Equipe' : data?.id ? 'Editar Equipe' : 'Nova Equipe'}
+        description={
+          readOnly
+            ? 'Dados e logotipo da unidade operacional'
+            : 'Gerencie identidades e configurações das equipes do sistema'
+        }
+      >
+        <FormButtons
+          mode={readOnly ? 'view' : data?.id ? 'edit' : 'create'}
+          loading={loading || uploading}
+          onCancel={onCancel ?? (() => window.history.back())}
+        />
+      </FormHeader>
+
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="name">Nome da Equipe</FieldLabel>
@@ -187,15 +206,6 @@ export function TeamForm({ data, onSuccess, readOnly }: TeamFormProps) {
           </Field>
         </FieldLabel>
       </FieldGroup>
-
-      {!readOnly && (
-        <div className="flex justify-end gap-2 text-right">
-          <Button type="submit" disabled={loading || uploading}>
-            {loading ? <Spinner className="mr-2" /> : null}
-            {data?.id ? 'Atualizar' : 'Salvar'}
-          </Button>
-        </div>
-      )}
     </form>
   )
 }

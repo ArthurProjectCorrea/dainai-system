@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { Users2, ShieldCheck, ShieldAlert, UserRound, Mail } from 'lucide-react'
 
 import { useAdminModule } from '@/hooks/use-admin-module'
-import { AdminPageLayout } from '@/components/admin/admin-page-layout'
+import { ModulePageLayout } from '@/components/layouts/module-page-layout'
 import { DataTable } from '@/components/ui/data-table/data-table'
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header'
 import { Badge } from '@/components/ui/badge'
@@ -40,8 +40,6 @@ export default function UsersPage() {
   if (!canView) return forbidden()
 
   const stats: UserManagementIndicators = indicators ?? { total: 0, active: 0, inactive: 0 }
-  const createUserUrl = '/admin/users/create'
-  const updateUserUrl = '/admin/users/[id]'
 
   const columns: ColumnDef<UserManagementUser>[] = [
     {
@@ -159,32 +157,27 @@ export default function UsersPage() {
   }
 
   return (
-    <AdminPageLayout
-      screenName={screenName || 'Usuarios'}
+    <ModulePageLayout
+      breadcrumbItems={[{ label: 'Administrador' }, { label: screenName || 'Usuários' }]}
       stats={
         <>
           <StatCard
-            icon={Users2}
-            title="Total de Usuarios"
+            icon={<Users2 className="h-4 w-4 text-primary" />}
+            title="Total de Usuários"
             value={stats.total}
-            description="Usuarios cadastrados no sistema"
-            className="bg-primary/5 border-primary/10 transition-transform hover:scale-[1.01]"
+            description="Perfis ativos e inativos"
           />
           <StatCard
-            icon={ShieldCheck}
-            title="Usuarios Ativos"
+            icon={<ShieldCheck className="h-4 w-4 text-emerald-500" />}
+            title="Usuários Ativos"
             value={stats.active}
-            description="Com acesso liberado"
-            iconClassName="bg-emerald-500/10 text-emerald-500"
-            className="transition-transform hover:scale-[1.01]"
+            description="Acesso ao sistema liberado"
           />
           <StatCard
-            icon={ShieldAlert}
-            title="Usuarios Inativos"
+            icon={<ShieldAlert className="h-4 w-4 text-rose-500" />}
+            title="Usuários Inativos"
             value={stats.inactive}
-            description="Bloqueados ou removidos"
-            iconClassName="bg-amber-500/10 text-amber-500"
-            className="transition-transform hover:scale-[1.01]"
+            description="Acesso bloqueado ou pendente"
           />
         </>
       }
@@ -192,13 +185,17 @@ export default function UsersPage() {
       <DataTable
         columns={columns}
         data={data}
-        filterColumn="email"
+        quickFilter={{
+          type: 'text',
+          column: 'email',
+          placeholder: 'Pesquisar por e-mail...',
+        }}
         isLoading={isLoading}
         onReload={fetchData}
         onSuccess={() => fetchData({ silent: true })}
-        newConfig={{ show: canCreate, url: createUserUrl }}
-        editConfig={{ show: canUpdate, url: updateUserUrl }}
-        viewConfig={{ show: true, url: updateUserUrl + '?mode=view' }}
+        newConfig={{ show: canCreate, url: '/admin/users/create' }}
+        editConfig={{ show: canUpdate, url: '/admin/users/[id]/edit' }}
+        viewConfig={{ show: true, url: '/admin/users/[id]/view' }}
         deleteConfig={{ show: canDelete, onDelete: handleDelete }}
         rowActions={[
           {
@@ -209,6 +206,6 @@ export default function UsersPage() {
           },
         ]}
       />
-    </AdminPageLayout>
+    </ModulePageLayout>
   )
 }
