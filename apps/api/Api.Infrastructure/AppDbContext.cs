@@ -19,10 +19,14 @@ namespace Api.Infrastructure
         public DbSet<Permission> Permissions { get; set; } = null!;
         public DbSet<Access> Accesses { get; set; } = null!;
         public DbSet<OtpAttempt> OtpAttempts { get; set; } = null!;
-
-        // Projects & Feedbacks Module
         public DbSet<Project> Projects { get; set; } = null!;
         public DbSet<ProjectFeedback> ProjectFeedbacks { get; set; } = null!;
+
+        // Documents Management Module
+        public DbSet<Document> Documents { get; set; } = null!;
+        public DbSet<Category> Categories { get; set; } = null!;
+        public DbSet<DocumentCategory> DocumentCategories { get; set; } = null!;
+        public DbSet<PublishedDocument> PublishedDocuments { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -39,7 +43,7 @@ namespace Api.Infrastructure
                 .HasOne(a => a.Position)
                 .WithMany(p => p.Accesses)
                 .HasForeignKey(a => a.PositionId)
-                .OnDelete(DeleteBehavior.Cascade); // Cascade Delete required!
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Access>()
                 .HasOne(a => a.Screen)
@@ -65,6 +69,48 @@ namespace Api.Infrastructure
             builder.Entity<ProjectFeedback>()
                 .HasIndex(pf => new { pf.ProjectId, pf.RefUserId })
                 .IsUnique();
+
+            // --- Document Management Module Configurations ---
+
+            // Many-to-Many: Document <-> Category
+            builder.Entity<DocumentCategory>()
+                .HasOne(dc => dc.Document)
+                .WithMany(d => d.DocumentCategories)
+                .HasForeignKey(dc => dc.DocumentId);
+
+            builder.Entity<DocumentCategory>()
+                .HasOne(dc => dc.Category)
+                .WithMany(c => c.DocumentCategories)
+                .HasForeignKey(dc => dc.CategoryId);
+
+            // Document -> Project
+            builder.Entity<Document>()
+                .HasOne(d => d.Project)
+                .WithMany()
+                .HasForeignKey(d => d.ProjectId);
+
+            // Document -> Authors (Profiles)
+            builder.Entity<Document>()
+                .HasOne(d => d.CreatedBy)
+                .WithMany()
+                .HasForeignKey(d => d.CreatedById);
+
+            builder.Entity<Document>()
+                .HasOne(d => d.UpdatedBy)
+                .WithMany()
+                .HasForeignKey(d => d.UpdatedById);
+
+            // PublishedDocument -> Document
+            builder.Entity<PublishedDocument>()
+                .HasOne(p => p.Document)
+                .WithMany(d => d.PublishedDocuments)
+                .HasForeignKey(p => p.DocumentId);
+
+            // PublishedDocument -> Author (Profile)
+            builder.Entity<PublishedDocument>()
+                .HasOne(p => p.PublishedBy)
+                .WithMany()
+                .HasForeignKey(p => p.PublishedById);
         }
     }
 }

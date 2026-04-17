@@ -77,6 +77,7 @@ builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IFeedbackIntegrationService, FeedbackIntegrationService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
 
 // 6. Controllers & Swagger
 builder.Services.AddControllers();

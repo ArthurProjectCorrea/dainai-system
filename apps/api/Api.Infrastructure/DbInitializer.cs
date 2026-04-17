@@ -20,7 +20,8 @@ namespace Api.Infrastructure
                 new Screen { Id = 1, Name = "Controle de Acesso", NameSidebar = "Controle de Acesso", NameKey = "access_control" },
                 new Screen { Id = 2, Name = "Gerência de Usuários", NameSidebar = "Usuários", NameKey = "users_management" },
                 new Screen { Id = 3, Name = "Gerência de Equipes", NameSidebar = "Equipes", NameKey = "teams_management" },
-                new Screen { Id = 4, Name = "Gerência de Projetos", NameSidebar = "Projetos", NameKey = "projects_management" }
+                new Screen { Id = 4, Name = "Gerência de Projetos", NameSidebar = "Projetos", NameKey = "projects_management" },
+                new Screen { Id = 5, Name = "Gerência de Documentos", NameSidebar = "Documentos", NameKey = "documents_management" }
             };
 
             foreach (var screenSeed in screenSeeds)
@@ -43,7 +44,8 @@ namespace Api.Infrastructure
                 new Permission { Id = 1, Name = "Criar", NameKey = "create" },
                 new Permission { Id = 2, Name = "Editar", NameKey = "update" },
                 new Permission { Id = 3, Name = "Excluir", NameKey = "delete" },
-                new Permission { Id = 4, Name = "Visualizar", NameKey = "view" }
+                new Permission { Id = 4, Name = "Visualizar", NameKey = "view" },
+                new Permission { Id = 5, Name = "Publicar/Aprovar", NameKey = "approve" }
             };
 
             foreach (var permissionSeed in permissionSeeds)
@@ -134,14 +136,16 @@ namespace Api.Infrastructure
                     var accessExists = context.Accesses.Any(a => a.PositionId == posAdmin.Id && a.ScreenId == screen.Id && a.PermissionId == permission.Id);
                     if (!accessExists)
                     {
-                        var scopeValue = screen.NameKey == "projects_management" ? "all" : null;
+                        var isScopedScreen = screen.NameKey == "projects_management" || screen.NameKey == "documents_management";
+                        var scopeValue = isScopedScreen ? "all" : null;
                         context.Accesses.Add(new Access { PositionId = posAdmin.Id, ScreenId = screen.Id, PermissionId = permission.Id, Scope = scopeValue });
                     }
                     else
                     {
                         // Update existing seeds to respect the new null requirement
                         var existingAccess = context.Accesses.First(a => a.PositionId == posAdmin.Id && a.ScreenId == screen.Id && a.PermissionId == permission.Id);
-                        existingAccess.Scope = screen.NameKey == "projects_management" ? "all" : null;
+                        var isScopedScreen = screen.NameKey == "projects_management" || screen.NameKey == "documents_management";
+                        existingAccess.Scope = isScopedScreen ? "all" : null;
                     }
                 }
             }
