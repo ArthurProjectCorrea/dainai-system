@@ -5,8 +5,8 @@ import { AlertCircle, ArrowLeft, RotateCcw } from 'lucide-react'
 
 export default function Forbidden() {
   return (
-    <div className="flex h-full min-h-[400px] flex-1 items-center justify-center p-4">
-      <div className="flex max-w-[400px] flex-col items-center text-center">
+    <div className="flex h-full min-h-[25rem] flex-1 items-center justify-center p-4">
+      <div className="flex max-w-[25rem] flex-col items-center text-center">
         <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
           <AlertCircle className="h-10 w-10 text-destructive" />
         </div>

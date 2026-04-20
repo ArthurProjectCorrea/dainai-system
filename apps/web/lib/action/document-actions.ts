@@ -69,6 +69,23 @@ export async function getDocumentByIdAction(id: string) {
   }
 }
 
+export async function getWikiDocumentByIdAction(id: string) {
+  try {
+    const headers = await getAuthHeaders()
+    const response = await fetch(`${API_BASE}/docs/${id}`, {
+      headers,
+      cache: 'no-store',
+    })
+
+    if (!response.ok) return { error: 'Documento não encontrado.' }
+
+    const data = await response.json()
+    return { data: data.data as Document }
+  } catch {
+    return { error: 'Erro de conexão com o servidor.' }
+  }
+}
+
 export async function createDocumentAction(request: CreateDocumentRequest) {
   try {
     const headers = await getAuthHeaders()

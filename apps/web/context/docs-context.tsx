@@ -9,8 +9,14 @@ interface DocsContextType {
 
 const DocsContext = createContext<DocsContextType | undefined>(undefined)
 
-export function DocsProvider({ children }: { children: ReactNode }) {
-  const [activeProjectId, setActiveProjectId] = useState<string | null>(null)
+export function DocsProvider({
+  children,
+  initialProjectId = null,
+}: {
+  children: ReactNode
+  initialProjectId?: string | null
+}) {
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(initialProjectId)
 
   return (
     <DocsContext.Provider value={{ activeProjectId, setActiveProjectId }}>

@@ -13,7 +13,7 @@ interface DocumentCatalogProps {
 }
 
 export function DocumentCatalog({ className }: DocumentCatalogProps) {
-  const { theme } = useTheme()
+  const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
 
   React.useEffect(() => {
@@ -35,7 +35,7 @@ export function DocumentCatalog({ className }: DocumentCatalogProps) {
       <div className="border-l border-border/50 pl-2">
         <MdCatalog
           editorId="doc-preview"
-          theme={theme === 'dark' ? 'dark' : 'light'}
+          theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
           offsetTop={100}
           scrollElementOffsetTop={80}
           className="!bg-transparent text-sm"

@@ -15,9 +15,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading, hasPermission, activeTeamId, setActiveTeam, activeAccesses } = useAuth()
   const router = useRouter()
 
+  const [, startTransition] = React.useTransition()
   const handleTeamChange = (teamId: string) => {
-    setActiveTeam(teamId)
-    router.push('/dashboard')
+    startTransition(() => {
+      setActiveTeam(teamId)
+      router.push('/dashboard')
+      router.refresh()
+    })
   }
 
   const teamsForSwitcher = React.useMemo(() => {
@@ -95,12 +99,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher
-          teams={teamsForSwitcher}
-          activeTeamId={activeTeamId}
-          onTeamChange={handleTeamChange}
-          loading={loading}
-        />
+        {(loading || teamsForSwitcher.length > 1) && (
+          <TeamSwitcher
+            teams={teamsForSwitcher}
+            activeTeamId={activeTeamId}
+            onTeamChange={handleTeamChange}
+            loading={loading}
+          />
+        )}
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navMainItems} />

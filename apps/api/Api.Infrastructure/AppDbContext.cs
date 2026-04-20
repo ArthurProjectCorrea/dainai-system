@@ -21,6 +21,8 @@ namespace Api.Infrastructure
         public DbSet<OtpAttempt> OtpAttempts { get; set; } = null!;
         public DbSet<Project> Projects { get; set; } = null!;
         public DbSet<ProjectFeedback> ProjectFeedbacks { get; set; } = null!;
+        public DbSet<ProjectSidebarGroup> ProjectSidebarGroups { get; set; } = null!;
+        public DbSet<ProjectSidebarItem> ProjectSidebarItems { get; set; } = null!;
 
         // Documents Management Module
         public DbSet<Document> Documents { get; set; } = null!;
@@ -111,6 +113,29 @@ namespace Api.Infrastructure
                 .HasOne(p => p.PublishedBy)
                 .WithMany()
                 .HasForeignKey(p => p.PublishedById);
+
+            // --- Sidebar Configuration Module ---
+
+            // Project -> SidebarGroups
+            builder.Entity<ProjectSidebarGroup>()
+                .HasOne(g => g.Project)
+                .WithMany(p => p.SidebarGroups)
+                .HasForeignKey(g => g.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // SidebarGroup -> Items
+            builder.Entity<ProjectSidebarItem>()
+                .HasOne(i => i.Group)
+                .WithMany(g => g.Items)
+                .HasForeignKey(i => i.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // SidebarItem -> Document
+            builder.Entity<ProjectSidebarItem>()
+                .HasOne(i => i.Document)
+                .WithMany()
+                .HasForeignKey(i => i.DocumentId)
+                .OnDelete(DeleteBehavior.Restrict); // Prevent document deletion if in sidebar? Or just cascade? Restrict is safer.
         }
     }
 }

@@ -51,7 +51,7 @@ namespace Api.Infrastructure.Services
 
             var projects = await query
                 .OrderByDescending(p => p.CreatedAt)
-                .Select(p => new ProjectDto(p.Id, p.Name, p.TeamId, p.Team.Name, null, p.IsActive, p.CreatedAt, p.Feedbacks.Count(), p.Feedbacks.Any() ? p.Feedbacks.Average(f => f.Note) : 0, null)) // No distribution in lists for performance
+                .Select(p => new ProjectDto(p.Id, p.Name, p.TeamId, p.Team.Name, null, p.IsActive, p.CreatedAt, p.Feedbacks.Count(), p.Feedbacks.Any() ? p.Feedbacks.Average(f => f.Note) : 0, null, null, p.Summary)) // Incluído Summary na listagem básica
                 .ToListAsync();
 
             var indicators = new ProjectIndicatorDto(totalProjects, activeProjects, totalProjects - activeProjects);
@@ -62,14 +62,31 @@ namespace Api.Infrastructure.Services
         public async Task<ApiResponse<ProjectDto>> GetProjectByIdAsync(Guid userId, Guid? activeTeamId, Guid projectId)
         {
             var query = await BuildScopedQueryAsync(userId, activeTeamId);
-            var project = await query.Include(p => p.Feedbacks).Include(p => p.Team).FirstOrDefaultAsync(p => p.Id == projectId);
+            var project = await query
+                .Include(p => p.Feedbacks)
+                .Include(p => p.Team)
+                .Include(p => p.SidebarGroups)
+                    .ThenInclude(g => g.Items)
+                        .ThenInclude(i => i.Document)
+                .FirstOrDefaultAsync(p => p.Id == projectId);
 
             if (project == null) return new ApiResponse<ProjectDto>("404", "Projeto não encontrado ou acesso restrito pelo Escopo Atual.", null);
 
             var distribution = project.Feedbacks.GroupBy(f => f.Note).ToDictionary(g => g.Key, g => g.Count());
 
+            var sidebarConfig = project.SidebarGroups
+                .OrderBy(g => g.Order)
+                .Select(g => new SidebarGroupDto(
+                    g.Id,
+                    g.Title,
+                    g.Type.ToString(),
+                    g.Order,
+                    g.Icon,
+                    g.Items.OrderBy(i => i.Order).Select(i => new SidebarItemDto(i.Id, i.DocumentId, i.Document.Name, i.Order)).ToList()
+                )).ToList();
+
             // Do not expose token except through Rotation mechanic.
-            return new ApiResponse<ProjectDto>("200", "", new ProjectDto(project.Id, project.Name, project.TeamId, project.Team.Name, null, project.IsActive, project.CreatedAt, project.Feedbacks.Count(), project.Feedbacks.Any() ? project.Feedbacks.Average(f => f.Note) : 0, distribution));
+            return new ApiResponse<ProjectDto>("200", "", new ProjectDto(project.Id, project.Name, project.TeamId, project.Team.Name, null, project.IsActive, project.CreatedAt, project.Feedbacks.Count(), project.Feedbacks.Any() ? project.Feedbacks.Average(f => f.Note) : 0, distribution, sidebarConfig, project.Summary));
         }
 
         public async Task<ApiResponse<ProjectDto>> CreateProjectAsync(Guid userId, Guid? activeTeamId, CreateProjectRequest request)
@@ -90,6 +107,7 @@ namespace Api.Infrastructure.Services
                 TeamId = targetTeamId.Value,
                 IntegrationToken = token,
                 IsActive = true,
+                Summary = request.Summary,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -98,7 +116,7 @@ namespace Api.Infrastructure.Services
 
             var team = await _context.Teams.FindAsync(project.TeamId);
 
-            return new ApiResponse<ProjectDto>("200", "Projeto criado com sucesso.", new ProjectDto(project.Id, project.Name, project.TeamId, team?.Name ?? "Admin", null, project.IsActive, project.CreatedAt, 0, 0));
+            return new ApiResponse<ProjectDto>("200", "Projeto criado com sucesso.", new ProjectDto(project.Id, project.Name, project.TeamId, team?.Name ?? "Admin", null, project.IsActive, project.CreatedAt, 0, 0, null, null, project.Summary));
         }
 
         public async Task<ApiResponse<ProjectDto>> UpdateProjectAsync(Guid userId, Guid? activeTeamId, Guid projectId, UpdateProjectRequest request)
@@ -114,7 +132,45 @@ namespace Api.Infrastructure.Services
             project.Name = request.Name;
             project.TeamId = request.TeamId;
             project.IsActive = request.IsActive;
+            project.Summary = request.Summary;
             project.UpdatedAt = DateTime.UtcNow;
+
+            // Sync Sidebar Configuration if provided
+            if (request.SidebarConfig != null)
+            {
+                // Remove existing groups (Cascade will handle items)
+                var existingGroups = await _context.ProjectSidebarGroups.Where(g => g.ProjectId == projectId).ToListAsync();
+                _context.ProjectSidebarGroups.RemoveRange(existingGroups);
+
+                // Add new groups
+                foreach (var groupDto in request.SidebarConfig)
+                {
+                    var group = new ProjectSidebarGroup
+                    {
+                        Id = Guid.NewGuid(),
+                        ProjectId = project.Id,
+                        Title = groupDto.Title,
+                        Type = Enum.Parse<SidebarGroupType>(groupDto.Type),
+                        Order = groupDto.Order,
+                        Icon = groupDto.Icon
+                    };
+
+                    _context.ProjectSidebarGroups.Add(group);
+
+                    foreach (var itemDto in groupDto.Items)
+                    {
+                        var item = new ProjectSidebarItem
+                        {
+                            Id = Guid.NewGuid(),
+                            GroupId = group.Id,
+                            DocumentId = itemDto.DocumentId,
+                            Order = itemDto.Order
+                        };
+                        _context.ProjectSidebarItems.Add(item);
+                    }
+                }
+            }
+
 
             await _context.SaveChangesAsync();
 
@@ -126,7 +182,7 @@ namespace Api.Infrastructure.Services
                 _context.Entry(project).Reference(p => p.Team).Load();
             }
 
-            return new ApiResponse<ProjectDto>("200", "Projeto salvo.", new ProjectDto(project.Id, project.Name, project.TeamId, project.Team?.Name ?? "N/A", null, project.IsActive, project.CreatedAt, project.Feedbacks.Count(), project.Feedbacks.Any() ? project.Feedbacks.Average(f => f.Note) : 0, distribution));
+            return new ApiResponse<ProjectDto>("200", "Projeto salvo.", new ProjectDto(project.Id, project.Name, project.TeamId, project.Team?.Name ?? "N/A", null, project.IsActive, project.CreatedAt, project.Feedbacks.Count(), project.Feedbacks.Any() ? project.Feedbacks.Average(f => f.Note) : 0, distribution, null, project.Summary));
         }
 
         public async Task<ApiResponse<GenerateProjectTokenResponse>> RotateTokenAsync(Guid userId, Guid? activeTeamId, Guid projectId)

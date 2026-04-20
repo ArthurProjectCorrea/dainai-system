@@ -4,13 +4,13 @@ import * as React from 'react'
 import Image from 'next/image'
 import { Building2, ChevronsUpDown, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Kbd } from '@/components/ui/kbd'
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
@@ -124,8 +124,8 @@ export function TeamSwitcher({
                       <Building2 className="size-3.5 shrink-0" />
                     )}
                   </div>
-                  <div className="flex min-w-0 flex-col">
-                    <span className="truncate">{team.name}</span>
+                  <div className="flex flex-1 min-w-0 flex-col">
+                    <span className="truncate font-medium">{team.name}</span>
                     <span className="truncate text-xs text-muted-foreground">
                       {team.isActive ? team.position : 'Inativo'}
                     </span>
@@ -133,14 +133,14 @@ export function TeamSwitcher({
                   <div className="ml-auto">
                     {activeTeamId === team.id && <Check className="size-4 text-emerald-500" />}
                     {!team.isActive && (
-                      <span className="text-[10px] uppercase tracking-wider text-amber-500 font-bold">
+                      <span className="text-xs uppercase tracking-wider text-amber-500 font-bold">
                         Inativo
                       </span>
                     )}
                     {activeTeamId !== team.id && team.isActive && (
-                      <DropdownMenuShortcut className="ml-0">
+                      <Kbd className="ml-auto bg-transparent border-none text-muted-foreground/50">
                         {`Ctrl+${index + 1}`}
-                      </DropdownMenuShortcut>
+                      </Kbd>
                     )}
                   </div>
                 </DropdownMenuItem>

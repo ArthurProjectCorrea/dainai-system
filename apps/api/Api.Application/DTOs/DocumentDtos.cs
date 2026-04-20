@@ -22,7 +22,7 @@ namespace Api.Application.DTOs
 
     public record DocumentListResponse(List<DocumentDto> Documents, DocumentIndicatorDto Indicators);
 
-    public record DocsNavigationDto(List<ProjectDto> Projects, List<DocumentDto> Documents);
+    public record DocsNavigationDto(List<ProjectDto> Projects, List<DocumentDto> Documents, List<DocumentDto> LatestUpdates = null!);
 
     public record PublishedDocumentDto(
         Guid Id,
@@ -37,6 +37,7 @@ namespace Api.Application.DTOs
         Guid ProjectId,
         string Name,
         string Content,
+        string Status,
         List<int> CategoryIds
     );
 

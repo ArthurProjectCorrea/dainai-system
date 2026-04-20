@@ -13,7 +13,7 @@ interface MarkdownViewerProps {
 }
 
 export function MarkdownViewer({ content, className }: MarkdownViewerProps) {
-  const { theme } = useTheme()
+  const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
 
   React.useEffect(() => {
@@ -29,7 +29,7 @@ export function MarkdownViewer({ content, className }: MarkdownViewerProps) {
       <MdPreview
         editorId="doc-preview"
         modelValue={content}
-        theme={theme === 'dark' ? 'dark' : 'light'}
+        theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
         language="en-US"
         previewTheme="github"
         codeTheme="atom"
@@ -37,7 +37,7 @@ export function MarkdownViewer({ content, className }: MarkdownViewerProps) {
         style={
           {
             '--md-bk-color': 'transparent',
-            '--md-color': theme === 'dark' ? '#fff' : 'inherit',
+            '--md-color': resolvedTheme === 'dark' ? '#fff' : 'inherit',
           } as React.CSSProperties
         }
         mdHeadingId={getHeadingId}

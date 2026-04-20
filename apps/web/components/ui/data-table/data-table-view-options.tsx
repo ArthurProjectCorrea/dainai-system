@@ -34,7 +34,7 @@ export function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps
           <TooltipContent>Colunas</TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      <DropdownMenuContent align="end" className="w-[150px]">
+      <DropdownMenuContent align="end" className="w-40">
         <DropdownMenuLabel>Colunas</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {table

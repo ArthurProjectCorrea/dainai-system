@@ -326,7 +326,7 @@ export function AccessControlForm({
                                 }}
                                 disabled={readOnly}
                               >
-                                <SelectTrigger className="flex h-7 w-[120px] text-xs">
+                                <SelectTrigger className="flex h-7 w-32 text-xs">
                                   <SelectValue placeholder="Selecione" />
                                 </SelectTrigger>
                                 <SelectContent>

@@ -62,7 +62,7 @@ export function DataTableQuickFilter<TData>({
   if (config.type === 'select') {
     return (
       <Select value={value as string} onValueChange={handleValueChange}>
-        <SelectTrigger className="h-8 w-[150px] lg:w-[200px]">
+        <SelectTrigger className="h-8 w-40 lg:w-48">
           <SelectValue placeholder={config.placeholder || 'Selecionar...'} />
         </SelectTrigger>
         <SelectContent>
@@ -81,7 +81,7 @@ export function DataTableQuickFilter<TData>({
       <DatePicker
         date={value ? new Date(value as string) : undefined}
         setDate={date => handleValueChange(date?.toISOString())}
-        className={cn('w-[150px] lg:w-[200px]')}
+        className={cn('w-40 lg:w-48')}
         showClear
       />
     )
@@ -110,7 +110,7 @@ export function DataTableQuickFilter<TData>({
             handleValueChange(undefined)
           }
         }}
-        className={cn('w-[200px] lg:w-[250px]')}
+        className={cn('w-48 lg:w-64')}
         showClear
       />
     )
@@ -123,7 +123,7 @@ export function DataTableQuickFilter<TData>({
         placeholder={config.placeholder || 'Filtrar...'}
         value={(value as string) ?? ''}
         onChange={event => handleValueChange(event.target.value)}
-        className="h-8 w-[150px] lg:w-[250px]"
+        className="h-8 w-40 lg:w-64"
       />
       {!!value && (
         <Button

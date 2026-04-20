@@ -14,7 +14,7 @@ import type { Project } from '@/types/project'
 export default function ProjectDetailsPage() {
   const params = useParams<{ action: string | string[] }>()
   const router = useRouter()
-  const { hasPermission, loading } = useAuth()
+  const { hasPermission, loading, activeAccesses } = useAuth()
   const { isCreate, isView } = useFormMode()
 
   const actionArray = Array.isArray(params.action) ? params.action : [params.action]
@@ -50,21 +50,26 @@ export default function ProjectDetailsPage() {
     }
   }, [loading, hasPermission, fetchProject])
 
+  const screenName = React.useMemo(() => {
+    return activeAccesses.find(a => a.nameKey === 'projects_management')?.name || 'Projetos'
+  }, [activeAccesses])
+
   if (loading || isLoadingData) return null
   if (!project && !isCreate) return null
 
   return (
     <div className="flex flex-1 flex-col relative">
-      <div className="px-4">
-        <PageHeader
-          breadcrumbs={[
-            { label: 'Projetos', href: '/projects' },
-            { label: isCreate ? 'Novo Projeto' : project?.name || 'Carregando...' },
-          ]}
-        />
-      </div>
+      <PageHeader
+        breadcrumbs={[
+          { label: 'Administrador' },
+          { label: screenName, href: '/projects' },
+          {
+            label: isCreate ? 'Novo Projeto' : project?.name || (isView ? 'Visualizar' : 'Editar'),
+          },
+        ]}
+      />
 
-      <div className="w-full px-4 flex-1 pb-8">
+      <div className="w-full px-4 flex-1 pb-8 pt-2">
         <ProjectForm
           data={project}
           readOnly={isView}

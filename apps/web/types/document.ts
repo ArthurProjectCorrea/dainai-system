@@ -50,6 +50,7 @@ export interface CreateDocumentRequest {
   projectId: string
   name: string
   content: string
+  status: string
   categoryIds: number[]
 }
 

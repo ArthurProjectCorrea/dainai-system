@@ -77,7 +77,7 @@ function EditUserContent() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-0 p-4 pt-0">
+    <div className="flex flex-1 flex-col">
       <PageHeader
         breadcrumbs={[
           { label: 'Administrador' },
@@ -90,18 +90,20 @@ function EditUserContent() {
         ]}
       />
 
-      <UserForm
-        mode={isCreate ? 'create' : readOnly ? 'view' : 'edit'}
-        user={payload.user}
-        options={payload.options}
-        onSuccess={() => router.push('/admin/users')}
-        onCancel={() => router.push('/admin/users')}
-        onEdit={
-          hasPermission('users_management', 'update')
-            ? () => router.push(`/admin/users/${userId}/edit`)
-            : undefined
-        }
-      />
+      <div className="flex flex-1 flex-col gap-0 p-4 pt-2">
+        <UserForm
+          mode={isCreate ? 'create' : readOnly ? 'view' : 'edit'}
+          user={payload.user}
+          options={payload.options}
+          onSuccess={() => router.push('/admin/users')}
+          onCancel={() => router.push('/admin/users')}
+          onEdit={
+            hasPermission('users_management', 'update')
+              ? () => router.push(`/admin/users/${userId}/edit`)
+              : undefined
+          }
+        />
+      </div>
     </div>
   )
 }

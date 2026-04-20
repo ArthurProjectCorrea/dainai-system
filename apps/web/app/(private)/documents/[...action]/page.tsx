@@ -86,7 +86,7 @@ function DocumentActionContent() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-0 p-4 pt-0">
+    <div className="flex flex-1 flex-col">
       <PageHeader
         breadcrumbs={[
           { label: 'Administrador' },
@@ -99,19 +99,21 @@ function DocumentActionContent() {
         ]}
       />
 
-      <DocumentForm
-        mode={isCreate ? 'create' : isView ? 'view' : 'edit'}
-        initialData={document}
-        projects={projects}
-        canApprove={hasPermission('documents_management', 'approve')}
-        onSuccess={() => router.push('/documents')}
-        onCancel={() => router.push('/documents')}
-        onEdit={
-          hasPermission('documents_management', 'update')
-            ? () => router.push(`/documents/${docId}/edit`)
-            : undefined
-        }
-      />
+      <div className="flex flex-1 flex-col gap-0 p-4 pt-0">
+        <DocumentForm
+          mode={isCreate ? 'create' : isView ? 'view' : 'edit'}
+          initialData={document}
+          projects={projects}
+          canApprove={hasPermission('documents_management', 'approve')}
+          onSuccess={() => router.push('/documents')}
+          onCancel={() => router.push('/documents')}
+          onEdit={
+            hasPermission('documents_management', 'update')
+              ? () => router.push(`/documents/${docId}/edit`)
+              : undefined
+          }
+        />
+      </div>
     </div>
   )
 }

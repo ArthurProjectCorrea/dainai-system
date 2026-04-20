@@ -14,7 +14,9 @@ namespace Api.Domain
         public string IntegrationToken { get; set; } = null!;
 
         public bool IsActive { get; set; } = true;
+        public string? Summary { get; set; }
 
         public virtual System.Collections.Generic.ICollection<ProjectFeedback> Feedbacks { get; set; } = new System.Collections.Generic.List<ProjectFeedback>();
+        public virtual System.Collections.Generic.ICollection<ProjectSidebarGroup> SidebarGroups { get; set; } = new System.Collections.Generic.List<ProjectSidebarGroup>();
     }
 }

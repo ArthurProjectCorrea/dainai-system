@@ -99,7 +99,7 @@ function EditAccessControlContent() {
     : initialData?.name || `Editar ${type === 'department' ? 'Departamento' : 'Cargo'}`
 
   return (
-    <div className="flex flex-1 flex-col gap-0 p-4 pt-0">
+    <div className="flex flex-1 flex-col">
       <PageHeader
         breadcrumbs={[
           { label: 'Administrador' },
@@ -110,20 +110,22 @@ function EditAccessControlContent() {
         ]}
       />
 
-      <AccessControlForm
-        mode={type}
-        type={isCreate ? 'create' : 'edit'}
-        initialData={initialData || undefined}
-        options={options}
-        readOnly={readOnly}
-        onSuccess={() => router.push('/admin/access-control')}
-        onCancel={() => router.push('/admin/access-control')}
-        onEdit={
-          hasPermission('access_control', 'update')
-            ? () => router.push(`/admin/access-control/${id}/edit?type=${type}`)
-            : undefined
-        }
-      />
+      <div className="flex flex-1 flex-col gap-0 p-4 pt-2">
+        <AccessControlForm
+          mode={type}
+          type={isCreate ? 'create' : 'edit'}
+          initialData={initialData || undefined}
+          options={options}
+          readOnly={readOnly}
+          onSuccess={() => router.push('/admin/access-control')}
+          onCancel={() => router.push('/admin/access-control')}
+          onEdit={
+            hasPermission('access_control', 'update')
+              ? () => router.push(`/admin/access-control/${id}/edit?type=${type}`)
+              : undefined
+          }
+        />
+      </div>
     </div>
   )
 }

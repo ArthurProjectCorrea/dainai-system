@@ -1,6 +1,6 @@
 'use client'
 
-import * as React from 'react'
+import { useAuth } from '@/hooks/use-auth'
 import { PageHeader } from '@/components/page-header'
 import { ProjectDashboardSection } from '@/components/chart/project-chart'
 import { DocumentDashboardSection } from '@/components/chart/document-chart'
@@ -9,26 +9,35 @@ import { Card } from '@/components/ui/card'
 import { SparklesIcon } from 'lucide-react'
 
 export default function DashboardPage() {
+  const { hasPermission } = useAuth()
+
+  const canViewProjects = hasPermission('projects_management', 'view')
+  const canViewDocuments = hasPermission('documents_management', 'view')
+
   return (
     <div className="flex flex-1 flex-col relative pb-10">
-      <div className="px-4">
-        <PageHeader breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }]} />
-      </div>
+      <PageHeader breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }]} />
 
       <div className="px-6 flex flex-col gap-10 mt-10 overflow-x-hidden">
         {/* Main Section: Projects Analysis */}
-        <section className="animate-in fade-in slide-in-from-bottom-3 duration-500">
-          <ProjectDashboardSection />
-        </section>
-
-        <Separator className="opacity-50" />
+        {canViewProjects && (
+          <>
+            <section className="animate-in fade-in slide-in-from-bottom-3 duration-500">
+              <ProjectDashboardSection />
+            </section>
+            <Separator className="opacity-50" />
+          </>
+        )}
 
         {/* Documentation Analysis Section */}
-        <section className="animate-in fade-in slide-in-from-bottom-3 duration-500 delay-150">
-          <DocumentDashboardSection />
-        </section>
-
-        <Separator className="opacity-50" />
+        {canViewDocuments && (
+          <>
+            <section className="animate-in fade-in slide-in-from-bottom-3 duration-500 delay-150">
+              <DocumentDashboardSection />
+            </section>
+            <Separator className="opacity-50" />
+          </>
+        )}
 
         <section className="animate-in fade-in slide-in-from-bottom-5 duration-700 delay-200">
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
@@ -46,17 +55,17 @@ export default function DashboardPage() {
 
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 w-full opacity-40 grayscale pointer-events-none">
               <Card className="border-dashed h-24 flex items-center justify-center">
-                <span className="text-[10px] font-bold uppercase italic tracking-tighter">
+                <span className="text-xs font-bold uppercase italic tracking-tighter">
                   Módulo de Auditoria
                 </span>
               </Card>
               <Card className="border-dashed h-24 flex items-center justify-center">
-                <span className="text-[10px] font-bold uppercase italic tracking-tighter">
+                <span className="text-xs font-bold uppercase italic tracking-tighter">
                   Fluxo de Usuários
                 </span>
               </Card>
               <Card className="border-dashed h-24 flex items-center justify-center">
-                <span className="text-[10px] font-bold uppercase italic tracking-tighter">
+                <span className="text-xs font-bold uppercase italic tracking-tighter">
                   Insights de IA
                 </span>
               </Card>

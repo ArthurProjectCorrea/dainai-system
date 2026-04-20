@@ -57,7 +57,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
 
         if (!res.ok) {
-          setUser(null)
+          console.error('Session invalid, forcing logout...')
+          await logout()
           return
         }
 
@@ -160,7 +161,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           document.cookie = `active_team_id=${initialActiveTeamId}; path=/; samesite=lax`
         }
       } catch (error) {
-        console.error('Failed to fetch user:', error)
+        console.error('Critical failure to fetch user (API down or Network error):', error)
+        // Se falhar drasticamente e não estivermos no login, forçamos reset para evitar estado quebrado
+        if (!window.location.pathname.startsWith('/auth')) {
+          await logout()
+        }
         setUser(null)
         setActiveTeamId(null)
       } finally {
@@ -172,7 +177,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const logout = async () => {
-    await logoutAction()
+    // 1. Limpeza Client-side (imediata)
+    if (typeof window !== 'undefined') {
+      window.localStorage.clear()
+      // Deletar cookies de client-side
+      document.cookie = 'active_team_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+      document.cookie = 'AuthToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+      document.cookie =
+        '.AspNetCore.Identity.Application=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    }
+
+    // 2. Limpeza Server-side (via Action)
+    try {
+      await logoutAction()
+    } catch (e) {
+      console.error('Server-side logout failed, but local cleared.', e)
+      // Forçar redirecionamento se a action falhar (ex: rede fora)
+      if (typeof window !== 'undefined') {
+        window.location.href = '/auth/login'
+      }
+    }
   }
 
   const activeTeam = user?.teams.find(team => team.id === activeTeamId) ?? user?.teams[0] ?? null

@@ -25,5 +25,6 @@ namespace Api.Application.Interfaces
         // Navegação e Busca
         Task<ApiResponse<DocsNavigationDto>> GetDocsNavigationAsync(Guid userId, Guid? activeTeamId);
         Task<ApiResponse<List<DocumentDto>>> SearchDocumentsAsync(Guid userId, Guid? activeTeamId, Guid? projectId, string searchTerm);
+        Task<ApiResponse<DocumentDto>> GetPublishedDocumentByIdAsync(Guid userId, Guid? activeTeamId, Guid documentId);
     }
 }

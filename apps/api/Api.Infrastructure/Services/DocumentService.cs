@@ -40,6 +40,23 @@ namespace Api.Infrastructure.Services
             return query.Where(d => d.Project.TeamId == activeTeamId.Value);
         }
 
+        private async Task<IQueryable<Document>> BuildWikiScopedQueryAsync(Guid userId, Guid? activeTeamId)
+        {
+            var query = _context.Documents
+                .Include(d => d.Project)
+                .Include(d => d.DocumentCategories)
+                    .ThenInclude(dc => dc.Category)
+                .Where(d => d.DeletedAt == null);
+
+            // A Wiki é aberta para leitura para qualquer membro do time, independente do cargo.
+            // Validamos apenas se o usuário pertence ao time solicitado.
+            if (!activeTeamId.HasValue)
+                return query.Where(d => false);
+
+            // TODO: No futuro, validar se userId realmente pertence ao activeTeamId se o acesso puder ser burlado via header
+            return query.Where(d => d.Project.TeamId == activeTeamId.Value);
+        }
+
         public async Task<ApiResponse<DocumentListResponse>> GetDocumentsAsync(Guid userId, Guid? activeTeamId)
         {
             var query = await BuildScopedQueryAsync(userId, activeTeamId);
@@ -109,7 +126,9 @@ namespace Api.Infrastructure.Services
                 ProjectId = request.ProjectId,
                 Name = request.Name,
                 Content = request.Content,
-                Status = DocumentStatus.Draft,
+                Status = Enum.TryParse<DocumentStatus>(request.Status, true, out var parsedStatus)
+                         ? parsedStatus
+                         : DocumentStatus.Draft,
                 CreatedById = userId,
                 UpdatedById = userId,
                 CreatedAt = DateTime.UtcNow
@@ -171,10 +190,24 @@ namespace Api.Infrastructure.Services
 
             if (document == null) return new ApiResponse<object>("404", "Documento não encontrado.", null);
 
-            document.DeletedAt = DateTime.UtcNow;
+            var now = DateTime.UtcNow;
+
+            // Soft-delete do documento
+            document.DeletedAt = now;
+
+            // Cascade soft-delete para as versões publicadas
+            var publishedDocs = await _context.PublishedDocuments
+                .Where(p => p.DocumentId == documentId && p.DeletedAt == null)
+                .ToListAsync();
+
+            foreach (var pub in publishedDocs)
+            {
+                pub.DeletedAt = now;
+            }
+
             await _context.SaveChangesAsync();
 
-            return new ApiResponse<object>("200", "Documento removido.", null);
+            return new ApiResponse<object>("200", "Documento e versões removidos.", null);
         }
 
         public async Task<ApiResponse<DocumentDto>> PublishDocumentAsync(Guid userId, Guid? activeTeamId, Guid documentId)
@@ -203,7 +236,52 @@ namespace Api.Infrastructure.Services
             document.UpdatedById = userId;
 
             _context.PublishedDocuments.Add(snapshot);
+
+            // --- Sidebar Auto-grouping ---
+            // Check if document is already in the sidebar
+            var isInSidebar = await _context.ProjectSidebarItems.AnyAsync(i => i.DocumentId == documentId);
+            if (!isInSidebar)
+            {
+                // Find or create "Outros" group for this project
+                var othersGroup = await _context.ProjectSidebarGroups
+                    .FirstOrDefaultAsync(g => g.ProjectId == document.ProjectId && g.Title == "Outros");
+
+                if (othersGroup == null)
+                {
+                    var maxGroupOrder = await _context.ProjectSidebarGroups
+                        .Where(g => g.ProjectId == document.ProjectId)
+                        .Select(g => (int?)g.Order)
+                        .MaxAsync() ?? -1;
+
+                    othersGroup = new ProjectSidebarGroup
+                    {
+                        Id = Guid.NewGuid(),
+                        ProjectId = document.ProjectId,
+                        Title = "Outros",
+                        Type = SidebarGroupType.List,
+                        Order = maxGroupOrder + 1,
+                        Icon = "Library" // Default icon
+                    };
+                    _context.ProjectSidebarGroups.Add(othersGroup);
+                }
+
+                var maxItemOrder = await _context.ProjectSidebarItems
+                    .Where(i => i.GroupId == othersGroup.Id)
+                    .Select(i => (int?)i.Order)
+                    .MaxAsync() ?? -1;
+
+                var sidebarItem = new ProjectSidebarItem
+                {
+                    Id = Guid.NewGuid(),
+                    GroupId = othersGroup.Id,
+                    DocumentId = document.Id,
+                    Order = maxItemOrder + 1
+                };
+                _context.ProjectSidebarItems.Add(sidebarItem);
+            }
+
             await _context.SaveChangesAsync();
+
 
             return await GetDocumentByIdAsync(userId, activeTeamId, document.Id);
         }
@@ -294,15 +372,52 @@ namespace Api.Infrastructure.Services
                 projectQuery = projectQuery.Where(p => p.TeamId == activeTeamId.Value);
             }
 
-            var projects = await projectQuery
+            // Buscamos as entidades puras primeiro com todos os Includes necessários
+            var projectsEntities = await projectQuery
+                .Include(p => p.Team)
+                .Include(p => p.SidebarGroups)
+                    .ThenInclude(g => g.Items)
+                        .ThenInclude(i => i.Document)
                 .OrderBy(p => p.Name)
-                .Select(p => new ProjectDto(p.Id, p.Name, p.TeamId, p.Team.Name, null, p.IsActive, p.CreatedAt, 0, 0, null))
                 .ToListAsync();
 
-            // 2. Buscar Documentos Publicados baseados no escopo do usuário
-            var docQuery = await BuildScopedQueryAsync(userId, activeTeamId);
-            var documents = await docQuery
-                .Where(d => d.Status == DocumentStatus.Published)
+            // Transformamos em DTOs em memória para evitar erros de tradução do EF ao lidar com filtros complexos
+            var projectsDtos = projectsEntities.Select(p => new ProjectDto(
+                p.Id,
+                p.Name,
+                p.TeamId,
+                p.Team?.Name ?? "N/A",
+                null,
+                p.IsActive,
+                p.CreatedAt,
+                0,
+                0,
+                null,
+                p.SidebarGroups
+                    .OrderBy(g => g.Order)
+                    .Select(g => new SidebarGroupDto(
+                        g.Id,
+                        g.Title,
+                        g.Type.ToString(),
+                        g.Order,
+                        g.Icon,
+                        g.Items
+                            .Where(i => i.Document != null && i.Document.DeletedAt == null && i.Document.Status == DocumentStatus.Published)
+                            .OrderBy(i => i.Order)
+                            .Select(i => new SidebarItemDto(i.Id, i.DocumentId, i.Document.Name, i.Order))
+                            .ToList()
+                    ))
+                    .Where(g => g.Items.Count > 0 || (g.Title != null && g.Title.ToLower() != "outros"))
+                    .ToList(),
+                p.Summary
+            )).ToList();
+
+
+            // 2. Buscar Documentos Publicados baseados no escopo de WIKI (leitura pública interna)
+            var docQuery = await BuildWikiScopedQueryAsync(userId, activeTeamId);
+            var publishedDocsQuery = docQuery.Where(d => d.Status == DocumentStatus.Published);
+
+            var documents = await publishedDocsQuery
                 .OrderBy(d => d.Name)
                 .Select(d => new DocumentDto(
                     d.Id,
@@ -318,7 +433,25 @@ namespace Api.Infrastructure.Services
                 ))
                 .ToListAsync();
 
-            return new ApiResponse<DocsNavigationDto>("200", "", new DocsNavigationDto(projects, documents));
+            // 3. Buscar Últimas Atualizações (Top 10 mais recentes)
+            var latestUpdates = await publishedDocsQuery
+                .OrderByDescending(d => d.UpdatedAt ?? d.CreatedAt)
+                .Take(10)
+                .Select(d => new DocumentDto(
+                    d.Id,
+                    d.ProjectId,
+                    d.Project.Name,
+                    d.Name,
+                    "",
+                    d.Status.ToString(),
+                    d.CreatedAt,
+                    d.UpdatedAt,
+                    d.DocumentCategories.Select(dc => new CategoryDto(dc.Category.Id, dc.Category.Name)).ToList(),
+                    null
+                ))
+                .ToListAsync();
+
+            return new ApiResponse<DocsNavigationDto>("200", "", new DocsNavigationDto(projectsDtos, documents, latestUpdates));
         }
 
         public async Task<ApiResponse<List<DocumentDto>>> SearchDocumentsAsync(Guid userId, Guid? activeTeamId, Guid? projectId, string searchTerm)
@@ -326,7 +459,7 @@ namespace Api.Infrastructure.Services
             if (string.IsNullOrWhiteSpace(searchTerm))
                 return new ApiResponse<List<DocumentDto>>("200", "", new List<DocumentDto>());
 
-            var query = await BuildScopedQueryAsync(userId, activeTeamId);
+            var query = await BuildWikiScopedQueryAsync(userId, activeTeamId);
 
             // Debug Log
             Console.WriteLine($"[Search] User: {userId}, Team: {activeTeamId}, Project: {projectId}, Term: '{searchTerm}'");
@@ -358,6 +491,37 @@ namespace Api.Infrastructure.Services
             Console.WriteLine($"[Search] Results found: {documents.Count}");
 
             return new ApiResponse<List<DocumentDto>>("200", "", documents);
+        }
+
+        public async Task<ApiResponse<DocumentDto>> GetPublishedDocumentByIdAsync(Guid userId, Guid? activeTeamId, Guid documentId)
+        {
+            var query = await BuildWikiScopedQueryAsync(userId, activeTeamId);
+            var document = await query
+                .Include(d => d.PublishedDocuments)
+                .Where(d => d.Status == DocumentStatus.Published) // Na Wiki só vemos publicados
+                .FirstOrDefaultAsync(d => d.Id == documentId);
+
+            if (document == null)
+                return new ApiResponse<DocumentDto>("404", "Documento não encontrado ou não publicado.", null);
+
+            var currentVersion = document.PublishedDocuments
+                .OrderByDescending(p => p.CreatedAt)
+                .FirstOrDefault()?.Version;
+
+            var dto = new DocumentDto(
+                document.Id,
+                document.ProjectId,
+                document.Project.Name,
+                document.Name,
+                document.Content,
+                document.Status.ToString(),
+                document.CreatedAt,
+                document.UpdatedAt,
+                document.DocumentCategories.Select(dc => new CategoryDto(dc.Category.Id, dc.Category.Name)).ToList(),
+                currentVersion
+            );
+
+            return new ApiResponse<DocumentDto>("200", "", dto);
         }
     }
 }

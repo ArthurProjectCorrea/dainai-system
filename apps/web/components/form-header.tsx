@@ -21,7 +21,7 @@ export function FormHeader({ title, description, children, className }: FormHead
       <div className="space-y-0.5">
         <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
         {description && (
-          <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium opacity-70">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium opacity-70">
             {description}
           </p>
         )}

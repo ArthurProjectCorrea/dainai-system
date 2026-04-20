@@ -45,7 +45,7 @@ export function DataTableDialog<T>({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{isReadOnly ? title : title.replace('Visualizar', 'Editar')}</DialogTitle>
           <DialogDescription className="sr-only">

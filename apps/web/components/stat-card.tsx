@@ -24,7 +24,7 @@ export function StatCard({ title, value, icon, description, className }: StatCar
       )}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground italic">
+        <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground italic">
           {title}
         </CardTitle>
         <div className="p-2 rounded-lg bg-muted group-hover:bg-primary/10 transition-colors">
@@ -34,11 +34,11 @@ export function StatCard({ title, value, icon, description, className }: StatCar
       <CardContent>
         <div className="text-2xl font-black tracking-tight">{value}</div>
         {description && (
-          <p className="text-[10px] text-muted-foreground mt-1 font-medium italic">{description}</p>
+          <p className="text-xs text-muted-foreground mt-1 font-medium italic">{description}</p>
         )}
       </CardContent>
       {/* Animated bottom bar indicator */}
-      <div className="absolute bottom-0 left-0 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300" />
+      <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
     </Card>
   )
 }

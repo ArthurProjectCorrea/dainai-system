@@ -79,7 +79,7 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-lg">
         {isSuccess ? (
           <div className="flex flex-col items-center justify-center py-10 gap-4 text-center animate-in fade-in zoom-in duration-300">
             <div className="bg-emerald-100 dark:bg-emerald-950/50 p-3 rounded-full">
@@ -117,14 +117,14 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
                     )}
                   >
                     <Icon className="h-10 w-10 transition-transform group-hover:scale-110" />
-                    <span className="text-[10px] font-medium text-center leading-tight opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-xs font-medium text-center leading-tight opacity-0 group-hover:opacity-100 transition-opacity">
                       {rating.label}
                     </span>
                   </button>
                 )
               })}
             </div>
-            <div className="text-center text-[11px] text-muted-foreground">
+            <div className="text-center text-xs text-muted-foreground">
               Sua resposta será registrada de forma segura.
             </div>
           </>

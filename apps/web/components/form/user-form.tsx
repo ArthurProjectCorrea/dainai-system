@@ -257,7 +257,7 @@ export function UserForm({ mode, user, options, onSuccess, onCancel, onEdit }: U
 
               <div className="flex-1 space-y-4">
                 <div className="space-y-1.5">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
+                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/50">
                     Foto de Perfil
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -291,7 +291,7 @@ export function UserForm({ mode, user, options, onSuccess, onCancel, onEdit }: U
                 </div>
 
                 <div className="pt-2 border-t border-muted/30">
-                  <p className="text-[10px] text-muted-foreground/60 leading-relaxed">
+                  <p className="text-xs text-muted-foreground/60 leading-relaxed">
                     PNG, JPG ou WEBP. <span className="font-medium">Máx 2MB.</span>
                   </p>
                 </div>

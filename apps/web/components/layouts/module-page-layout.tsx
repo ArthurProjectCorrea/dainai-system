@@ -18,12 +18,14 @@ interface ModulePageLayoutProps {
  */
 export function ModulePageLayout({ breadcrumbItems, stats, children }: ModulePageLayoutProps) {
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+    <div className="flex flex-1 flex-col">
       <PageHeader breadcrumbs={breadcrumbItems} />
 
-      {stats && <div className="grid gap-4 md:grid-cols-3 mt-4 pt-1">{stats}</div>}
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        {stats && <div className="grid gap-4 md:grid-cols-3 mt-4 pt-1">{stats}</div>}
 
-      {children}
+        {children}
+      </div>
     </div>
   )
 }

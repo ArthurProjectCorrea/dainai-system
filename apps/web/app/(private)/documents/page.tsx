@@ -115,24 +115,24 @@ export default function DocumentsPage() {
                   <Badge
                     key={cat.id}
                     variant="outline"
-                    className="text-[10px] py-0 px-1.5 whitespace-nowrap"
+                    className="text-xs py-0 px-1.5 whitespace-nowrap"
                   >
                     {truncate(cat.name)}
                   </Badge>
                 ))}
                 {hasMore && (
-                  <Badge variant="secondary" className="text-[10px] py-0 px-1.5 font-bold">
+                  <Badge variant="secondary" className="text-xs py-0 px-1.5 font-bold">
                     +{moreCount}
                   </Badge>
                 )}
                 {cats.length === 0 && (
-                  <span className="text-[10px] text-muted-foreground italic">Sem categ.</span>
+                  <span className="text-xs text-muted-foreground italic">Sem categ.</span>
                 )}
               </div>
             </HoverCardTrigger>
-            <HoverCardContent className="w-auto min-w-[150px] p-3 shadow-xl">
+            <HoverCardContent className="w-auto min-w-40 p-3 shadow-xl">
               <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 border-b pb-1">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60 border-b pb-1">
                   Categorias ({cats.length})
                 </p>
                 <div className="flex flex-col gap-1.5">
@@ -277,7 +277,7 @@ export default function DocumentsPage() {
           label: 'Novo Documento',
         }}
         editConfig={{ show: canUpdate, url: '/documents/[id]/edit' }}
-        viewConfig={{ show: true, url: '/docs/[id]' }}
+        viewConfig={{ show: true, url: '/documents/[id]/view' }}
         deleteConfig={{ show: canDelete, onDelete: handleDelete }}
         rowActions={[
           {

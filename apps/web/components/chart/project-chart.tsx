@@ -105,8 +105,8 @@ export function ProjectDashboardSection() {
           ))}
         </div>
         <div className="grid gap-6 md:grid-cols-7">
-          <Skeleton className="md:col-span-4 h-[450px] rounded-xl" />
-          <Skeleton className="md:col-span-3 h-[450px] rounded-xl" />
+          <Skeleton className="md:col-span-4 h-[28rem] rounded-xl" />
+          <Skeleton className="md:col-span-3 h-[28rem] rounded-xl" />
         </div>
       </div>
     )
@@ -217,7 +217,7 @@ function ProjectDashboardCharts({
           <CardContent className="flex-1 pb-4">
             <div className="flex flex-col md:flex-row items-center justify-center gap-8 h-full">
               {/* Chart on the left */}
-              <ChartContainer config={chartConfig} className="w-full max-w-[240px] aspect-square">
+              <ChartContainer config={chartConfig} className="w-full max-w-60 aspect-square">
                 <PieChart>
                   <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                   <Pie
@@ -258,7 +258,7 @@ function ProjectDashboardCharts({
                               <tspan
                                 x={viewBox.cx}
                                 y={(viewBox.cy || 0) + 24}
-                                className="fill-muted-foreground text-[10px] uppercase font-bold tracking-tighter"
+                                className="fill-muted-foreground text-xs uppercase font-bold tracking-tighter"
                               >
                                 Média Geral
                               </tspan>
@@ -272,7 +272,7 @@ function ProjectDashboardCharts({
               </ChartContainer>
 
               {/* Custom Legend on the right */}
-              <div className="flex flex-col gap-3 min-w-[150px]">
+              <div className="flex flex-col gap-3 min-w-40">
                 {distributionData
                   .slice()
                   .reverse()
@@ -295,7 +295,7 @@ function ProjectDashboardCharts({
                             className="size-2.5 rounded-full shadow-[0_0_8px_rgba(0,0,0,0.1)]"
                             style={{ backgroundColor: item.fill }}
                           />
-                          <span className="text-[11px] font-bold uppercase tracking-wider italic">
+                          <span className="text-xs font-bold uppercase tracking-wider italic">
                             {item.rating}
                           </span>
                         </div>
@@ -310,7 +310,7 @@ function ProjectDashboardCharts({
             <div className="flex items-center gap-2 leading-none font-medium text-primary">
               {data.stats.totalFeedbacks} feedbacks processados <TrendingUp className="h-4 w-4" />
             </div>
-            <div className="leading-none text-muted-foreground italic text-[10px] uppercase tracking-wider opacity-70">
+            <div className="leading-none text-muted-foreground italic text-xs uppercase tracking-wider opacity-70">
               Cores representam o nível de satisfação (Vermelho a Verde)
             </div>
           </CardFooter>
@@ -356,10 +356,10 @@ function ProjectDashboardCharts({
                         {i === 0 ? <MedalIcon className="size-4" /> : i + 1}
                       </div>
                       <div className="space-y-0.5">
-                        <p className="text-sm font-semibold leading-none truncate max-w-[140px]">
+                        <p className="text-sm font-semibold leading-none truncate max-w-36">
                           {project.projectName}
                         </p>
-                        <p className="text-[10px] text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                           {project.totalFeedbacks} avaliações
                         </p>
                       </div>
@@ -387,7 +387,7 @@ function ProjectDashboardCharts({
               )}
             </div>
           </CardContent>
-          <CardFooter className="pt-0 text-[10px] text-muted-foreground uppercase tracking-widest text-center border-none bg-transparent opacity-70">
+          <CardFooter className="pt-0 text-xs text-muted-foreground uppercase tracking-widest text-center border-none bg-transparent opacity-70">
             Atualizado em tempo real
           </CardFooter>
         </Card>

@@ -2,8 +2,10 @@
 
 import * as React from 'react'
 import { toast } from 'sonner'
-import { Building2, CopyIcon, RotateCw } from 'lucide-react'
+import { Copy as CopyIcon, RotateCw, Building2 } from 'lucide-react'
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis } from 'recharts'
+import { SidebarConfigCard } from '@/components/project/sidebar-config-card'
+import { SidebarGroup } from '@/types/project'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -27,6 +29,7 @@ import {
   FieldTitle,
 } from '@/components/ui/field'
 import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
 
 import {
   AlertDialog,
@@ -74,6 +77,7 @@ export function ProjectForm({
   onEdit,
 }: ProjectFormProps) {
   const { activeAccesses, activeTeamId, activeTeamName, hasPermission } = useAuth()
+  const [summary, setSummary] = React.useState(data?.summary || '')
   const [loading, setLoading] = React.useState(false)
   const [teams, setTeams] = React.useState<Team[]>([])
   const [fetchingTeams, setFetchingTeams] = React.useState(true)
@@ -82,6 +86,9 @@ export function ProjectForm({
   const [name, setName] = React.useState(data?.name || '')
   const [teamId, setTeamId] = React.useState(data?.teamId || activeTeamId || '')
   const [isActive, setIsActive] = React.useState(data?.isActive ?? true)
+  const [sidebarConfig, setSidebarConfig] = React.useState<SidebarGroup[]>(
+    data?.sidebarConfig || [],
+  )
 
   // Token & Integration State
   const [rawToken, setRawToken] = React.useState<string | null>(null)
@@ -127,10 +134,13 @@ export function ProjectForm({
             name,
             teamId,
             isActive,
+            summary,
+            sidebarConfig,
           } as UpdateProjectRequest)
         : await createProjectAction({
             name,
             teamId,
+            summary,
           } as CreateProjectRequest)
 
       if (result.error) {
@@ -280,7 +290,7 @@ export function ProjectForm({
                   <Alert className="bg-muted/50 border-muted">
                     <AlertTitle className="text-sm font-bold">Token Gerado</AlertTitle>
                     <AlertDescription className="mt-2 text-xs flex items-center gap-2">
-                      <code className="bg-background border rounded px-2 py-1 flex-1 font-mono text-[10px] truncate">
+                      <code className="bg-background border rounded px-2 py-1 flex-1 font-mono text-xs truncate">
                         {rawToken}
                       </code>
                       <Button
@@ -296,7 +306,7 @@ export function ProjectForm({
                   </Alert>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-10 text-center border border-dashed rounded-lg bg-muted/5">
-                    <p className="text-[11px] text-muted-foreground mb-4">
+                    <p className="text-xs text-muted-foreground mb-4">
                       A chave fica oculta após a geração inicial por segurança.
                     </p>
                     <AlertDialog>
@@ -350,10 +360,10 @@ export function ProjectForm({
               className="h-full"
               contentClassName="flex flex-col justify-between"
             >
-              <div className="flex-1 flex items-center justify-center min-h-[300px]">
+              <div className="flex-1 flex items-center justify-center min-h-80">
                 <ChartContainer
                   config={chartConfig}
-                  className="mx-auto aspect-square w-full max-h-[350px]"
+                  className="mx-auto aspect-square w-full max-h-80"
                 >
                   <RadarChart data={transformedChartData}>
                     <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
@@ -374,14 +384,14 @@ export function ProjectForm({
 
               <div className="grid grid-cols-2 gap-4 pt-6 border-t mt-auto">
                 <Field>
-                  <FieldLabel className="text-[10px] uppercase tracking-wider opacity-60">
+                  <FieldLabel className="text-xs uppercase tracking-wider opacity-60">
                     Total Capturado
                   </FieldLabel>
                   <div className="text-xl font-bold">{data?.totalFeedbacks || 0}</div>
                 </Field>
 
                 <Field>
-                  <FieldLabel className="text-[10px] uppercase tracking-wider opacity-60">
+                  <FieldLabel className="text-xs uppercase tracking-wider opacity-60">
                     Média Global
                   </FieldLabel>
                   <div className="text-xl font-bold">
@@ -394,6 +404,40 @@ export function ProjectForm({
             </FormSection>
           )}
         </FormGrid>
+
+        {isEdit && !isDialog && (
+          <div className="mt-8">
+            <FormGrid>
+              <SidebarConfigCard
+                projectId={data!.id}
+                initialConfig={sidebarConfig}
+                onChange={setSidebarConfig}
+                readOnly={readOnly}
+              />
+
+              <FormSection
+                title="Sobre o Projeto"
+                description="Uma breve descrição que será exibida na página inicial da Wiki."
+              >
+                <Field>
+                  <FieldLabel>Resumo do Projeto</FieldLabel>
+                  <FieldContent>
+                    <Textarea
+                      placeholder="Descreva o propósito deste projeto, quem são os responsáveis e links úteis..."
+                      className="min-h-[300px] resize-none"
+                      value={summary}
+                      onChange={e => setSummary(e.target.value)}
+                    />
+                  </FieldContent>
+                  <FieldDescription>
+                    Este texto ajuda os novos membros da equipe a entenderem o contexto desse
+                    projeto rapidamente.
+                  </FieldDescription>
+                </Field>
+              </FormSection>
+            </FormGrid>
+          </div>
+        )}
       </FormLayout>
     </form>
   )

@@ -85,7 +85,7 @@ export default function UsersPage() {
             </HoverCardTrigger>
             <HoverCardContent className="w-72 p-3">
               <div className="space-y-3">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
                   Vínculos e Atribuições
                 </p>
                 <div className="space-y-2">
@@ -97,7 +97,7 @@ export default function UsersPage() {
                       <span className="text-sm font-medium leading-none mb-1">
                         {assignment.teamName}
                       </span>
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         {assignment.departmentName} • {assignment.positionName}
                       </span>
                     </div>

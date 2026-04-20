@@ -1,32 +1,24 @@
-import { getDocumentByIdAction } from "@/lib/action/document-actions"
-import { PageHeader } from "@/components/page-header"
-import { notFound } from "next/navigation"
+import { getWikiDocumentByIdAction } from '@/lib/action/document-actions'
+import { PageHeader } from '@/components/page-header'
 
 export default async function DocumentLayout({
   children,
-  params
+  params,
 }: {
   children: React.ReactNode
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const { data: document, error } = await getDocumentByIdAction(id)
+  const { data: document } = await getWikiDocumentByIdAction(id)
 
-  if (error || !document) {
-    notFound()
-  }
-
-  const breadcrumbs = [
-    { label: document.projectName },
-    { label: document.name }
-  ]
+  const breadcrumbs = document
+    ? [{ label: document.projectName }, { label: document.name }]
+    : [{ label: 'Documento' }]
 
   return (
     <div className="flex flex-1 flex-col">
       <PageHeader breadcrumbs={breadcrumbs} />
-      <div className="flex flex-1 flex-col p-4">
-        {children}
-      </div>
+      <div className="flex flex-1 flex-col">{children}</div>
     </div>
   )
 }

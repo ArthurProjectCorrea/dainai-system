@@ -41,5 +41,12 @@ namespace Api.Web.Controllers
             var result = await _documentService.SearchDocumentsAsync(GetUserId(), GetActiveTeamId(), projectId, q);
             return StatusCode(int.Parse(result.Code), result);
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetDocumentById(Guid id)
+        {
+            var result = await _documentService.GetPublishedDocumentByIdAsync(GetUserId(), GetActiveTeamId(), id);
+            return StatusCode(int.Parse(result.Code), result);
+        }
     }
 }

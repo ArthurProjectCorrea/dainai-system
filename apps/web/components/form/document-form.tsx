@@ -72,7 +72,7 @@ export function DocumentForm({
   onEdit,
 }: DocumentFormProps) {
   const router = useRouter()
-  const { theme } = useTheme()
+  const { resolvedTheme } = useTheme()
   const [loading, setLoading] = React.useState(false)
   const [categories, setCategories] = React.useState<Category[]>([])
   const [selectedCategoryIds, setSelectedCategoryIds] = React.useState<number[]>(
@@ -130,6 +130,7 @@ export function DocumentForm({
           projectId,
           name,
           content,
+          status: effectiveStatus,
           categoryIds: selectedCategoryIds,
         })
         if (res.error) throw new Error(res.error)
@@ -184,12 +185,7 @@ export function DocumentForm({
 
   // Publish button ONLY appears if status is Completed
   const publishButton = initialData && mode === 'edit' && canApprove && status === 'Completed' && (
-    <Button
-      type="button"
-      className="gap-2 min-w-[120px]"
-      onClick={handlePublish}
-      disabled={loading}
-    >
+    <Button type="button" className="gap-2 min-w-32" onClick={handlePublish} disabled={loading}>
       <Send className="h-4 w-4" />
       Publicar Versão
     </Button>
@@ -221,7 +217,7 @@ export function DocumentForm({
             <FormSection className="lg:col-span-1" contentClassName="p-3 md:p-4">
               <div className="flex flex-col gap-5">
                 <Field>
-                  <FieldLabel htmlFor="projectId" className="text-[11px] mb-1">
+                  <FieldLabel htmlFor="projectId" className="text-xs mb-1">
                     Projeto Relacionado
                   </FieldLabel>
                   <Select
@@ -243,7 +239,7 @@ export function DocumentForm({
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="name" className="text-[11px] mb-1">
+                  <FieldLabel htmlFor="name" className="text-xs mb-1">
                     Nome do Documento
                   </FieldLabel>
                   <Input
@@ -260,7 +256,7 @@ export function DocumentForm({
                 <Separator className="my-1" />
 
                 <Field>
-                  <FieldLabel className="text-[11px] mb-1">Categorias</FieldLabel>
+                  <FieldLabel className="text-xs mb-1">Categorias</FieldLabel>
                   <div className="space-y-3">
                     {!isView && (
                       <CreatableCombobox
@@ -271,9 +267,9 @@ export function DocumentForm({
                         placeholder="Adicionar..."
                       />
                     )}
-                    <div className="flex flex-wrap gap-1 p-1.5 border rounded-md bg-muted/5 min-h-[36px]">
+                    <div className="flex flex-wrap gap-1 p-1.5 border rounded-md bg-muted/5 min-h-9">
                       {selectedCategoryIds.length === 0 && (
-                        <span className="text-[10px] text-muted-foreground/40 italic">
+                        <span className="text-xs text-muted-foreground/40 italic">
                           Sem categorias
                         </span>
                       )}
@@ -283,7 +279,7 @@ export function DocumentForm({
                           <Badge
                             key={id}
                             variant="secondary"
-                            className="gap-1 pl-2 pr-1 h-5 text-[9px]"
+                            className="gap-1 pl-2 pr-1 h-5 text-xs"
                           >
                             {cat?.name || id}
                             {!isView && (
@@ -306,7 +302,7 @@ export function DocumentForm({
                   <Field orientation="horizontal">
                     <FieldContent>
                       <FieldTitle className="text-xs font-medium">Status</FieldTitle>
-                      <FieldDescription className="text-[9px]">
+                      <FieldDescription className="text-xs">
                         {status === 'Published'
                           ? 'Publicado'
                           : status === 'Completed'
@@ -324,7 +320,7 @@ export function DocumentForm({
                       />
                       <Badge
                         variant={status === 'Published' ? 'default' : 'secondary'}
-                        className="h-4 text-[9px] px-1.5"
+                        className="h-4 text-xs px-1.5"
                       >
                         {status === 'Published'
                           ? 'Publicado'
@@ -355,9 +351,9 @@ export function DocumentForm({
               <MdEditor
                 modelValue={content}
                 onChange={setContent}
-                theme={theme === 'dark' ? 'dark' : 'light'}
+                theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
                 language="en-US"
-                className="h-[650px] md:h-[800px] border-none"
+                className="h-[40rem] md:h-[50rem] border-none"
                 disabled={isView}
                 toolbars={
                   isView

@@ -43,13 +43,13 @@ export function FormButtons({
       </Button>
 
       {!isView && (
-        <Button type="submit" form={formId} disabled={loading} className="min-w-[120px] gap-2">
+        <Button type="submit" form={formId} disabled={loading} className="min-w-32 gap-2">
           {loading ? <Spinner className="h-4 w-4" /> : <Save className="h-4 w-4" />}
           {saveLabel || defaultSaveLabel}
         </Button>
       )}
       {isView && onEdit && (
-        <Button type="button" onClick={onEdit} disabled={loading} className="min-w-[120px] gap-2">
+        <Button type="button" onClick={onEdit} disabled={loading} className="min-w-32 gap-2">
           <Pencil className="h-4 w-4" />
           Editar
         </Button>

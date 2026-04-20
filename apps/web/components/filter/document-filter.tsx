@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
 import { Field, FieldLabel, FieldContent, FieldSet } from '@/components/ui/field'
 import { DateRangePicker } from '@/components/ui/date-range-picker'
 import { Badge } from '@/components/ui/badge'
@@ -113,7 +112,7 @@ export function DocumentFilter<TData>({
         <Field>
           <FieldLabel>Categorias</FieldLabel>
           <FieldContent>
-            <div className="flex flex-wrap gap-1.5 p-2 border rounded-md min-h-[80px] bg-muted/5">
+            <div className="flex flex-wrap gap-1.5 p-2 border rounded-md min-h-20 bg-muted/5">
               {categories.map(cat => {
                 const isSelected = selectedCategoryIds.includes(cat.id)
                 return (
@@ -128,7 +127,7 @@ export function DocumentFilter<TData>({
                 )
               })}
               {categories.length === 0 && (
-                <span className="text-[10px] text-muted-foreground italic">
+                <span className="text-xs text-muted-foreground italic">
                   Nenhuma categoria encontrada
                 </span>
               )}
@@ -166,8 +165,7 @@ export function DocumentFilter<TData>({
         </Field>
       </FieldSet>
 
-      <div className="space-y-4 py-8">
-        <Separator />
+      <div className="pt-2 pb-0">
         <div className="flex items-center gap-2">
           <Button variant="outline" className="flex-1 gap-2 h-10" onClick={resetFilters}>
             <X className="h-4 w-4" />
