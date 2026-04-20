@@ -31,10 +31,12 @@ interface FormLayoutProps {
   onCancel?: () => void
   variant?: FormVariant | Partial<Record<'create' | 'edit' | 'view', FormVariant>>
   children: React.ReactNode
+  extraActions?: React.ReactNode
   className?: string
   formId?: string
   saveLabel?: string
   cancelLabel?: string
+  onEdit?: () => void
   /** @deprecated use variant="dialog" instead */
   isDialog?: boolean
   /** @deprecated handled by variant and FormSection */
@@ -53,7 +55,9 @@ export function FormLayout({
   formId,
   saveLabel,
   cancelLabel,
+  onEdit,
   isDialog,
+  extraActions,
 }: FormLayoutProps) {
   const getEffectiveVariant = (): FormVariant => {
     if (isDialog) return 'dialog'
@@ -78,6 +82,7 @@ export function FormLayout({
         <div className={cn('space-y-6', className)}>
           <div className="w-full space-y-4">{children}</div>
           <div className="flex items-center justify-end gap-3 pt-6 border-t mt-6">
+            {extraActions}
             <FormButtons
               mode={mode}
               loading={loading}
@@ -85,6 +90,7 @@ export function FormLayout({
               formId={formId}
               saveLabel={saveLabel}
               cancelLabel={cancelLabel}
+              onEdit={onEdit}
             />
           </div>
         </div>
@@ -96,6 +102,7 @@ export function FormLayout({
     <FormLayoutContext.Provider value={contextValue}>
       <div className={cn('flex flex-col gap-0 relative', className)}>
         <FormHeader title={title} description={description}>
+          {extraActions}
           <FormButtons
             mode={mode}
             loading={loading}
@@ -103,6 +110,7 @@ export function FormLayout({
             formId={formId}
             saveLabel={saveLabel}
             cancelLabel={cancelLabel}
+            onEdit={onEdit}
           />
         </FormHeader>
 

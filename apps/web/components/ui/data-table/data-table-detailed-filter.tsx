@@ -9,7 +9,6 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
-  SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
@@ -51,13 +50,11 @@ export function DataTableDetailedFilter<TData>({
         </Tooltip>
       </TooltipProvider>
       <SheetContent side="right" className="flex flex-col h-full sm:max-w-md p-0">
-        <SheetHeader className="shrink-0 px-6 pt-6">
-          <SheetTitle>{config.label || 'Filtros Detalhados'}</SheetTitle>
-          <SheetDescription>
-            Ajuste os filtros abaixo para refinar os resultados da tabela.
-          </SheetDescription>
-        </SheetHeader>
-        <div className="flex-1 overflow-y-auto px-6 mt-6 min-h-0">
+        <SheetTitle className="sr-only">{config.label || 'Filtros Detalhados'}</SheetTitle>
+        <SheetDescription className="sr-only">
+          Ajuste os filtros abaixo para refinar os resultados da tabela.
+        </SheetDescription>
+        <div className="flex-1 overflow-y-auto px-6 py-6 min-h-0">
           <FilterComponent table={table} onClose={() => setOpen(false)} />
         </div>
       </SheetContent>

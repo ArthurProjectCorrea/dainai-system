@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { PageHeader } from '@/components/page-header'
 import { ProjectDashboardSection } from '@/components/chart/project-chart'
+import { DocumentDashboardSection } from '@/components/chart/document-chart'
 import { Separator } from '@/components/ui/separator'
 import { Card } from '@/components/ui/card'
 import { SparklesIcon } from 'lucide-react'
@@ -22,7 +23,13 @@ export default function DashboardPage() {
 
         <Separator className="opacity-50" />
 
-        {/* Coming Soon Section */}
+        {/* Documentation Analysis Section */}
+        <section className="animate-in fade-in slide-in-from-bottom-3 duration-500 delay-150">
+          <DocumentDashboardSection />
+        </section>
+
+        <Separator className="opacity-50" />
+
         <section className="animate-in fade-in slide-in-from-bottom-5 duration-700 delay-200">
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest mb-4">

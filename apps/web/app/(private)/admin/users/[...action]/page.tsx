@@ -8,7 +8,7 @@ import { useFormMode } from '@/hooks/use-form-mode'
 import { useAuth } from '@/hooks/use-auth'
 import { PageHeader } from '@/components/page-header'
 import { UserForm } from '@/components/form/user-form'
-
+import { getUserByIdAction, getUserOptionsAction } from '@/lib/action/user-actions'
 import type { UserDetailPayload } from '@/types/user'
 
 function EditUserContent() {
@@ -26,18 +26,13 @@ function EditUserContent() {
   React.useEffect(() => {
     async function loadData() {
       try {
-        const url = isCreate ? '/api/v1/admin/users/options' : `/api/v1/admin/users/${userId}`
-        const response = await fetch(url)
+        const result = isCreate ? await getUserOptionsAction() : await getUserByIdAction(userId!)
 
-        if (response.status === 404) {
-          toast.error('Usuário não encontrado')
-          router.push('/admin/users')
+        if (result.error) {
+          toast.error(result.error)
+          if (!isCreate) router.push('/admin/users')
           return
         }
-
-        if (!response.ok) throw new Error('Falha ao carregar dados')
-
-        const result = await response.json()
 
         if (isCreate) {
           setPayload({ user: null, options: result.data } as UserDetailPayload)
@@ -101,6 +96,11 @@ function EditUserContent() {
         options={payload.options}
         onSuccess={() => router.push('/admin/users')}
         onCancel={() => router.push('/admin/users')}
+        onEdit={
+          hasPermission('users_management', 'update')
+            ? () => router.push(`/admin/users/${userId}/edit`)
+            : undefined
+        }
       />
     </div>
   )

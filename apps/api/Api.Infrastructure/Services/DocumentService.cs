@@ -133,18 +133,12 @@ namespace Api.Infrastructure.Services
 
             if (document == null) return new ApiResponse<DocumentDto>("404", "Documento não encontrado.", null);
 
-            // Regra: Se um documento publicado for editado, ele volta para Draft para revisão
+            // Regra: Se um documento publicado for editado, ele volta para Draft para revisão e ignora o status do request
             if (document.Status == DocumentStatus.Published)
             {
                 document.Status = DocumentStatus.Draft;
             }
-
-            document.Name = request.Name;
-            document.Content = request.Content;
-            document.UpdatedById = userId;
-            document.UpdatedAt = DateTime.UtcNow;
-
-            if (Enum.TryParse<DocumentStatus>(request.Status, true, out var newStatus))
+            else if (Enum.TryParse<DocumentStatus>(request.Status, true, out var newStatus))
             {
                 // Só atualiza para Published via o método específico PublishDocumentAsync
                 if (newStatus != DocumentStatus.Published)
@@ -152,6 +146,11 @@ namespace Api.Infrastructure.Services
                     document.Status = newStatus;
                 }
             }
+
+            document.Name = request.Name;
+            document.Content = request.Content;
+            document.UpdatedById = userId;
+            document.UpdatedAt = DateTime.UtcNow;
 
             // Atualizar Categorias
             document.DocumentCategories.Clear();
@@ -280,6 +279,85 @@ namespace Api.Infrastructure.Services
             await _context.SaveChangesAsync();
 
             return new ApiResponse<CategoryDto>("200", "Categoria criada.", new CategoryDto(category.Id, category.Name));
+        }
+        public async Task<ApiResponse<DocsNavigationDto>> GetDocsNavigationAsync(Guid userId, Guid? activeTeamId)
+        {
+            // 1. Buscar Projetos baseados no escopo do usuário
+            var projectQuery = _context.Projects.Include(p => p.Team).Where(p => p.DeletedAt == null);
+            var projectScope = await _authService.GetScopeAsync(userId, activeTeamId, "projects_management");
+
+            if (projectScope != "all")
+            {
+                if (!activeTeamId.HasValue)
+                    return new ApiResponse<DocsNavigationDto>("200", "", new DocsNavigationDto(new List<ProjectDto>(), new List<DocumentDto>()));
+
+                projectQuery = projectQuery.Where(p => p.TeamId == activeTeamId.Value);
+            }
+
+            var projects = await projectQuery
+                .OrderBy(p => p.Name)
+                .Select(p => new ProjectDto(p.Id, p.Name, p.TeamId, p.Team.Name, null, p.IsActive, p.CreatedAt, 0, 0, null))
+                .ToListAsync();
+
+            // 2. Buscar Documentos Publicados baseados no escopo do usuário
+            var docQuery = await BuildScopedQueryAsync(userId, activeTeamId);
+            var documents = await docQuery
+                .Where(d => d.Status == DocumentStatus.Published)
+                .OrderBy(d => d.Name)
+                .Select(d => new DocumentDto(
+                    d.Id,
+                    d.ProjectId,
+                    d.Project.Name,
+                    d.Name,
+                    "",
+                    d.Status.ToString(),
+                    d.CreatedAt,
+                    d.UpdatedAt,
+                    d.DocumentCategories.Select(dc => new CategoryDto(dc.Category.Id, dc.Category.Name)).ToList(),
+                    null
+                ))
+                .ToListAsync();
+
+            return new ApiResponse<DocsNavigationDto>("200", "", new DocsNavigationDto(projects, documents));
+        }
+
+        public async Task<ApiResponse<List<DocumentDto>>> SearchDocumentsAsync(Guid userId, Guid? activeTeamId, Guid? projectId, string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                return new ApiResponse<List<DocumentDto>>("200", "", new List<DocumentDto>());
+
+            var query = await BuildScopedQueryAsync(userId, activeTeamId);
+
+            // Debug Log
+            Console.WriteLine($"[Search] User: {userId}, Team: {activeTeamId}, Project: {projectId}, Term: '{searchTerm}'");
+
+            if (projectId.HasValue)
+            {
+                query = query.Where(d => d.ProjectId == projectId.Value);
+            }
+
+            var documents = await query
+                .Include(d => d.PublishedDocuments)
+                .Where(d => d.Status == DocumentStatus.Published &&
+                           (EF.Functions.ILike(d.Name, $"%{searchTerm}%") || EF.Functions.ILike(d.Content, $"%{searchTerm}%")))
+                .OrderBy(d => d.Name)
+                .Select(d => new DocumentDto(
+                    d.Id,
+                    d.ProjectId,
+                    d.Project.Name,
+                    d.Name,
+                    d.Content,
+                    d.Status.ToString(),
+                    d.CreatedAt,
+                    d.UpdatedAt,
+                    d.DocumentCategories.Select(dc => new CategoryDto(dc.Category.Id, dc.Category.Name)).ToList(),
+                    d.PublishedDocuments.OrderByDescending(p => p.CreatedAt).Select(p => p.Version).FirstOrDefault()
+                ))
+                .ToListAsync();
+
+            Console.WriteLine($"[Search] Results found: {documents.Count}");
+
+            return new ApiResponse<List<DocumentDto>>("200", "", documents);
         }
     }
 }

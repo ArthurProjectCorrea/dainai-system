@@ -40,7 +40,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="geral" className="space-y-4 py-4">
-            <ProfileForm />
+            <ProfileForm variant="dialog" onCancel={() => onOpenChange(false)} />
           </TabsContent>
           <TabsContent value="configuracoes" className="space-y-4 py-4">
             <ModeToggle />

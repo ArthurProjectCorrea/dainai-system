@@ -7,10 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "seed": "npm run seed:feedbacks && npm run seed:ratings",
+    "seed:feedbacks": "node scripts/seed-feedbacks.mjs",
+    "seed:ratings": "node scripts/seed-fixed-rating.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",
+    "@tailwindcss/typography": "^0.5.19",
     "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -19,7 +23,9 @@
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^1.8.0",
+    "md-editor-rt": "^6.4.2",
     "next": "16.2.3",
+    "next-mdx-remote": "^6.0.0",
     "next-themes": "^0.4.6",
     "nextjs-toploader": "^3.9.17",
     "radix-ui": "^1.4.3",
@@ -28,6 +34,7 @@
     "react-dom": "19.2.4",
     "react-resizable-panels": "^4.9.0",
     "recharts": "^3.8.0",
+    "remark-gfm": "^4.0.1",
     "shadcn": "^4.2.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",

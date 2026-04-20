@@ -92,5 +92,67 @@ namespace Api.Infrastructure.Services
 
             return new ApiResponse<ProjectDashboardResponse>("200", "", new ProjectDashboardResponse(stats, distribution, topProjectsDto));
         }
+        private async Task<IQueryable<Document>> BuildDocumentScopedQueryAsync(Guid userId, Guid? activeTeamId)
+        {
+            var query = _context.Documents
+                .Include(d => d.Project)
+                .Where(d => d.DeletedAt == null);
+
+            var scope = await _authService.GetScopeAsync(userId, activeTeamId, "documents_management");
+
+            if (scope == "all")
+                return query;
+
+            if (scope == "user" || scope == "team")
+            {
+                if (!activeTeamId.HasValue) return query.Where(d => false);
+                return query.Where(d => d.Project.TeamId == activeTeamId.Value);
+            }
+
+            return query.Where(d => false);
+        }
+
+        public async Task<ApiResponse<DocumentDashboardResponse>> GetDocumentDashboardAsync(Guid userId, Guid? activeTeamId)
+        {
+            var docsQuery = await BuildDocumentScopedQueryAsync(userId, activeTeamId);
+
+            // Materialize basic stats
+            var totalDocuments = await docsQuery.CountAsync();
+            var publishedCount = await docsQuery.CountAsync(d => d.Status == DocumentStatus.Published);
+            var draftCount = await docsQuery.CountAsync(d => d.Status == DocumentStatus.Draft);
+
+            // Uniq categories count across filtered docs
+            var totalCategories = await docsQuery
+                .SelectMany(d => d.DocumentCategories)
+                .Select(dc => dc.CategoryId)
+                .Distinct()
+                .CountAsync();
+
+            var stats = new DocumentStatsResponse(totalDocuments, publishedCount, draftCount, totalCategories);
+
+            // Status Distribution
+            var distributionRaw = await docsQuery
+                .GroupBy(d => d.Status)
+                .Select(g => new { Status = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            var distribution = distributionRaw
+                .Select(d => new DocumentStatusDistributionDto(d.Status.ToString(), d.Count))
+                .ToList();
+
+            // Top Projects by Document Volume (Top 5)
+            var topProjectsRaw = await docsQuery
+                .GroupBy(d => d.Project.Name)
+                .Select(g => new { ProjectName = g.Key, DocumentCount = g.Count() })
+                .OrderByDescending(p => p.DocumentCount)
+                .Take(5)
+                .ToListAsync();
+
+            var topProjects = topProjectsRaw
+                .Select(p => new ProjectDocumentStatsDto(p.ProjectName, p.DocumentCount))
+                .ToList();
+
+            return new ApiResponse<DocumentDashboardResponse>("200", "", new DocumentDashboardResponse(stats, distribution, topProjects));
+        }
     }
 }

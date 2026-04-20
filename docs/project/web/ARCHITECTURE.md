@@ -34,17 +34,29 @@ A aplicacao usa Next.js App Router com separacao clara entre:
 - `components/sidebar/*`
 - itens de menu filtrados por permissao
 
-## Fluxo de Requisicao
-
 ```mermaid
 graph TD
   A[Navegador] --> B[Next Proxy]
-  B -->|Rota de pagina| C[App Router]
+  A -->|Server Actions| C[Next Server]
+  B -->|Rota de pagina| C
   B -->|/api/*| D[Backend API C#]
+  C -->|fetch| D
   C --> E[AuthProvider]
   E -->|GET /api/v1/auth/me| B
   D --> F[Cookie de sessao + RBAC por time]
 ```
+
+## Padrao de Comunicacao (Server Actions)
+
+A partir da versao atual, o sistema padroniza o uso de **Server Actions** para todas as operacoes que alteram estado (POST, PUT, DELETE) e, preferencialmente, para buscas de dados em paginas administrativas.
+
+### Vantagens:
+- **Seguranca**: Credenciais (cookies/tokens) sao manipulados apenas no servidor.
+- **Tipagem**: Contratos estritos entre as Actions e os Formulares.
+- **Performance**: Reducao de round-trips complexos no cliente.
+
+### Localizacao:
+As actions sao organizadas por modulo em `apps/web/lib/[module]-actions.ts`.
 
 ## Módulos Administrativos Padronizados
 

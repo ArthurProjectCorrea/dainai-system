@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import { toast } from 'sonner'
-import { Shield } from 'lucide-react'
 
 import { FormLayout } from '@/components/layouts/form-layout'
 import { FormSection, FormGrid } from '@/components/form-section'
@@ -26,6 +25,8 @@ import {
   FieldTitle,
 } from '@/components/ui/field'
 import { CreatableCombobox } from '@/components/creatable-combobox'
+
+import { saveDepartmentAction, savePositionAction } from '@/lib/action/access-control-actions'
 
 import { isPermissionSupported, SCOPES_SUPPORTED_SCREENS } from '@/lib/permissions'
 import type {
@@ -53,6 +54,7 @@ interface AccessControlFormProps {
   onSuccess?: () => void
   onCancel?: () => void
   readOnly?: boolean
+  onEdit?: () => void
 }
 
 export function AccessControlForm({
@@ -63,6 +65,7 @@ export function AccessControlForm({
   onSuccess,
   onCancel,
   readOnly,
+  onEdit,
 }: AccessControlFormProps) {
   const [loading, setLoading] = React.useState(false)
 
@@ -139,16 +142,8 @@ export function AccessControlForm({
     setLoading(true)
 
     try {
-      const endpoint =
-        mode === 'department'
-          ? '/api/v1/admin/access-control/departments'
-          : '/api/v1/admin/access-control/positions'
-
-      const id = initialData?.id
+      const id = initialData?.id ? String(initialData.id) : undefined
       if (!id && type === 'edit') throw new Error('ID não encontrado para edição')
-
-      const url = type === 'edit' ? `${endpoint}/${id}` : endpoint
-      const method = type === 'edit' ? 'PUT' : 'POST'
 
       const body =
         mode === 'department'
@@ -167,16 +162,13 @@ export function AccessControlForm({
               ),
             } as SavePositionRequest)
 
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
+      const result =
+        mode === 'department'
+          ? await saveDepartmentAction(body as SaveDepartmentRequest, id)
+          : await savePositionAction(body as SavePositionRequest, id)
 
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.message || 'Falha ao salvar')
+      if (result.error) {
+        throw new Error(result.error)
       }
 
       toast.success(type === 'create' ? 'Criado com sucesso' : 'Atualizado com sucesso')
@@ -201,6 +193,7 @@ export function AccessControlForm({
         mode={readOnly ? 'view' : type}
         loading={loading}
         onCancel={onCancel ?? (() => window.history.back())}
+        onEdit={onEdit}
         variant="page"
         saveLabel={
           type === 'edit'

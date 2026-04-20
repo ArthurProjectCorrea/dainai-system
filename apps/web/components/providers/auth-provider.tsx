@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useEffect, useState } from 'react'
-import { logoutAction } from '@/lib/actions'
+import { logoutAction } from '@/lib/action/auth-actions'
 import { User, UserMeResponse } from '@/types/auth'
 
 type PermissionMap = Record<string, string[]>

@@ -18,4 +18,21 @@ namespace Api.Application.DTOs
         List<RatingDistributionDto> RatingDistribution,
         List<ProjectTrendDto> TopProjects
     );
+
+    public record DocumentStatsResponse(
+        int TotalDocuments,
+        int PublishedCount,
+        int DraftCount,
+        int TotalCategories
+    );
+
+    public record DocumentStatusDistributionDto(string Status, int Count);
+
+    public record ProjectDocumentStatsDto(string ProjectName, int DocumentCount);
+
+    public record DocumentDashboardResponse(
+        DocumentStatsResponse Stats,
+        List<DocumentStatusDistributionDto> StatusDistribution,
+        List<ProjectDocumentStatsDto> TopProjects
+    );
 }

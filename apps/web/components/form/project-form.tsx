@@ -2,8 +2,7 @@
 
 import * as React from 'react'
 import { toast } from 'sonner'
-import { Building2, CopyIcon, RotateCw, Upload, XIcon } from 'lucide-react'
-import { Spinner } from '@/components/ui/spinner'
+import { Building2, CopyIcon, RotateCw } from 'lucide-react'
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis } from 'recharts'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -41,7 +40,13 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { useAuth } from '@/hooks/use-auth'
-import type { Project, CreateProjectRequest, UpdateProjectRequest } from '@/types/project'
+import { getTeamsAction } from '@/lib/action/team-actions'
+import {
+  createProjectAction,
+  updateProjectAction,
+  rotateProjectTokenAction,
+} from '@/lib/action/project-actions'
+import { CreateProjectRequest, Project, UpdateProjectRequest } from '@/types/project'
 import type { Team } from '@/types/team'
 
 const chartConfig = {
@@ -57,10 +62,18 @@ interface ProjectFormProps {
   onCancel?: () => void
   readOnly?: boolean
   isDialog?: boolean
+  onEdit?: () => void
 }
 
-export function ProjectForm({ data, onSuccess, onCancel, readOnly, isDialog }: ProjectFormProps) {
-  const { activeAccesses, activeTeamId, hasPermission } = useAuth()
+export function ProjectForm({
+  data,
+  onSuccess,
+  onCancel,
+  readOnly,
+  isDialog,
+  onEdit,
+}: ProjectFormProps) {
+  const { activeAccesses, activeTeamId, activeTeamName, hasPermission } = useAuth()
   const [loading, setLoading] = React.useState(false)
   const [teams, setTeams] = React.useState<Team[]>([])
   const [fetchingTeams, setFetchingTeams] = React.useState(true)
@@ -83,11 +96,17 @@ export function ProjectForm({ data, onSuccess, onCancel, readOnly, isDialog }: P
 
   React.useEffect(() => {
     async function fetchTeams() {
+      if (!canChangeTeam) {
+        setFetchingTeams(false)
+        return
+      }
+
       try {
-        const res = await fetch('/api/v1/admin/teams')
-        if (res.ok) {
-          const result = await res.json()
-          setTeams(result.data || [])
+        const result = await getTeamsAction()
+        if (result.data) {
+          setTeams(result.data)
+        } else if (result.error) {
+          toast.error(result.error)
         }
       } catch (error) {
         console.error('Failed to fetch teams:', error)
@@ -96,29 +115,26 @@ export function ProjectForm({ data, onSuccess, onCancel, readOnly, isDialog }: P
       }
     }
     fetchTeams()
-  }, [])
+  }, [canChangeTeam])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      const url = isEdit ? `/api/v1/admin/projects/${data.id}` : '/api/v1/admin/projects'
-      const method = isEdit ? 'PUT' : 'POST'
+      const result = isEdit
+        ? await updateProjectAction(data!.id, {
+            name,
+            teamId,
+            isActive,
+          } as UpdateProjectRequest)
+        : await createProjectAction({
+            name,
+            teamId,
+          } as CreateProjectRequest)
 
-      const body: CreateProjectRequest | UpdateProjectRequest = isEdit
-        ? { name, teamId, isActive }
-        : { name, teamId }
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-
-      if (!response.ok) {
-        const result = await response.json()
-        throw new Error(result.message || 'Falha ao salvar projeto')
+      if (result.error) {
+        throw new Error(result.error)
       }
 
       toast.success(isEdit ? 'Projeto atualizado!' : 'Projeto criado!')
@@ -135,11 +151,9 @@ export function ProjectForm({ data, onSuccess, onCancel, readOnly, isDialog }: P
 
     setIsGenerating(true)
     try {
-      const response = await fetch(`/api/v1/admin/projects/${data.id}/rotate-token`, {
-        method: 'POST',
-      })
-      if (!response.ok) throw new Error('Falha ao gerar nova chave')
-      const result = await response.json()
+      const result = await rotateProjectTokenAction(data!.id)
+      if (result.error) throw new Error(result.error)
+
       setRawToken(result.data.integrationToken)
       toast.success('Chave gerada com sucesso!')
     } catch (error) {
@@ -182,9 +196,11 @@ export function ProjectForm({ data, onSuccess, onCancel, readOnly, isDialog }: P
       <Field>
         <FieldLabel htmlFor="teamId">Equipe Responsável</FieldLabel>
         {!canChangeTeam ? (
-          <div className="h-8 flex items-center px-2.5 border rounded-lg bg-input/20 cursor-not-allowed opacity-80">
+          <div className="h-10 flex items-center px-3 border rounded-md bg-muted/20 cursor-not-allowed opacity-80">
             <Building2 className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-            <span className="text-xs">{data?.teamName || 'Carregando...'}</span>
+            <span className="text-sm">
+              {data?.teamName || activeTeamName || 'Equipe Principal'}
+            </span>
           </div>
         ) : fetchingTeams ? (
           <div className="h-10 flex items-center px-3 border rounded-md bg-muted/20">
@@ -243,6 +259,7 @@ export function ProjectForm({ data, onSuccess, onCancel, readOnly, isDialog }: P
           edit: 'page',
           view: 'page',
         }}
+        onEdit={onEdit}
         formId="project-form"
       >
         <FormGrid className={cn(!isEdit || isDialog ? 'lg:grid-cols-1' : 'lg:grid-cols-2')}>

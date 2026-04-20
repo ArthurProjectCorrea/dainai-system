@@ -77,6 +77,7 @@ interface DataTableProps<TData, TValue> {
     label: string
     onClick: (row: TData) => void
     show?: boolean
+    disabled?: boolean | ((row: TData) => boolean)
     variant?: 'ghost' | 'destructive' | 'default' | 'secondary'
   }[]
   onSuccess?: () => void
@@ -142,6 +143,7 @@ export function DataTable<TData, TValue>({
                                 '[id]',
                                 String((row.original as { id: string | number }).id),
                               )}
+                            target="_blank"
                           >
                             <Eye className="h-4 w-4" />
                           </Link>
@@ -222,12 +224,18 @@ export function DataTable<TData, TValue>({
                 {rowActions?.map((action, idx) => {
                   if (action.show === false) return null
                   const Icon = action.icon
+                  const isDisabled =
+                    typeof action.disabled === 'function'
+                      ? action.disabled(row.original)
+                      : action.disabled
+
                   return (
                     <Tooltip key={idx}>
                       <TooltipTrigger asChild>
                         <Button
                           variant={action.variant || 'ghost'}
                           size="icon-sm"
+                          disabled={isDisabled}
                           onClick={e => {
                             e.stopPropagation()
                             action.onClick(row.original)
@@ -346,6 +354,7 @@ export function DataTable<TData, TValue>({
         formData={dialogData}
         onSuccess={onSuccess}
         readOnly={dialogTitle === 'Visualizar Registro'}
+        canEdit={editConfig?.show}
       />
 
       <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>

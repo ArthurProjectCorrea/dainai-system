@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useFormMode } from '@/hooks/use-form-mode'
 import { PageHeader } from '@/components/page-header'
 import { ProjectForm } from '@/components/form/project-form'
-
+import { getProjectByIdAction } from '@/lib/action/project-actions'
 import type { Project } from '@/types/project'
 
 export default function ProjectDetailsPage() {
@@ -27,17 +27,15 @@ export default function ProjectDetailsPage() {
     if (!id || isCreate) return
 
     try {
-      const response = await fetch(`/api/v1/admin/projects/${id}`)
-      if (!response.ok) {
-        if (response.status === 404) {
-          toast.error('Projeto não encontrado')
-          router.push('/projects')
-          return
-        }
-        throw new Error('Falha ao carregar projeto')
+      const result = await getProjectByIdAction(id)
+
+      if (result.error) {
+        toast.error(result.error)
+        router.push('/projects')
+        return
       }
-      const result = await response.json()
-      setProject(result.data)
+
+      setProject(result.data || null)
     } catch (error) {
       toast.error('Erro ao buscar dados')
       console.error(error)
@@ -70,6 +68,11 @@ export default function ProjectDetailsPage() {
         <ProjectForm
           data={project}
           readOnly={isView}
+          onEdit={
+            hasPermission('projects_management', 'update')
+              ? () => router.push(`/projects/${id}/edit`)
+              : undefined
+          }
           onSuccess={() => {
             if (isCreate) router.push('/projects')
             else fetchProject()

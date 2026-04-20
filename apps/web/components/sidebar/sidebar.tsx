@@ -5,6 +5,9 @@ import {
   LifeBuoyIcon,
   SendIcon,
   FolderGit2,
+  Shredder,
+  BookText,
+  House,
 } from 'lucide-react'
 
 const name_sidebar: string | undefined = undefined
@@ -32,6 +35,13 @@ export const sidebarData = {
       title: 'Dashboard',
       icon: <LayoutDashboardIcon />,
       url: '/dashboard',
+    },
+    {
+      title: name_sidebar,
+      icon: <Shredder />,
+      url: '/documents',
+      name_key: 'documents_management',
+      is_permission: true,
     },
     {
       title: name_sidebar,
@@ -68,6 +78,16 @@ export const sidebarData = {
     },
   ] as SidebarMainItem[],
   navSecondary: [
+    {
+      title: 'Área Principal',
+      url: '/dashboard',
+      icon: <House />,
+    },
+    {
+      title: 'Documentação',
+      url: '/docs',
+      icon: <BookText />,
+    },
     {
       title: 'Suporte',
       url: '#',

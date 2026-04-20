@@ -3,9 +3,10 @@ export const SCREEN_PERMISSIONS_MAP: Record<string, string[]> = {
   users_management: ['view', 'create', 'update', 'delete'],
   teams_management: ['view', 'create', 'update', 'delete'],
   projects_management: ['view', 'create', 'update', 'delete'],
+  documents_management: ['view', 'create', 'update', 'delete', 'approve'],
 }
 
-export const SCOPES_SUPPORTED_SCREENS = ['projects_management']
+export const SCOPES_SUPPORTED_SCREENS = ['projects_management', 'documents_management']
 
 /**
  * Verifica se uma tela (screenKey) suporta uma determinada ação (permissionKey)

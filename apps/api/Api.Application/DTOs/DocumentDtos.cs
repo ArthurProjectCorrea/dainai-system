@@ -6,13 +6,13 @@ namespace Api.Application.DTOs
     public record CategoryDto(int Id, string Name);
 
     public record DocumentDto(
-        Guid Id, 
-        Guid ProjectId, 
-        string ProjectName, 
-        string Name, 
-        string Content, 
-        string Status, 
-        DateTime CreatedAt, 
+        Guid Id,
+        Guid ProjectId,
+        string ProjectName,
+        string Name,
+        string Content,
+        string Status,
+        DateTime CreatedAt,
         DateTime? UpdatedAt,
         List<CategoryDto> Categories,
         string? CurrentVersion = null
@@ -22,25 +22,27 @@ namespace Api.Application.DTOs
 
     public record DocumentListResponse(List<DocumentDto> Documents, DocumentIndicatorDto Indicators);
 
+    public record DocsNavigationDto(List<ProjectDto> Projects, List<DocumentDto> Documents);
+
     public record PublishedDocumentDto(
-        Guid Id, 
-        Guid DocumentId, 
-        string Version, 
-        string Content, 
-        string PublishedBy, 
+        Guid Id,
+        Guid DocumentId,
+        string Version,
+        string Content,
+        string PublishedBy,
         DateTime CreatedAt
     );
 
     public record CreateDocumentRequest(
-        Guid ProjectId, 
-        string Name, 
-        string Content, 
+        Guid ProjectId,
+        string Name,
+        string Content,
         List<int> CategoryIds
     );
 
     public record UpdateDocumentRequest(
-        string Name, 
-        string Content, 
+        string Name,
+        string Content,
         string Status,
         List<int> CategoryIds
     );

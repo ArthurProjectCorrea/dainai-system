@@ -104,7 +104,7 @@ namespace Api.Web.Controllers
         }
 
         [HttpPost("categories")]
-        [HasPermission("documents_management", "create")] 
+        [HasPermission("documents_management", "create")]
         public async Task<IActionResult> CreateCategory([FromBody] string name)
         {
             var result = await _documentService.CreateCategoryAsync(name);

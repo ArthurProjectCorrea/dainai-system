@@ -1,4 +1,4 @@
-﻿'use server'
+'use server'
 
 import { clearSession } from '@/lib/auth'
 import { redirect } from 'next/navigation'
@@ -37,6 +37,29 @@ function extractAuthCookie(response: Response): { name: string; value: string } 
   }
 
   return null
+}
+
+export async function getAuthHeaders() {
+  const cookieStore = await cookies()
+  const authToken = cookieStore.get('AuthToken')?.value
+  const identityToken = cookieStore.get('.AspNetCore.Identity.Application')?.value
+  const activeTeamId = cookieStore.get('active_team_id')?.value
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+
+  if (authToken) {
+    headers['Cookie'] = `AuthToken=${authToken}`
+  } else if (identityToken) {
+    headers['Cookie'] = `.AspNetCore.Identity.Application=${identityToken}`
+  }
+
+  if (activeTeamId) {
+    headers['X-Active-Team-Id'] = activeTeamId
+  }
+
+  return headers
 }
 
 export async function loginAction(formData: FormData) {

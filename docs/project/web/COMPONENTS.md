@@ -79,27 +79,35 @@ Componente de selecao que permite:
 - Feedback visual de "Criar novo: 'termo'".
 - Integracao direta com formulários Shadcn/Field.
 
-### Padrao de Formulario Administrativo
+## Layouts de Formulario (`FormLayout`)
 
-Todos os novos formulários (ex: `access-control-form.tsx`) seguem o padrao:
+Local: `apps/web/components/layouts/form-layout.tsx`
 
-- **Grid de Info Basica**: 2 colunas (`grid-cols-1 md:grid-cols-2`) para Nome e Vinculo Principal.
-- **Largura Total**: Ocupa todo o container disponível.
-- **Matrix de Permissoes**: Tabela responsiva com cores neutras e hover states.
+O `FormLayout` e a base para todos os CRUDs da aplicacao. Suporta dois modos:
+- **Variant "page"**: Para telas cheias com cabecalho integrado.
+- **Variant "dialog"**: Para formulários dentro de modais.
 
-Arquivos:
+### Propriedades Principais:
+- `mode`: (`create` | `edit` | `view`) altera labels de botoes e visibilidade de campos.
+- `extraActions`: Permite injetar botoes customizados no header (ex: "Publicar").
+- `onSuccess` / `onCancel`: Callbacks para navegacao pos-acao.
 
-- app/(private)/admin/teams/page.tsx
-- components/form/team-form.tsx
-- types/team.ts
+## Padrao de Formulario Administrativo
 
-Responsabilidades:
+Todos os formulários seguem o padrao:
 
-- listar equipes
-- criar/editar/excluir equipe
-- upload de logotipo
-- alternar status ativo/inativo
-- exibir indicadores com StatCard
+1. **Estrutura**: `FormLayout` > `FormGrid` > `FormSection` > `Field`.
+2. **Camadas**:
+   - `FormGrid`: Controla a responsividade das colunas.
+   - `FormSection`: Agrupa campos logicamente com titulo e descricao.
+   - `Field`: Componente atomico que gerencia Label + Input + Erros.
+3. **Persistencia**: Uso obrigatorio de Server Actions em `apps/web/lib/*-actions.ts`.
+
+### Exemplos Implementados:
+- `user-form.tsx`: Gestao de usuarios e atribuições.
+- `project-form.tsx`: Gestao de projetos e integracoes.
+- `document-form.tsx`: Edicao de Markdown com layouts complexos.
+- `access-control-form.tsx`: Matriz de permissoes.
 
 ## Formularios de Auth
 

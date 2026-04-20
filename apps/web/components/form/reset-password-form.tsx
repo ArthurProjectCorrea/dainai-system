@@ -6,7 +6,7 @@ import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
 
-import { resetPasswordAction } from '@/lib/actions'
+import { resetPasswordAction } from '@/lib/action/auth-actions'
 import { toast } from 'sonner'
 import * as React from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'

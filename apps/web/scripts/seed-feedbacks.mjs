@@ -5,7 +5,7 @@
  */
 
 const API_URL = 'http://localhost:5000/api/v1/public/feedbacks'
-const TOKEN = '7PpwO3dJ3J1HR47tI3POJ7YCCNbqR6arvy34PY7joLk'
+const TOKEN = '_wjOoFtI_TZPWL_rxCO-D3jJ3b78hy9il5_lTjxMkdU'
 
 async function seed() {
   const totalRequests = Math.floor(Math.random() * 20) + 15 // Entre 15 e 35 disparos

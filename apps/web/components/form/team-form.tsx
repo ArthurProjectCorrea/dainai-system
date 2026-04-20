@@ -20,14 +20,17 @@ import { Switch } from '@/components/ui/switch'
 import { FormLayout } from '@/components/layouts/form-layout'
 import { FormSection } from '@/components/form-section'
 
+import { createTeamAction, updateTeamAction } from '@/lib/action/team-actions'
+
 interface TeamFormProps {
   data?: Team | null
   onSuccess: () => void
   onCancel?: () => void
   readOnly?: boolean
+  onEdit?: () => void
 }
 
-export function TeamForm({ data, onSuccess, onCancel, readOnly }: TeamFormProps) {
+export function TeamForm({ data, onSuccess, onCancel, readOnly, onEdit }: TeamFormProps) {
   const [loading, setLoading] = React.useState(false)
   const [uploading, setUploading] = React.useState(false)
   const [logotipoUrl, setLogotipoUrl] = React.useState(data?.logotipoUrl || '')
@@ -77,29 +80,25 @@ export function TeamForm({ data, onSuccess, onCancel, readOnly }: TeamFormProps)
     }
 
     try {
-      const url = data?.id ? `/api/v1/admin/teams/${data.id}` : '/api/v1/admin/teams'
+      const payload: Partial<Team> = {
+        id: data?.id || '00000000-0000-0000-0000-000000000000',
+        name,
+        logotipoUrl,
+        isActive,
+      }
 
-      const method = data?.id ? 'PUT' : 'POST'
+      const result = data?.id
+        ? await updateTeamAction(data.id, payload)
+        : await createTeamAction(payload)
 
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: data?.id || '00000000-0000-0000-0000-000000000000',
-          name,
-          logotipoUrl,
-          isActive,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Falha ao salvar equipe')
+      if (result.error) {
+        throw new Error(result.error)
       }
 
       toast.success(data?.id ? 'Equipe atualizada!' : 'Equipe criada!')
       onSuccess()
     } catch (error) {
-      toast.error('Erro ao salvar equipe')
+      toast.error(error instanceof Error ? error.message : 'Erro ao salvar equipe')
       console.error(error)
     } finally {
       setLoading(false)
@@ -118,6 +117,7 @@ export function TeamForm({ data, onSuccess, onCancel, readOnly }: TeamFormProps)
         mode={readOnly ? 'view' : data?.id ? 'edit' : 'create'}
         loading={loading || uploading}
         onCancel={onCancel ?? (() => window.history.back())}
+        onEdit={onEdit}
         variant="dialog"
       >
         <FormSection>

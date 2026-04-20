@@ -3,9 +3,7 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/use-auth'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Spinner } from '@/components/ui/spinner'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import {
   Table,
@@ -18,7 +16,12 @@ import {
 import { FormLayout } from '@/components/layouts/form-layout'
 import { FormSection, FormGrid } from '@/components/form-section'
 
-export function ProfileForm({ className, ...props }: React.ComponentProps<'form'>) {
+interface ProfileFormProps extends React.ComponentProps<'form'> {
+  variant?: 'page' | 'dialog'
+  onCancel?: () => void
+}
+
+export function ProfileForm({ className, variant = 'page', onCancel, ...props }: ProfileFormProps) {
   const { user } = useAuth()
   const teamContextById = new Map(
     (user?.teamAccesses ?? []).map(teamAccess => [teamAccess.teamId, teamAccess]),
@@ -32,8 +35,8 @@ export function ProfileForm({ className, ...props }: React.ComponentProps<'form'
         title="Meu Perfil"
         description="Gerencie seus dados e visualize seus vínculos com as equipes"
         mode="view"
-        onCancel={() => window.history.back()}
-        variant="page"
+        onCancel={onCancel ?? (() => window.history.back())}
+        variant={variant}
       >
         <FormGrid>
           <FormSection title="Dados Pessoais">
@@ -84,13 +87,6 @@ export function ProfileForm({ className, ...props }: React.ComponentProps<'form'
             </div>
           </FormSection>
         </FormGrid>
-
-        {/* Profile currently read-only in this version, but keeping the button for UI consistency if needed */}
-        <div className="flex justify-end mt-4">
-          <Button type="button" variant="outline" disabled>
-            Salvar Alterações
-          </Button>
-        </div>
       </FormLayout>
     </form>
   )

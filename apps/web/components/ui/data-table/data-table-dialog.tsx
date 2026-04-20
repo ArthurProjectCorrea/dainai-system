@@ -18,6 +18,7 @@ interface DataTableDialogProps<T> {
     onSuccess: () => void
     onCancel?: () => void
     readOnly?: boolean
+    onEdit?: () => void
   }> | null
   formData?: T | null
   onSuccess?: () => void
@@ -31,15 +32,22 @@ export function DataTableDialog<T>({
   form: Form,
   formData,
   onSuccess,
-  readOnly,
-}: DataTableDialogProps<T>) {
+  readOnly: initialReadOnly,
+  canEdit,
+}: DataTableDialogProps<T> & { canEdit?: boolean }) {
+  const [isReadOnly, setIsReadOnly] = React.useState(initialReadOnly)
+
+  React.useEffect(() => {
+    setIsReadOnly(initialReadOnly)
+  }, [initialReadOnly, open])
+
   if (!Form) return null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>{isReadOnly ? title : title.replace('Visualizar', 'Editar')}</DialogTitle>
           <DialogDescription className="sr-only">
             Preencha os campos abaixo para concluir a ação.
           </DialogDescription>
@@ -47,8 +55,9 @@ export function DataTableDialog<T>({
         <div className="py-4">
           <Form
             data={formData}
-            readOnly={readOnly}
+            readOnly={isReadOnly}
             onCancel={() => onOpenChange(false)}
+            onEdit={canEdit ? () => setIsReadOnly(false) : undefined}
             onSuccess={() => {
               onOpenChange(false)
               onSuccess?.()

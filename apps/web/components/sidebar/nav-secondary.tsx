@@ -1,6 +1,8 @@
 'use client'
 
 import * as React from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 import {
   SidebarGroup,
@@ -22,6 +24,7 @@ export function NavSecondary({
   }[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   const [feedbackOpen, setFeedbackOpen] = React.useState(false)
+  const pathname = usePathname()
 
   const handleClick = (e: React.MouseEvent, title: string) => {
     if (title === 'Feedback') {
@@ -30,17 +33,32 @@ export function NavSecondary({
     }
   }
 
+  // Filtrar itens baseados no contexto atual para evitar redundância
+  // Se estiver em /docs, não mostrar o link para /docs, mostrar para /dashboard
+  // Se NÃO estiver em /docs, mostrar o link para /docs, não mostrar para /dashboard (Area Principal)
+  const isDocsPath = pathname?.startsWith('/docs')
+
+  const filteredItems = items.filter(item => {
+    if (isDocsPath) {
+      // No Docs, removemos o link de Documentação e mantemos Area Principal
+      return item.url !== '/docs'
+    } else {
+      // No Dashboard, removemos Area Principal e mantemos Documentação
+      return item.url !== '/dashboard'
+    }
+  })
+
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
         <SidebarMenu>
-          {items.map(item => (
+          {filteredItems.map(item => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild size="sm">
-                <a href={item.url} onClick={e => handleClick(e, item.title)}>
+                <Link href={item.url} onClick={e => handleClick(e, item.title)}>
                   {item.icon}
                   <span>{item.title}</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

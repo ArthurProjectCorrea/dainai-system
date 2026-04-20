@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
 import Link from 'next/link'
 
-import { forgotPasswordAction } from '@/lib/actions'
+import { forgotPasswordAction } from '@/lib/action/auth-actions'
 import { toast } from 'sonner'
 import * as React from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'

@@ -8,6 +8,11 @@ import { useAuth } from '@/hooks/use-auth'
 import { useFormMode } from '@/hooks/use-form-mode'
 import { PageHeader } from '@/components/page-header'
 import { AccessControlForm } from '@/components/form/access-control-form'
+import {
+  getAccessControlDataAction,
+  getDepartmentByIdAction,
+  getPositionByIdAction,
+} from '@/lib/action/access-control-actions'
 import type { AccessControlPayload, Position, Department } from '@/types/access-control'
 
 function EditAccessControlContent() {
@@ -32,30 +37,23 @@ function EditAccessControlContent() {
   React.useEffect(() => {
     async function fetchData() {
       try {
-        // Fetch Options (Depts, Screens, Perms)
-        const optsResponse = await fetch('/api/v1/admin/access-control')
-        if (!optsResponse.ok) throw new Error('Falha ao carregar opções')
-        const optsResult = await optsResponse.json()
-        setOptions(optsResult.data)
+        const optsResult = await getAccessControlDataAction()
+        if (optsResult.error) throw new Error(optsResult.error)
+        setOptions(optsResult.data!)
 
         if (!isCreate && id) {
-          // Fetch Specific Entity Data
-          const endpoint =
+          const result =
             type === 'department'
-              ? `/api/v1/admin/access-control/departments/${id}`
-              : `/api/v1/admin/access-control/positions/${id}`
+              ? await getDepartmentByIdAction(id)
+              : await getPositionByIdAction(id)
 
-          const dataResponse = await fetch(endpoint)
-
-          if (dataResponse.status === 404) {
-            toast.error(`${type === 'department' ? 'Departamento' : 'Cargo'} não encontrado`)
+          if (result.error) {
+            toast.error(result.error)
             router.push('/admin/access-control')
             return
           }
 
-          if (!dataResponse.ok) throw new Error('Falha ao carregar dados do registro')
-          const dataResult = await dataResponse.json()
-          setInitialData(dataResult.data)
+          setInitialData(result.data || null)
         }
       } catch (error) {
         toast.error('Erro ao carregar dados')
@@ -120,6 +118,11 @@ function EditAccessControlContent() {
         readOnly={readOnly}
         onSuccess={() => router.push('/admin/access-control')}
         onCancel={() => router.push('/admin/access-control')}
+        onEdit={
+          hasPermission('access_control', 'update')
+            ? () => router.push(`/admin/access-control/${id}/edit?type=${type}`)
+            : undefined
+        }
       />
     </div>
   )

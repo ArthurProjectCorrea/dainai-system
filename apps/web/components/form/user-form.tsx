@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { toast } from 'sonner'
 import { Upload, XIcon, UserRound, Plus, Trash2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,6 +27,7 @@ import {
 import { FormLayout } from '@/components/layouts/form-layout'
 import { FormSection, FormGrid } from '@/components/form-section'
 
+import { createUserAction, updateUserAction } from '@/lib/action/user-actions'
 import type { SaveUserPayload, UserManagementOptions, UserManagementUser } from '@/types/user'
 
 interface UserFormProps {
@@ -34,6 +36,7 @@ interface UserFormProps {
   options: UserManagementOptions
   onSuccess?: () => void
   onCancel?: () => void
+  onEdit?: () => void
 }
 
 function createEmptyAssignment() {
@@ -45,7 +48,8 @@ function createEmptyAssignment() {
   }
 }
 
-export function UserForm({ mode, user, options, onSuccess, onCancel }: UserFormProps) {
+export function UserForm({ mode, user, options, onSuccess, onCancel, onEdit }: UserFormProps) {
+  const router = useRouter()
   const [loading, setLoading] = React.useState(false)
   const [avatarUrl, setAvatarUrl] = React.useState(user?.avatarUrl || '')
   const [uploading, setUploading] = React.useState(false)
@@ -93,7 +97,7 @@ export function UserForm({ mode, user, options, onSuccess, onCancel }: UserFormP
       const result = await res.json()
       setAvatarUrl(result.data)
       toast.success('Imagem enviada!')
-    } catch (err) {
+    } catch {
       toast.error('Erro ao enviar imagem')
     } finally {
       setUploading(false)
@@ -141,22 +145,21 @@ export function UserForm({ mode, user, options, onSuccess, onCancel }: UserFormP
     }
 
     try {
-      const url = mode === 'edit' ? `/api/v1/admin/users/${user?.id}` : '/api/v1/admin/users'
-      const method = mode === 'edit' ? 'PUT' : 'POST'
+      const result =
+        mode === 'edit'
+          ? await updateUserAction(user!.id, payload)
+          : await createUserAction(payload)
 
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-
-      if (!response.ok) {
-        const result = await response.json()
-        throw new Error(result.message || 'Falha ao salvar usuário')
+      if (result.error) {
+        throw new Error(result.error)
       }
 
       toast.success(mode === 'edit' ? 'Usuário atualizado!' : 'Usuário criado!')
-      onSuccess?.()
+      if (onSuccess) {
+        onSuccess()
+      } else {
+        router.push('/admin/users')
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Erro ao salvar usuário')
     } finally {
@@ -184,6 +187,7 @@ export function UserForm({ mode, user, options, onSuccess, onCancel }: UserFormP
         mode={mode}
         loading={loading}
         onCancel={onCancel || (() => window.history.back())}
+        onEdit={onEdit}
         variant="page"
       >
         <FormGrid>
