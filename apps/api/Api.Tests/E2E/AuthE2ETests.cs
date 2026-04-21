@@ -236,5 +236,37 @@ namespace Api.Tests.E2E
                 HttpStatusCode.TooManyRequests
             );
         }
+
+        [Fact]
+        public async Task Login_WithEmptyFields_ReturnsBadRequest()
+        {
+            var response = await _fixture.Client.PostAsJsonAsync("/api/v1/auth/login", new
+            {
+                email = "",
+                password = ""
+            });
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task ForgotPassword_WithNonExistentEmail_Returns200ForSecurity()
+        {
+            var response = await _fixture.Client.PostAsJsonAsync("/api/v1/auth/forgot-password", new
+            {
+                email = "nonexistent@never.com"
+            });
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task VerifyOtp_WithNonExistentUser_ReturnsBadRequest()
+        {
+            var response = await _fixture.Client.PostAsJsonAsync("/api/v1/auth/verify-otp", new
+            {
+                email = "nonexistent@never.com",
+                otp = "123456"
+            });
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
     }
 }

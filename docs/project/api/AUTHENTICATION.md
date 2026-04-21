@@ -109,35 +109,7 @@ public async Task<ApiResponse<object>> ForgotPasswordAsync(string email)
         string otp = new Random().Next(100000, 999999).ToString();
 
         // 2. Registra tentativa de OTP (rate limiting)
-        var otpAttempt = await _context.OtpAttempts
-            .FirstOrDefaultAsync(o => o.UserId == user.Id &&
-                                       o.Purpose == "forgot_password");
-
-        if (otpAttempt == null)
-            otpAttempt = new OtpAttempt
-            {
-                UserId = user.Id,
-                Purpose = "forgot_password",
-                AttemptCount = 0,
-                WindowStartedAt = DateTime.UtcNow
-            };
-
-        // 3. Validação de brute force (5 tentativas / hora)
-        if ((DateTime.UtcNow - otpAttempt.WindowStartedAt).TotalHours > 1)
-        {
-            otpAttempt.AttemptCount = 0;
-            otpAttempt.WindowStartedAt = DateTime.UtcNow;
-        }
-
-        if (otpAttempt.AttemptCount >= 5)
-        {
-            otpAttempt.BlockedUntil = DateTime.UtcNow.AddHours(1);
-            await _context.SaveChangesAsync();
-            return new ApiResponse<object>("429", "Muitas tentativas", null);
-        }
-
-        otpAttempt.AttemptCount++;
-        _context.OtpAttempts.Update(otpAttempt);
+        // ... (lógica de rate limit omitida para brevidade)
 
         // 4. Armazena OTP em cache por 10 minutos
         await _cache.SetAsync($"otp_{email}", otp, TimeSpan.FromMinutes(10));
@@ -405,11 +377,11 @@ Response.Cookies.Append("Reset-Token", resetToken, new CookieOptions
 
 ```csharp
 builder.Services.AddIdentity<User, IdentityRole<Guid>>(options => {
-    options.Password.RequireDigit = true;           // Requisição mínimo 1 dígito
+    options.Password.RequireDigit = true;           // Pelo menos 1 dígito
     options.Password.RequiredLength = 8;            // Mínimo 8 caracteres
-    options.Password.RequireNonAlphanumeric = true; // Requisição !@#$%...
-    options.Password.RequireUppercase = false;      // Maiúsculas (opcional)
-    options.Password.RequireLowercase = false;      // Minúsculas (opcional)
+    options.Password.RequireNonAlphanumeric = true; // Pelo menos 1 especial (!@#$%...)
+    options.Password.RequireUppercase = true;       // Pelo menos 1 maiúscula
+    options.Password.RequireLowercase = true;       // Pelo menos 1 minúscula
     options.User.RequireUniqueEmail = true;         // Email único
 })
 .AddEntityFrameworkStores<AppDbContext>()
@@ -419,8 +391,16 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options => {
 **Exemplo de Senhas**:
 
 - ❌ `pass` - muito curta
-- ❌ `password123` - sem caractere especial
-- ❌ `Pass@123` - ✅ OK (maiúscula, dígito, especial, 8+ chars)
+- ❌ `password123` - sem caractere especial/maiúscula
+- ❌ `Pass1234` - sem caractere especial
+- ✅ `Pass@123` - ✅ OK (maiúscula, minúscula, dígito, especial, 8+ chars)
+
+### Gerador de Senhas
+
+O sistema utiliza um gerador de senhas robusto (`PasswordGenerator.cs`) para novos usuários, garantindo que todas as senhas geradas cumpram estritamente os requisitos acima:
+1. Sorteia um caractere de cada grupo obrigatório (Maiúscula, Minúscula, Dígito, Especial).
+2. Completa com caracteres aleatórios até atingir o tamanho desejado.
+3. Embaralha o resultado final para evitar padrões previsíveis.
 
 ---
 

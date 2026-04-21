@@ -269,5 +269,35 @@ namespace Api.Tests.E2E
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
             await anon.DisposeAsync();
         }
+
+        [Fact]
+        public async Task DeleteDepartment_WithPositions_ReturnsBadRequest()
+        {
+            // _testDepartmentId was created in InitializeAsync and might be used by positions
+            // But let's create a new one and a position in it to be sure
+            var deptResp = await _fixture.Client.PostAsJsonAsync("/api/v1/admin/access-control/departments", new { name = "Dept With Pos" });
+            var deptBody = await deptResp.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(deptBody);
+            var deptId = doc.RootElement.GetProperty("data").GetProperty("id").GetInt32();
+
+            await _fixture.Client.PostAsJsonAsync("/api/v1/admin/access-control/positions", new
+            {
+                name = "Pos In Dept",
+                departmentId = deptId,
+                isActive = true,
+                accesses = Array.Empty<object>()
+            });
+
+            var deleteResp = await _fixture.Client.DeleteAsync($"/api/v1/admin/access-control/departments/{deptId}");
+            deleteResp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task DeletePosition_WithLinkedUsers_ReturnsBadRequest()
+        {
+            // SeedPositionId 1 is used by admin user
+            var response = await _fixture.Client.DeleteAsync("/api/v1/admin/access-control/positions/1");
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
     }
 }

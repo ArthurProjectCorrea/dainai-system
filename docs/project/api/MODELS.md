@@ -415,22 +415,31 @@ DTOs são objetos de transferência de dados para APIs.
 
 ```csharp
 // Request
-public record LoginRequest(string Email, string Password);
+public record LoginRequest(
+    [Required] string Email, 
+    [Required] string Password
+);
 
 // Response
 public record LoginResponse(Guid UserId, string Email, string Name);
 
 // Request
-public record ForgotPasswordRequest(string Email);
+public record ForgotPasswordRequest([Required][EmailAddress] string Email);
 
 // Request
-public record VerifyOtpRequest(string Email, string Code);
+public record VerifyOtpRequest(
+    [Required][EmailAddress] string Email, 
+    [Required] string Code
+);
 
 // Response
 public record VerifyOtpResponse(string ResetToken, int ExpiresInMinutes);
 
 // Request
-public record ResetPasswordRequest(string NewPassword, string ConfirmPassword);
+public record ResetPasswordRequest(
+    [Required][MinLength(8)] string NewPassword, 
+    [Required] string ConfirmPassword
+);
 
 // Componentes de resposta /me
 public record ProfileResponse(
@@ -513,10 +522,10 @@ public record ApiResponse<T>(string Code, string Message, T? Data);
 
 ```csharp
 public record CreateProfileRequest(
-    string Name,
-    string Email,
-    Guid TeamId,
-    int PositionId
+    [Required] string Name,
+    [Required][EmailAddress] string Email,
+    [Required] Guid TeamId,
+    [Required] int PositionId
 );
 
 public record PositionResponse(

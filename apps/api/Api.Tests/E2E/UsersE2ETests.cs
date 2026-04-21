@@ -40,8 +40,8 @@ namespace Api.Tests.E2E
         private async Task<string> CreateUserAndGetIdAsync(string email, string name = "User Helper")
         {
             var resp = await _fixture.Client.PostAsJsonAsync("/api/v1/admin/users", UserPayload(email, name));
-            resp.StatusCode.Should().Be(HttpStatusCode.OK, $"creating user {email} should succeed");
             var body = await resp.Content.ReadAsStringAsync();
+            resp.StatusCode.Should().Be(HttpStatusCode.OK, $"creating user {email} should succeed. Response: {body}");
             using var doc = JsonDocument.Parse(body);
             return doc.RootElement.GetProperty("data").GetProperty("id").GetString()!;
         }

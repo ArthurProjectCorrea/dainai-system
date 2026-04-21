@@ -101,5 +101,56 @@ namespace Api.Tests.E2E
 
             fetchToken.Should().BeNull();
         }
+
+        // ─── ERROR SCENARIOS ─────────────────────────────────────────────────────
+
+        [Fact]
+        public async Task GetProjectById_WithNonExistentId_ReturnsNotFound()
+        {
+            _fixture.Client.DefaultRequestHeaders.Remove("X-Active-Team-Id");
+            _fixture.Client.DefaultRequestHeaders.Add("X-Active-Team-Id", SeedTeamId.ToString());
+
+            var response = await _fixture.Client.GetAsync($"/api/v1/admin/projects/{Guid.NewGuid()}");
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task UpdateProject_WithNonExistentId_ReturnsNotFound()
+        {
+            _fixture.Client.DefaultRequestHeaders.Remove("X-Active-Team-Id");
+            _fixture.Client.DefaultRequestHeaders.Add("X-Active-Team-Id", SeedTeamId.ToString());
+
+            var response = await _fixture.Client.PutAsJsonAsync($"/api/v1/admin/projects/{Guid.NewGuid()}", new { name = "Fail" });
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task DeleteProject_WithNonExistentId_ReturnsNotFound()
+        {
+            _fixture.Client.DefaultRequestHeaders.Remove("X-Active-Team-Id");
+            _fixture.Client.DefaultRequestHeaders.Add("X-Active-Team-Id", SeedTeamId.ToString());
+
+            var response = await _fixture.Client.DeleteAsync($"/api/v1/admin/projects/{Guid.NewGuid()}");
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task RotateToken_WithNonExistentId_ReturnsNotFound()
+        {
+            _fixture.Client.DefaultRequestHeaders.Remove("X-Active-Team-Id");
+            _fixture.Client.DefaultRequestHeaders.Add("X-Active-Team-Id", SeedTeamId.ToString());
+
+            var response = await _fixture.Client.PostAsync($"/api/v1/admin/projects/{Guid.NewGuid()}/rotate-token", null);
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task GetProjects_WhenNotAuthenticated_Returns401()
+        {
+            var anon = DockerApiFixture.CreateAnonymous();
+            var response = await anon.Client.GetAsync("/api/v1/admin/projects");
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            await anon.DisposeAsync();
+        }
     }
 }

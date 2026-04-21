@@ -61,7 +61,7 @@ docs/project/api/
 - ✅ Injeção de dependência
 - ✅ Padrão AAA em testes
 - ✅ Unit tests (4 testes)
-- ✅ E2E tests (2 testes)
+- ✅ E2E tests (76 testes)
 - ✅ Docker Compose completo
 
 ---
@@ -388,6 +388,8 @@ Tempo: 30 minutos
 - Contrato de `GET /auth/me` ampliado com `access.name`, `team.iconUrl` e `team.isActive`.
 - Invalidação de cache RBAC alinhada para chave `rbac_v4` mantendo limpeza de versões legadas.
 - Autorização centralizada via `HasPermissionAsync` em `IAuthService`.
+- **Expansão Massiva de Testes**: Suíte E2E ampliada de 2 para **76 testes**, cobrindo cenários de sucesso e erro (400, 401, 403, 404) em todos os módulos.
+- **Validação de Entrada**: Implementação de DataAnnotations em todos os DTOs para validação automática de campos obrigatórios e formatos.
 
 ---
 

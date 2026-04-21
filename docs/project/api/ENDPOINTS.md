@@ -436,6 +436,12 @@ Content-Type: application/json
 }
 ```
 
+**Validações**:
+- `name`: Obrigatório
+- `email`: Obrigatório, formato válido, único no sistema
+- `teamId`: Obrigatório, UUID de um time existente
+- `positionId`: Obrigatório, ID de um cargo existente
+
 **Sucesso (201)**
 
 ```json

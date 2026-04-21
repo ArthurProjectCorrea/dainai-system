@@ -61,6 +61,7 @@ namespace Api.Tests.E2E
                 _testProjectId,
                 "Test Document",
                 "# Initial Content",
+                "Draft",
                 new List<int> { catId }
             );
             var createResp = await _fixture.Client.PostAsJsonAsync("/api/v1/admin/documents", createReq);
@@ -141,6 +142,68 @@ namespace Api.Tests.E2E
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var body = await response.Content.ReadFromJsonAsync<ApiResponse<List<CategoryDto>>>();
             body!.Data.Should().NotBeNull();
+        }
+
+        // ─── ERROR SCENARIOS ─────────────────────────────────────────────────────
+
+        [Fact]
+        public async Task CreateDocument_WithNonExistentProject_ReturnsBadRequest()
+        {
+            var req = new CreateDocumentRequest(Guid.NewGuid(), "Fail", "Content", "Draft", new List<int>());
+            var resp = await _fixture.Client.PostAsJsonAsync("/api/v1/admin/documents", req);
+            resp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task GetDocumentById_WithNonExistentId_ReturnsNotFound()
+        {
+            var resp = await _fixture.Client.GetAsync($"/api/v1/admin/documents/{Guid.NewGuid()}");
+            resp.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task UpdateDocument_WithNonExistentId_ReturnsNotFound()
+        {
+            var req = new UpdateDocumentRequest("Fail", "Content", "Draft", new List<int>());
+            var resp = await _fixture.Client.PutAsJsonAsync($"/api/v1/admin/documents/{Guid.NewGuid()}", req);
+            resp.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task DeleteDocument_WithNonExistentId_ReturnsNotFound()
+        {
+            var resp = await _fixture.Client.DeleteAsync($"/api/v1/admin/documents/{Guid.NewGuid()}");
+            resp.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task PublishDocument_WithNonExistentId_ReturnsNotFound()
+        {
+            var resp = await _fixture.Client.PostAsync($"/api/v1/admin/documents/{Guid.NewGuid()}/publish", null);
+            resp.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task GetDocumentVersions_WithNonExistentId_ReturnsNotFound()
+        {
+            var resp = await _fixture.Client.GetAsync($"/api/v1/admin/documents/{Guid.NewGuid()}/versions");
+            resp.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task GetDocumentVersionById_WithNonExistentId_ReturnsNotFound()
+        {
+            var resp = await _fixture.Client.GetAsync($"/api/v1/admin/documents/versions/{Guid.NewGuid()}");
+            resp.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task GetDocuments_WhenNotAuthenticated_Returns401()
+        {
+            var anon = DockerApiFixture.CreateAnonymous();
+            var resp = await anon.Client.GetAsync("/api/v1/admin/documents");
+            resp.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            await anon.DisposeAsync();
         }
     }
 

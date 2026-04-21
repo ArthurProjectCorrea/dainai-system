@@ -88,5 +88,40 @@ namespace Api.Tests.E2E
 
             await anon.DisposeAsync();
         }
+
+        // ─── ERROR SCENARIOS ─────────────────────────────────────────────────────
+
+        [Fact]
+        public async Task SubmitFeedback_WithInvalidToken_ReturnsUnauthorized()
+        {
+            var anon = DockerApiFixture.CreateAnonymous();
+            anon.Client.DefaultRequestHeaders.Add("x-project-token", "invalid-token");
+
+            var response = await anon.Client.PostAsJsonAsync("/api/v1/public/feedbacks", new { refUserId = "123", note = 5 });
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            await anon.DisposeAsync();
+        }
+
+        [Fact]
+        public async Task SubmitFeedback_WithNoteOutOfRange_ReturnsBadRequest()
+        {
+            var anon = DockerApiFixture.CreateAnonymous();
+            anon.Client.DefaultRequestHeaders.Add("x-project-token", _activeProjectToken);
+
+            var response = await anon.Client.PostAsJsonAsync("/api/v1/public/feedbacks", new { refUserId = "123", note = 10 });
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            await anon.DisposeAsync();
+        }
+
+        [Fact]
+        public async Task SubmitFeedback_WithMissingRefUserId_ReturnsBadRequest()
+        {
+            var anon = DockerApiFixture.CreateAnonymous();
+            anon.Client.DefaultRequestHeaders.Add("x-project-token", _activeProjectToken);
+
+            var response = await anon.Client.PostAsJsonAsync("/api/v1/public/feedbacks", new { note = 5 });
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            await anon.DisposeAsync();
+        }
     }
 }

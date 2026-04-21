@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Api.Application.DTOs
 {
@@ -12,9 +13,29 @@ namespace Api.Application.DTOs
 
     public record ProjectListResponse(List<ProjectDto> Projects, ProjectIndicatorDto Indicators);
 
-    public record CreateProjectRequest(string Name, Guid TeamId, string? Summary = null);
+    public record CreateProjectRequest(
+        [Required(ErrorMessage = "O nome do projeto é obrigatório")]
+        string Name,
 
-    public record UpdateProjectRequest(string Name, Guid TeamId, bool IsActive, List<SidebarGroupDto>? SidebarConfig = null, string? Summary = null);
+        [Required]
+        Guid TeamId,
+
+        string? Summary = null
+    );
+
+    public record UpdateProjectRequest(
+        [Required(ErrorMessage = "O nome do projeto é obrigatório")]
+        string Name,
+
+        [Required]
+        Guid TeamId,
+
+        bool IsActive,
+
+        List<SidebarGroupDto>? SidebarConfig = null,
+
+        string? Summary = null
+    );
 
     // Integrations
     public record GenerateProjectTokenResponse(string IntegrationToken);

@@ -18,35 +18,32 @@ Todos os erros da API retornam um objeto padronizado com três campos:
 
 ### 400 - Bad Request
 
-Requisição inválida (validação de entrada).
+Requisição inválida (validação de entrada ou regra de negócio).
 
-**Causa**: Dados incompletos, inválidos ou que violam regras de negócio.
+**Causa**: Dados incompletos, mal formatados ou que violam regras de integridade.
 
+#### Validação Automática (DataAnnotations)
+A API utiliza `DataAnnotations` nos DTOs para validar campos antes mesmo de chegarem ao serviço. Erros comuns incluem:
+- `O e-mail é obrigatório`
+- `E-mail inválido`
+- `A senha deve ter ao menos 8 caracteres`
+
+**Exemplo de Resposta de Validação**:
+```json
+{
+  "code": "400",
+  "message": "O e-mail é obrigatório",
+  "data": null
+}
+```
+
+#### Erros de Regra de Negócio
+Gerados pela camada de serviço após validação de estado.
 **Exemplos**:
+- `Email já está em uso`
+- `Não é possível deletar. Existem vínculos pendentes.`
 
-```json
-{
-  "code": "400",
-  "message": "Email já está em uso",
-  "data": null
-}
-```
-
-```json
-{
-  "code": "400",
-  "message": "Senha não atende aos requisitos (mín. 8 caracteres, 1 dígito, 1 caractere especial)",
-  "data": null
-}
-```
-
-```json
-{
-  "code": "400",
-  "message": "A confirmação de senha não confere.",
-  "data": null
-}
-```
+---
 
 ---
 

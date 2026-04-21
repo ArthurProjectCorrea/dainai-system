@@ -1,22 +1,46 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Api.Application.DTOs
 {
-    public record CreateProfileRequest(string Name, string Email, Guid TeamId, int PositionId);
+    public record CreateProfileRequest(
+        [Required] string Name,
+        [Required][EmailAddress] string Email,
+        [Required] Guid TeamId,
+        [Required] int PositionId
+    );
 
     public record PositionResponse(int Id, string Name, int DepartmentId, bool IsActive, List<int> ScreenPermissions);
 
     public record TeamResponse(Guid Id, string Name, string? IconUrl, string? LogotipoUrl, bool IsActive);
-    public record SaveTeamRequest(string Name, string? IconUrl, string? LogotipoUrl, bool IsActive);
+    public record SaveTeamRequest(
+        [Required(ErrorMessage = "O nome da equipe é obrigatório")]
+        string Name,
 
-    public record ProfileTeamAssignmentRequest(Guid TeamId, int PositionId);
+        string? IconUrl,
+        string? LogotipoUrl,
+        bool IsActive
+    );
+
+    public record ProfileTeamAssignmentRequest(
+        [Required] Guid TeamId,
+        [Required] int PositionId
+    );
 
     public record SaveUserRequest(
+        [Required(ErrorMessage = "O nome é obrigatório")]
         string Name,
+
+        [Required(ErrorMessage = "O e-mail é obrigatório")]
+        [EmailAddress(ErrorMessage = "E-mail inválido")]
         string Email,
+
         string? AvatarUrl,
+
         bool IsActive,
+
+        [Required(ErrorMessage = "Informe ao menos uma equipe")]
         List<ProfileTeamAssignmentRequest> ProfileTeams
     );
 
@@ -77,9 +101,16 @@ namespace Api.Application.DTOs
 
     public record DepartmentDto(int Id, string Name);
 
-    public record SaveDepartmentRequest(string Name);
+    public record SaveDepartmentRequest(
+        [Required(ErrorMessage = "O nome do departamento é obrigatório")]
+        string Name
+    );
 
-    public record PositionAccessRequest(int ScreenId, int PermissionId, string Scope = "team");
+    public record PositionAccessRequest(
+        [Required] int ScreenId,
+        [Required] int PermissionId,
+        string Scope = "team"
+    );
 
     public record PositionDetailResponse(
         int Id,
@@ -90,10 +121,16 @@ namespace Api.Application.DTOs
     );
 
     public record SavePositionRequest(
+        [Required(ErrorMessage = "O nome do cargo é obrigatório")]
         string Name,
+
         int DepartmentId,
+
         string? NewDepartmentName,
+
         bool IsActive,
+
+        [Required(ErrorMessage = "Informe ao menos um acesso")]
         List<PositionAccessRequest> Accesses
     );
 }

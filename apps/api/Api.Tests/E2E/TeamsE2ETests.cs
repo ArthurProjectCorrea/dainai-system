@@ -141,5 +141,14 @@ namespace Api.Tests.E2E
             var response = await _fixture.Client.DeleteAsync($"/api/v1/admin/teams/{fakeId}");
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
+
+        [Fact]
+        public async Task DeleteTeam_WithLinkedUsers_ReturnsBadRequest()
+        {
+            // SeedTeamId (from UsersE2ETests context) has linked users (admin)
+            var seedTeamId = Guid.Parse("d1000000-0000-0000-0000-000000000001");
+            var response = await _fixture.Client.DeleteAsync($"/api/v1/admin/teams/{seedTeamId}");
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
     }
 }
