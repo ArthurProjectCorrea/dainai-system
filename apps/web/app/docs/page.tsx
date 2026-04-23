@@ -86,22 +86,18 @@ export default function Page() {
           {/* Main Content: Project Summary */}
           <div className="lg:col-span-8">
             <Card className="flex flex-col shadow-sm border-muted/40 h-full min-h-[400px]">
-              <CardHeader className="pb-4">
+              <CardHeader className="pb-0">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20">
+                  <div className="p-2 rounded-xl bg-primary/10 text-primary">
                     <InfoIcon className="h-5 w-5" />
                   </div>
                   <div className="space-y-0.5">
-                    <CardTitle className="text-xl font-bold tracking-tight">
-                      Sobre o Projeto: {activeProject?.name}
-                    </CardTitle>
-                    <CardDescription className="text-xs uppercase tracking-widest font-medium opacity-70 italic">
-                      Propósito e diretrizes principais
-                    </CardDescription>
+                    <CardTitle className="text-lg">Sobre o Projeto: {activeProject?.name}</CardTitle>
+                    <CardDescription>Propósito e diretrizes principais</CardDescription>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="flex-1 pt-4 border-t border-muted/20">
+              <CardContent className="flex-1 pt-6">
                 <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground/90 whitespace-pre-wrap leading-relaxed text-base italic opacity-80 pl-2 border-l-2 border-primary/20 bg-accent/5 p-4 rounded-r-lg">
                   {activeProject?.summary || (
                     <p className="italic text-muted-foreground/50 text-sm">

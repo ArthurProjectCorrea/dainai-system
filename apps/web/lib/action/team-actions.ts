@@ -15,7 +15,7 @@ export async function getTeamsAction(): Promise<{ data?: Team[]; error?: string 
 
     if (!response.ok) return { error: 'Falha ao carregar equipes.' }
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     return { data: data.data }
   } catch {
     return { error: 'Erro de conexão com o servidor.' }
@@ -32,7 +32,7 @@ export async function createTeamAction(payload: Partial<Team>) {
       cache: 'no-store',
     })
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     if (!response.ok) return { error: data.message || 'Falha ao criar equipe.' }
 
     return { data: data.data }
@@ -51,7 +51,7 @@ export async function updateTeamAction(id: string, payload: Partial<Team>) {
       cache: 'no-store',
     })
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     if (!response.ok) return { error: data.message || 'Falha ao atualizar equipe.' }
 
     return { data: data.data }

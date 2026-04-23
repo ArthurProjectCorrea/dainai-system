@@ -45,7 +45,7 @@ export async function getDocumentsAction() {
 
     if (!response.ok) return { error: 'Falha ao carregar documentos.' }
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     return { data: data.data as DocumentListResponse }
   } catch {
     return { error: 'Erro de conexão com o servidor.' }
@@ -62,7 +62,7 @@ export async function getDocumentByIdAction(id: string) {
 
     if (!response.ok) return { error: 'Documento não encontrado.' }
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     return { data: data.data as Document }
   } catch {
     return { error: 'Erro de conexão com o servidor.' }
@@ -79,7 +79,41 @@ export async function getWikiDocumentByIdAction(id: string) {
 
     if (!response.ok) return { error: 'Documento não encontrado.' }
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
+    return { data: data.data as Document }
+  } catch {
+    return { error: 'Erro de conexão com o servidor.' }
+  }
+}
+
+export async function getWikiDocumentVersionsAction(id: string) {
+  try {
+    const headers = await getAuthHeaders()
+    const response = await fetch(`${API_BASE}/docs/${id}/versions`, {
+      headers,
+      cache: 'no-store',
+    })
+
+    if (!response.ok) return { error: 'Falha ao carregar versões.' }
+
+    const data = await response.json().catch(() => ({}))
+    return { data: data.data as PublishedDocument[] }
+  } catch {
+    return { error: 'Erro de conexão com o servidor.' }
+  }
+}
+
+export async function getWikiDocumentVersionByIdAction(versionId: string) {
+  try {
+    const headers = await getAuthHeaders()
+    const response = await fetch(`${API_BASE}/docs/versions/${versionId}`, {
+      headers,
+      cache: 'no-store',
+    })
+
+    if (!response.ok) return { error: 'Versão não encontrada.' }
+
+    const data = await response.json().catch(() => ({}))
     return { data: data.data as Document }
   } catch {
     return { error: 'Erro de conexão com o servidor.' }
@@ -96,7 +130,7 @@ export async function createDocumentAction(request: CreateDocumentRequest) {
       cache: 'no-store',
     })
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     if (!response.ok) return { error: data.message || 'Falha ao criar documento.' }
 
     return { data: data.data as Document }
@@ -115,7 +149,7 @@ export async function updateDocumentAction(id: string, request: UpdateDocumentRe
       cache: 'no-store',
     })
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     if (!response.ok) return { error: data.message || 'Falha ao atualizar documento.' }
 
     return { data: data.data as Document }
@@ -153,7 +187,7 @@ export async function publishDocumentAction(id: string) {
       cache: 'no-store',
     })
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     if (!response.ok) return { error: data.message || 'Falha ao publicar documento.' }
 
     return { data: data.data as Document }
@@ -172,7 +206,7 @@ export async function getDocumentVersionsAction(id: string) {
 
     if (!response.ok) return { error: 'Falha ao carregar versões.' }
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     return { data: data.data as PublishedDocument[] }
   } catch {
     return { error: 'Erro de conexão com o servidor.' }
@@ -189,8 +223,8 @@ export async function getDocumentVersionByIdAction(versionId: string) {
 
     if (!response.ok) return { error: 'Versão não encontrada.' }
 
-    const data = await response.json()
-    return { data: data.data as PublishedDocument }
+    const data = await response.json().catch(() => ({}))
+    return { data: data.data as Document }
   } catch {
     return { error: 'Erro de conexão com o servidor.' }
   }
@@ -206,7 +240,7 @@ export async function getCategoriesAction() {
 
     if (!response.ok) return { error: 'Falha ao carregar categorias.' }
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     return { data: data.data as Category[] }
   } catch {
     return { error: 'Erro de conexão com o servidor.' }
@@ -223,7 +257,7 @@ export async function createCategoryAction(name: string) {
       cache: 'no-store',
     })
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     if (!response.ok) return { error: data.message || 'Falha ao criar categoria.' }
 
     return { data: data.data as Category }
@@ -242,7 +276,7 @@ export async function getDocsNavigationAction() {
 
     if (!response.ok) return { error: 'Falha ao carregar navegação.' }
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     return {
       data: data.data as {
         projects: import('@/types/project').Project[]
@@ -263,8 +297,6 @@ export async function searchDocumentsAction(query: string, projectId?: string | 
       url += `&projectId=${projectId}`
     }
 
-    console.log('[SearchAction] Fetching:', url)
-
     const response = await fetch(url, {
       headers,
       cache: 'no-store',
@@ -275,8 +307,7 @@ export async function searchDocumentsAction(query: string, projectId?: string | 
       return { error: 'Falha ao realizar busca.' }
     }
 
-    const data = await response.json()
-    console.log('[SearchAction] Results count:', data.data?.length || 0)
+    const data = await response.json().catch(() => ({}))
     return { data: data.data as Document[] }
   } catch (err) {
     console.error('[SearchAction] Error:', err)

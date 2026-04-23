@@ -20,7 +20,7 @@ export async function getProjectsAction(): Promise<{ data?: ProjectListResponse;
 
     if (!response.ok) return { error: 'Falha ao carregar projetos.' }
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     return { data: data.data }
   } catch {
     return { error: 'Erro de conexão com o servidor.' }
@@ -39,7 +39,7 @@ export async function getProjectByIdAction(
 
     if (!response.ok) return { error: 'Projeto não encontrado.' }
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     return { data: data.data }
   } catch {
     return { error: 'Erro de conexão com o servidor.' }
@@ -56,7 +56,7 @@ export async function createProjectAction(payload: CreateProjectRequest) {
       cache: 'no-store',
     })
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     if (!response.ok) return { error: data.message || 'Falha ao criar projeto.' }
 
     return { data: data.data }
@@ -75,7 +75,7 @@ export async function updateProjectAction(id: string, payload: UpdateProjectRequ
       cache: 'no-store',
     })
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     if (!response.ok) return { error: data.message || 'Falha ao atualizar projeto.' }
 
     return { data: data.data }
@@ -113,7 +113,7 @@ export async function rotateProjectTokenAction(id: string) {
       cache: 'no-store',
     })
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     if (!response.ok) return { error: data.message || 'Falha ao rotacionar token.' }
 
     return { data: data.data }

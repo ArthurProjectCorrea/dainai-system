@@ -80,7 +80,7 @@ export default function TeamsPage() {
     try {
       const response = await fetch(`/api/v1/admin/teams/${team.id}`, { method: 'DELETE' })
       if (!response.ok) {
-        const error = await response.json()
+        const error = await response.json().catch(() => ({}))
         throw new Error(error.message || 'Erro ao excluir equipe')
       }
       toast.success('Equipe excluída com sucesso')

@@ -72,9 +72,5 @@ export function FormGrid({
     return <div className={cn('flex flex-col gap-6', className)}>{children}</div>
   }
 
-  return (
-    <div className={cn('grid grid-cols-1 lg:grid-cols-2 gap-6 items-start', className)}>
-      {children}
-    </div>
-  )
+  return <div className={cn('grid grid-cols-1 lg:grid-cols-2 gap-6', className)}>{children}</div>
 }

@@ -62,7 +62,10 @@ export default function DocumentsPage() {
     async function loadFilterOptions() {
       try {
         const [projRes, catRes] = await Promise.all([
-          fetch('/api/v1/admin/projects').then(r => r.json()),
+          fetch('/api/v1/admin/projects').then(async r => {
+            const text = await r.text()
+            return text ? JSON.parse(text) : {}
+          }),
           getCategoriesAction(),
         ])
 

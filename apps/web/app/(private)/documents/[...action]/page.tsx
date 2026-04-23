@@ -65,6 +65,15 @@ function DocumentActionContent() {
     }
   }, [loading, hasPermission, docId, router, readOnly, isCreate])
 
+  const refreshData = async () => {
+    if (!isCreate && docId) {
+      const docRes = await getDocumentByIdAction(docId)
+      if (docRes.data) {
+        setDocument(docRes.data)
+      }
+    }
+  }
+
   const screenName = React.useMemo(() => {
     return activeAccesses.find(a => a.nameKey === 'documents_management')?.name || 'Documentos'
   }, [activeAccesses])
@@ -105,7 +114,7 @@ function DocumentActionContent() {
           initialData={document}
           projects={projects}
           canApprove={hasPermission('documents_management', 'approve')}
-          onSuccess={() => router.push('/documents')}
+          onSuccess={refreshData}
           onCancel={() => router.push('/documents')}
           onEdit={
             hasPermission('documents_management', 'update')

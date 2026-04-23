@@ -24,7 +24,7 @@ export async function getAccessControlDataAction(): Promise<{
 
     if (!response.ok) return { error: 'Falha ao carregar dados de controle de acesso.' }
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     return { data: data.data }
   } catch {
     return { error: 'Erro de conexão com o servidor.' }
@@ -43,7 +43,7 @@ export async function getDepartmentByIdAction(
 
     if (!response.ok) return { error: 'Departamento não encontrado.' }
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     return { data: data.data }
   } catch {
     return { error: 'Erro de conexão com o servidor.' }
@@ -65,7 +65,7 @@ export async function saveDepartmentAction(payload: SaveDepartmentRequest, id?: 
       cache: 'no-store',
     })
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     if (!response.ok) return { error: data.message || 'Falha ao salvar departamento.' }
 
     return { data: data.data }
@@ -106,7 +106,7 @@ export async function getPositionByIdAction(
 
     if (!response.ok) return { error: 'Cargo não encontrado.' }
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     return { data: data.data }
   } catch {
     return { error: 'Erro de conexão com o servidor.' }
@@ -128,7 +128,7 @@ export async function savePositionAction(payload: SavePositionRequest, id?: stri
       cache: 'no-store',
     })
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     if (!response.ok) return { error: data.message || 'Falha ao salvar cargo.' }
 
     return { data: data.data }

@@ -30,7 +30,7 @@ export default function AccessControlPage() {
     try {
       const response = await fetch('/api/v1/admin/access-control')
       if (!response.ok) throw new Error('Falha ao carregar dados')
-      const result = await response.json()
+      const result = await response.json().catch(() => ({}))
       setAcPayload(result.data)
     } catch (error) {
       toast.error('Erro ao carregar controle de acesso')
@@ -54,7 +54,7 @@ export default function AccessControlPage() {
       const response = await fetch(`/api/v1/admin/access-control/positions/${id}`, {
         method: 'DELETE',
       })
-      const result = await response.json()
+      const result = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(result.message || 'Falha ao remover')
       toast.success('Cargo removido com sucesso')
       fetchData({ silent: true })

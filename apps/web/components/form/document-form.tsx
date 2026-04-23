@@ -88,6 +88,16 @@ export function DocumentForm({
   const isView = mode === 'view'
 
   React.useEffect(() => {
+    if (initialData) {
+      setName(initialData.name)
+      setContent(initialData.content)
+      setProjectId(initialData.projectId)
+      setStatus(initialData.status)
+      setSelectedCategoryIds(initialData.categories.map(c => c.id))
+    }
+  }, [initialData])
+
+  React.useEffect(() => {
     async function loadCategories() {
       const res = await getCategoriesAction()
       if (res.data) setCategories(res.data)
@@ -154,7 +164,7 @@ export function DocumentForm({
       if (res.error) throw new Error(res.error)
       toast.success(`Documento publicado! Versão: ${res.data!.currentVersion}`)
       setStatus('Published')
-      router.refresh()
+      router.push('/documents')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Erro ao publicar documento')
     } finally {
@@ -193,8 +203,9 @@ export function DocumentForm({
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="flex flex-1 flex-col min-h-0">
         <FormLayout
+          className="flex-1 min-h-0"
           title={
             mode === 'create'
               ? 'Novo Documento'
@@ -212,7 +223,7 @@ export function DocumentForm({
           variant="page"
           extraActions={publishButton}
         >
-          <FormGrid className="lg:grid-cols-4 items-start">
+          <FormGrid className="lg:grid-cols-4 flex-1 min-h-0">
             {/* Sidebar: All Inputs */}
             <FormSection className="lg:col-span-1" contentClassName="p-3 md:p-4">
               <div className="flex flex-col gap-5">
@@ -315,7 +326,7 @@ export function DocumentForm({
                         id="status-toggle"
                         checked={status !== 'Draft'}
                         onCheckedChange={checked => setStatus(checked ? 'Completed' : 'Draft')}
-                        disabled={isView || status === 'Published'}
+                        disabled={isView || status === 'Published' || mode === 'create'}
                         className="scale-90"
                       />
                       <Badge
@@ -347,13 +358,14 @@ export function DocumentForm({
             </FormSection>
 
             {/* Main Area: Markdown Editor - Removed from Card Layout */}
-            <div className="lg:col-span-3 h-full border rounded-md overflow-hidden bg-background shadow-sm">
+            <div className="lg:col-span-3 border rounded-md overflow-hidden bg-background shadow-sm">
               <MdEditor
                 modelValue={content}
                 onChange={setContent}
                 theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
                 language="en-US"
-                className="h-[40rem] md:h-[50rem] border-none"
+                className="border-none"
+                style={{ height: 'calc(100vh - 12rem)' }}
                 disabled={isView}
                 toolbars={
                   isView

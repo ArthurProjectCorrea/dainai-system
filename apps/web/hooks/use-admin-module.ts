@@ -40,7 +40,8 @@ export function useAdminModule<TData, TIndicators = unknown>({
       try {
         const response = await fetch(endpoint)
         if (!response.ok) throw new Error('Falha ao carregar dados')
-        const result = await response.json()
+        const text = await response.text()
+        const result = text ? JSON.parse(text) : {}
 
         const payload = result.data
 

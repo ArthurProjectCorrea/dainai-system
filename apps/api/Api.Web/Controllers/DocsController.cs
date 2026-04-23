@@ -48,5 +48,19 @@ namespace Api.Web.Controllers
             var result = await _documentService.GetPublishedDocumentByIdAsync(GetUserId(), GetActiveTeamId(), id);
             return StatusCode(int.Parse(result.Code), result);
         }
+
+        [HttpGet("{id}/versions")]
+        public async Task<IActionResult> GetVersions(Guid id)
+        {
+            var result = await _documentService.GetDocumentVersionsAsync(GetUserId(), GetActiveTeamId(), id);
+            return StatusCode(int.Parse(result.Code), result);
+        }
+
+        [HttpGet("versions/{versionId}")]
+        public async Task<IActionResult> GetVersionById(Guid versionId)
+        {
+            var result = await _documentService.GetDocumentVersionByIdAsync(GetUserId(), GetActiveTeamId(), versionId);
+            return StatusCode(int.Parse(result.Code), result);
+        }
     }
 }

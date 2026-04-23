@@ -6,6 +6,7 @@ import rehypePrettyCode from 'rehype-pretty-code'
 import { slugify } from '@/lib/utils/toc-utils'
 import { cn } from '@/lib/utils'
 import { MdxCodeBlock } from '@/components/mdx-code-block'
+import { MermaidRenderer } from '@/components/mermaid-renderer'
 
 interface MdxViewerProps {
   content: string
@@ -171,15 +172,20 @@ const components = {
   hr: ({ className, ...props }: React.ComponentPropsWithoutRef<'hr'>) => (
     <hr className={cn('my-8 border-muted', className)} {...props} />
   ),
-  pre: ({ children, className, ...props }: MDXPreProps) => (
-    <MdxCodeBlock
-      filename={props['data-filename']}
-      language={props['data-language']}
-      className={className}
-    >
-      {children}
-    </MdxCodeBlock>
-  ),
+  pre: ({ children, className, ...props }: MDXPreProps) => {
+    const language = props['data-language']
+
+    if (language === 'mermaid') {
+      const rawCode = extractText(children)
+      return <MermaidRenderer code={rawCode} />
+    }
+
+    return (
+      <MdxCodeBlock filename={props['data-filename']} language={language} className={className}>
+        {children}
+      </MdxCodeBlock>
+    )
+  },
   code: ({ children, className, ...props }: MDXCodeProps) => {
     const isInline = !className
 

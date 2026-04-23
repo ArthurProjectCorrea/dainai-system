@@ -80,7 +80,7 @@ export default function ProjectsPage() {
     try {
       const response = await fetch(`/api/v1/admin/projects/${project.id}`, { method: 'DELETE' })
       if (!response.ok) {
-        const error = await response.json()
+        const error = await response.json().catch(() => ({}))
         throw new Error(error.message || 'Erro ao excluir projeto')
       }
       toast.success('Projeto excluído com sucesso')

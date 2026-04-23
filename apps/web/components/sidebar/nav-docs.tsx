@@ -32,11 +32,19 @@ interface NavDocsProps {
 
 const DynamicIcon = ({ name, className }: { name?: string; className?: string }) => {
   if (!name) return <FileTextIcon className={className} />
+
+  // Normaliza o nome do ícone: kebab-case -> PascalCase
+  const normalizedName = name
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join('')
+    .replace(/Icon$/i, '')
+
   const icons = LucideIcons as unknown as Record<
     string,
     React.ComponentType<{ className?: string }>
   >
-  const IconComponent = icons[name] || FileTextIcon
+  const IconComponent = icons[normalizedName] || icons[`${normalizedName}Icon`] || FileTextIcon
   return <IconComponent className={className} />
 }
 
@@ -72,6 +80,7 @@ export function NavMain({ sidebarConfig = [] }: NavDocsProps) {
     <>
       {/* Ítem fixo de Introdução no topo */}
       <SidebarGroup className="pb-0">
+        <SidebarGroupLabel>Documentação</SidebarGroupLabel>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === introItem.url}>
@@ -114,7 +123,6 @@ export function NavMain({ sidebarConfig = [] }: NavDocsProps) {
           return (
             <SidebarGroup key={group.id}>
               <SidebarGroupLabel className="flex items-center gap-2">
-                <DynamicIcon name={group.icon} className="h-3 w-3 opacity-70" />
                 {group.title}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -125,6 +133,7 @@ export function NavMain({ sidebarConfig = [] }: NavDocsProps) {
                       <SidebarMenuItem key={item.id}>
                         <SidebarMenuButton asChild isActive={pathname === url}>
                           <Link href={url}>
+                            <DynamicIcon name={group.icon} className="h-4 w-4" />
                             <span>{item.documentName}</span>
                           </Link>
                         </SidebarMenuButton>

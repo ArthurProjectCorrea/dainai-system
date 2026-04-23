@@ -20,7 +20,7 @@ export async function getUsersAction(): Promise<{ data?: UsersListPayload; error
 
     if (!response.ok) return { error: 'Falha ao carregar usuários.' }
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     return { data: data.data }
   } catch {
     return { error: 'Erro de conexão com o servidor.' }
@@ -39,7 +39,7 @@ export async function getUserByIdAction(
 
     if (!response.ok) return { error: 'Usuário não encontrado.' }
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     return { data: data.data }
   } catch {
     return { error: 'Erro de conexão com o servidor.' }
@@ -56,7 +56,7 @@ export async function createUserAction(payload: SaveUserPayload) {
       cache: 'no-store',
     })
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     if (!response.ok) return { error: data.message || 'Falha ao criar usuário.' }
 
     return { data: data.data }
@@ -75,7 +75,7 @@ export async function updateUserAction(id: string, payload: SaveUserPayload) {
       cache: 'no-store',
     })
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     if (!response.ok) return { error: data.message || 'Falha ao atualizar usuário.' }
 
     return { data: data.data }
@@ -117,7 +117,7 @@ export async function getUserOptionsAction(): Promise<{
 
     if (!response.ok) return { error: 'Falha ao carregar opções de usuário.' }
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
     return { data: data.data }
   } catch {
     return { error: 'Erro de conexão com o servidor.' }

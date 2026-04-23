@@ -68,6 +68,7 @@ namespace Api.Infrastructure.Services
                 .Include(p => p.SidebarGroups)
                     .ThenInclude(g => g.Items)
                         .ThenInclude(i => i.Document)
+                            .ThenInclude(d => d.PublishedDocuments)
                 .FirstOrDefaultAsync(p => p.Id == projectId);
 
             if (project == null) return new ApiResponse<ProjectDto>("404", "Projeto não encontrado ou acesso restrito pelo Escopo Atual.", null);
@@ -82,7 +83,7 @@ namespace Api.Infrastructure.Services
                     g.Type.ToString(),
                     g.Order,
                     g.Icon,
-                    g.Items.OrderBy(i => i.Order).Select(i => new SidebarItemDto(i.Id, i.DocumentId, i.Document.Name, i.Order)).ToList()
+                    g.Items.OrderBy(i => i.Order).Select(i => new SidebarItemDto(i.Id, i.DocumentId, i.Document.Name, i.Order, i.Document.PublishedDocuments.Any())).ToList()
                 )).ToList();
 
             // Do not expose token except through Rotation mechanic.

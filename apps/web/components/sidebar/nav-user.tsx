@@ -17,16 +17,10 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  ChevronsUpDownIcon,
-  SparklesIcon,
-  BadgeCheckIcon,
-  CreditCardIcon,
-  BellIcon,
-  LogOutIcon,
-} from 'lucide-react'
+import { UserIcon, SettingsIcon, LogOutIcon, ChevronsUpDownIcon } from 'lucide-react'
 import * as React from 'react'
 import { ProfileDialog } from '@/components/dialog/profile-dialog'
+import { SettingsDialog } from '@/components/dialog/settings-dialog'
 import { useAuth } from '@/hooks/use-auth'
 import { toast } from 'sonner'
 
@@ -34,6 +28,7 @@ export function NavUser() {
   const { user, loading, logout } = useAuth()
   const { isMobile } = useSidebar()
   const [isProfileOpen, setIsProfileOpen] = React.useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false)
 
   if (loading || !user) {
     return (
@@ -79,7 +74,7 @@ export function NavUser() {
                   <span className="truncate font-medium">{userData.name}</span>
                   <span className="truncate text-xs">{userData.email}</span>
                 </div>
-                <ChevronsUpDownIcon className="ml-auto size-4" />
+                <ChevronsUpDownIcon className="ml-auto size-4 opacity-50" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -104,24 +99,13 @@ export function NavUser() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <SparklesIcon />
-                  Fazer upgrade para Pro
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
                 <DropdownMenuItem onSelect={() => setIsProfileOpen(true)}>
-                  <BadgeCheckIcon />
+                  <UserIcon />
                   Conta
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <CreditCardIcon />
-                  Faturamento
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <BellIcon />
-                  Notificacoes
+                <DropdownMenuItem onSelect={() => setIsSettingsOpen(true)}>
+                  <SettingsIcon />
+                  Configurações
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
@@ -141,6 +125,7 @@ export function NavUser() {
         </SidebarMenuItem>
       </SidebarMenu>
       <ProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} />
+      <SettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
     </>
   )
 }

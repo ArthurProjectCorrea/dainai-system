@@ -116,6 +116,14 @@ function SortableDocumentItem({
           <GripVerticalIcon className="h-3.5 w-3.5 text-muted-foreground/60" />
         </div>
         <span className="text-sm font-medium truncate">{item.documentName || 'Documento...'}</span>
+        {item.isPublished === false && (
+          <Badge
+            variant="outline"
+            className="h-4 px-1.5 text-[9px] uppercase font-bold border-yellow-500/50 text-yellow-500 bg-yellow-500/5 whitespace-nowrap"
+          >
+            Não Publicado
+          </Badge>
+        )}
       </div>
 
       {!readOnly && !isOutros && (
@@ -341,13 +349,30 @@ export function SidebarConfigCard({
     fetchDocs()
   }, [projectId])
 
-  const handleUpdate = (newGroups: SidebarGroup[]) => {
-    setGroups(newGroups)
-    onChange(newGroups)
-  }
+  // Identificar documentos que não estão em nenhum grupo
+  const unassignedDocuments = React.useMemo(() => {
+    const assignedDocIds = new Set(groups.flatMap(g => g.items.map(i => i.documentId)))
+    return documents.filter(doc => !assignedDocIds.has(doc.id))
+  }, [documents, groups])
+
+  const handleUpdate = React.useCallback(
+    (newGroupsOrFn: SidebarGroup[] | ((prev: SidebarGroup[]) => SidebarGroup[])) => {
+      setGroups(prev => {
+        const next = typeof newGroupsOrFn === 'function' ? newGroupsOrFn(prev) : newGroupsOrFn
+        return next
+      })
+    },
+    [],
+  )
+
+  // Sincroniza com o pai de forma segura fora do ciclo de renderização
+  React.useEffect(() => {
+    onChange(groups)
+  }, [groups, onChange])
 
   const findContainer = (id: string) => {
     if (groups.some(g => g.id === id)) return id
+    if (id === 'pool' || id.startsWith('unassigned-')) return 'pool'
     return groups.find(g => g.items.some(i => i.id === id))?.id
   }
 
@@ -364,32 +389,68 @@ export function SidebarConfigCard({
     if (!activeContainer || !overContainer || activeContainer === overContainer) return
 
     if (active.data.current?.type === 'item') {
-      const activeGroup = groups.find(g => g.id === activeContainer)
-      const overGroup = groups.find(g => g.id === overContainer)
+      // Se estamos movendo DO pool PARA um grupo
+      if (activeContainer === 'pool' && overContainer !== 'pool') {
+        const docId = activeId.replace('unassigned-', '')
+        const doc = documents.find(d => d.id === docId)
+        if (!doc) return
 
-      if (!activeGroup || !overGroup) return
-
-      const activeItems = activeGroup.items
-      const overItems = overGroup.items
-
-      const activeIndex = activeItems.findIndex(i => i.id === activeId)
-      const overIndex =
-        overGroup.id === overId ? overItems.length : overItems.findIndex(i => i.id === overId)
-
-      const itemMove = activeItems[activeIndex]
-
-      const newGroups = groups.map(g => {
-        if (g.id === activeContainer) {
-          return { ...g, items: g.items.filter(i => i.id !== activeId) }
+        const itemMove: SidebarItem = {
+          id: crypto.randomUUID(),
+          documentId: doc.id,
+          documentName: doc.name,
+          order: 0,
+          isPublished: doc.isPublished,
         }
-        if (g.id === overContainer) {
-          const newItems = [...g.items]
-          newItems.splice(overIndex, 0, itemMove)
-          return { ...g, items: newItems }
-        }
-        return g
+
+        setGroups(prev => {
+          const newGroups = [...prev]
+          const overGroupIndex = newGroups.findIndex(g => g.id === overContainer)
+          if (overGroupIndex === -1) return prev
+
+          const overGroup = newGroups[overGroupIndex]
+          const overIndex =
+            overId === overContainer
+              ? overGroup.items.length
+              : overGroup.items.findIndex(i => i.id === overId)
+
+          const newItems = [...overGroup.items]
+          newItems.splice(overIndex >= 0 ? overIndex : newItems.length, 0, itemMove)
+          newGroups[overGroupIndex] = { ...overGroup, items: newItems }
+          return newGroups
+        })
+        return
+      }
+
+      // Movimentos entre grupos reais
+      setGroups(prev => {
+        const activeGroup = prev.find(g => g.id === activeContainer)
+        const overGroup = prev.find(g => g.id === overContainer)
+
+        if (!activeGroup || !overGroup) return prev
+
+        const activeItems = activeGroup.items
+        const overItems = overGroup.items
+
+        const activeIndex = activeItems.findIndex(i => i.id === activeId)
+        const overIndex =
+          overGroup.id === overId ? overItems.length : overItems.findIndex(i => i.id === overId)
+
+        const itemMove = activeItems[activeIndex]
+        if (!itemMove) return prev
+
+        return prev.map(g => {
+          if (g.id === activeContainer) {
+            return { ...g, items: g.items.filter(i => i.id !== activeId) }
+          }
+          if (g.id === overContainer) {
+            const newItems = [...g.items]
+            newItems.splice(overIndex >= 0 ? overIndex : newItems.length, 0, itemMove)
+            return { ...g, items: newItems }
+          }
+          return g
+        })
       })
-      setGroups(newGroups)
     }
   }
 
@@ -414,22 +475,26 @@ export function SidebarConfigCard({
       const overContainer = findContainer(overId)
 
       if (activeContainer && overContainer && activeContainer === overContainer) {
-        const groupIndex = groups.findIndex(g => g.id === activeContainer)
-        const group = groups[groupIndex]
-        const oldIndex = group.items.findIndex(i => i.id === activeId)
-        const newIndex = group.items.findIndex(i => i.id === overId)
+        handleUpdate(prev => {
+          const groupIndex = prev.findIndex(g => g.id === activeContainer)
+          const group = prev[groupIndex]
+          const oldIndex = group.items.findIndex(i => i.id === activeId)
+          const newIndex = group.items.findIndex(i => i.id === overId)
 
-        if (oldIndex !== newIndex) {
-          const newItems = arrayMove(group.items, oldIndex, newIndex).map((item, i) => ({
-            ...item,
-            order: i,
-          }))
-          const newGroups = [...groups]
-          newGroups[groupIndex] = { ...group, items: newItems }
-          handleUpdate(newGroups)
-        }
+          if (oldIndex !== newIndex) {
+            const newItems = arrayMove(group.items, oldIndex, newIndex).map((item, i) => ({
+              ...item,
+              order: i,
+            }))
+            const newGroups = [...prev]
+            newGroups[groupIndex] = { ...group, items: newItems }
+            return newGroups
+          }
+          return prev
+        })
       } else {
-        handleUpdate(groups)
+        // Força sincronia com o pai usando o estado mais atualizado disponível no setGroups
+        handleUpdate(prev => prev)
       }
     }
   }
@@ -517,13 +582,57 @@ export function SidebarConfigCard({
                     documents={documents}
                     allGroups={groups}
                     onUpdate={data =>
-                      handleUpdate(groups.map(g => (g.id === group.id ? { ...g, ...data } : g)))
+                      handleUpdate(prev =>
+                        prev.map(g => (g.id === group.id ? { ...g, ...data } : g)),
+                      )
                     }
-                    onRemove={() => handleUpdate(groups.filter(g => g.id !== group.id))}
+                    onRemove={() => handleUpdate(prev => prev.filter(g => g.id !== group.id))}
                     onRemoveItem={itemId => moveItemToOutros(group.id, itemId)}
                   />
                 ))}
               </SortableContext>
+
+              {/* Pool de Documentos Não Atribuídos */}
+              {!readOnly && unassignedDocuments.length > 0 && (
+                <div className="mt-8 border-t pt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <LibraryIcon className="h-4 w-4 text-muted-foreground" />
+                      <h3 className="text-sm font-bold uppercase tracking-wider">
+                        Documentos Disponíveis
+                      </h3>
+                    </div>
+                    <Badge variant="outline" className="text-[10px] uppercase font-black">
+                      {unassignedDocuments.length} não atribuídos
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-muted/5 p-4 rounded-xl border border-dashed">
+                    {unassignedDocuments.map(doc => {
+                      const itemId = `unassigned-${doc.id}`
+                      return (
+                        <SortableDocumentItem
+                          key={doc.id}
+                          id={itemId}
+                          groupId="pool"
+                          item={{
+                            id: itemId,
+                            documentId: doc.id,
+                            documentName: doc.name,
+                            order: 0,
+                            isPublished: doc.isPublished,
+                          }}
+                          onRemove={() => {}}
+                          readOnly={true} // Não permite remover do pool, apenas arrastar
+                        />
+                      )
+                    })}
+                  </div>
+                  <p className="mt-2 text-[10px] text-muted-foreground italic">
+                    Arraste os documentos acima para dentro de um grupo para organizá-los na
+                    sidebar.
+                  </p>
+                </div>
+              )}
             </div>
           </DndContext>
         )}

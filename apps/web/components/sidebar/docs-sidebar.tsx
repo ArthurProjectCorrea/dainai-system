@@ -61,7 +61,8 @@ export function DocsSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
     }
 
     fetchData()
-  }, [activeTeamId, activeProjectId, setActiveProjectId, projects.length]) // Recarregar se o time ou projeto mudar
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTeamId]) // Only re-fetch when the active team changes
 
   const handleTeamChange = (teamId: string) => {
     startTransition(() => {
@@ -138,7 +139,7 @@ export function DocsSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
       <SidebarHeader
         className={cn('gap-2 transition-opacity duration-300', isPending && 'opacity-50')}
       >
-        {(loading || teamsForSwitcher.length > 1) && (
+        {(loading || teamsForSwitcher.length >= 1) && (
           <TeamSwitcher
             teams={teamsForSwitcher}
             activeTeamId={activeTeamId}
@@ -146,7 +147,7 @@ export function DocsSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
             loading={loading}
           />
         )}
-        {(loading || projectsForSwitcher.length > 1) && (
+        {(loading || projectsForSwitcher.length >= 1) && (
           <ProjectSwitcher
             teams={projectsForSwitcher}
             activeTeamId={activeProjectId}

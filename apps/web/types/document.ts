@@ -15,6 +15,7 @@ export interface Document {
   createdAt: string
   updatedAt: string | null
   categories: Category[]
+  isPublished: boolean
   currentVersion?: string | null
 }
 

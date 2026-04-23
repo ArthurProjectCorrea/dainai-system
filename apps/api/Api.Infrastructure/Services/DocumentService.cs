@@ -77,6 +77,7 @@ namespace Api.Infrastructure.Services
                     d.CreatedAt,
                     d.UpdatedAt,
                     d.DocumentCategories.Select(dc => new CategoryDto(dc.Category.Id, dc.Category.Name)).ToList(),
+                    d.PublishedDocuments.Any(),
                     null
                 ))
                 .ToListAsync();
@@ -109,6 +110,7 @@ namespace Api.Infrastructure.Services
                 document.CreatedAt,
                 document.UpdatedAt,
                 document.DocumentCategories.Select(dc => new CategoryDto(dc.Category.Id, dc.Category.Name)).ToList(),
+                document.PublishedDocuments.Any(),
                 currentVersion
             );
 
@@ -288,7 +290,7 @@ namespace Api.Infrastructure.Services
 
         public async Task<ApiResponse<List<PublishedDocumentDto>>> GetDocumentVersionsAsync(Guid userId, Guid? activeTeamId, Guid documentId)
         {
-            var query = await BuildScopedQueryAsync(userId, activeTeamId);
+            var query = await BuildWikiScopedQueryAsync(userId, activeTeamId);
             var document = await query.FirstOrDefaultAsync(d => d.Id == documentId);
 
             if (document == null) return new ApiResponse<List<PublishedDocumentDto>>("404", "Documento não encontrado.", null);
@@ -309,32 +311,43 @@ namespace Api.Infrastructure.Services
             return new ApiResponse<List<PublishedDocumentDto>>("200", "", versions);
         }
 
-        public async Task<ApiResponse<PublishedDocumentDto>> GetDocumentVersionByIdAsync(Guid userId, Guid? activeTeamId, Guid versionId)
+        public async Task<ApiResponse<DocumentDto>> GetDocumentVersionByIdAsync(Guid userId, Guid? activeTeamId, Guid versionId)
         {
             // Valida acesso ao documento pai primeiro
             var version = await _context.PublishedDocuments
                 .Include(p => p.Document)
+                    .ThenInclude(d => d.Project)
+                .Include(p => p.Document)
+                    .ThenInclude(d => d.DocumentCategories)
+                        .ThenInclude(dc => dc.Category)
                 .Include(p => p.PublishedBy)
                 .FirstOrDefaultAsync(p => p.Id == versionId);
 
-            if (version == null) return new ApiResponse<PublishedDocumentDto>("404", "Versão não encontrada.", null);
+            if (version == null) return new ApiResponse<DocumentDto>("404", "Versão não encontrada.", null);
 
             // Re-validar via query com escopo para o documento pai
-            var scopedQuery = await BuildScopedQueryAsync(userId, activeTeamId);
+            var scopedQuery = await BuildWikiScopedQueryAsync(userId, activeTeamId);
             var hasAccess = await scopedQuery.AnyAsync(d => d.Id == version.DocumentId);
 
-            if (!hasAccess) return new ApiResponse<PublishedDocumentDto>("403", "Acesso restrito a esta versão.", null);
+            if (!hasAccess) return new ApiResponse<DocumentDto>("403", "Acesso restrito a esta versão.", null);
 
-            var dto = new PublishedDocumentDto(
-                version.Id,
-                version.DocumentId,
-                version.Version,
-                version.Content,
-                version.PublishedBy.Name,
-                version.CreatedAt
+            var doc = version.Document;
+
+            var dto = new DocumentDto(
+                doc.Id,
+                doc.ProjectId,
+                doc.Project.Name,
+                doc.Name,
+                version.Content, // CONTEÚDO DA VERSÃO ESPECÍFICA
+                doc.Status.ToString(),
+                doc.CreatedAt,
+                version.CreatedAt, // USAR DATA DA PUBLICAÇÃO COMO DATA DE ATUALIZAÇÃO NESTA VIEW
+                doc.DocumentCategories.Select(dc => new CategoryDto(dc.Category.Id, dc.Category.Name)).ToList(),
+                true,
+                version.Version
             );
 
-            return new ApiResponse<PublishedDocumentDto>("200", "", dto);
+            return new ApiResponse<DocumentDto>("200", "", dto);
         }
 
         public async Task<ApiResponse<List<CategoryDto>>> GetCategoriesAsync()
@@ -378,6 +391,7 @@ namespace Api.Infrastructure.Services
                 .Include(p => p.SidebarGroups)
                     .ThenInclude(g => g.Items)
                         .ThenInclude(i => i.Document)
+                            .ThenInclude(d => d.PublishedDocuments)
                 .OrderBy(p => p.Name)
                 .ToListAsync();
 
@@ -402,12 +416,12 @@ namespace Api.Infrastructure.Services
                         g.Order,
                         g.Icon,
                         g.Items
-                            .Where(i => i.Document != null && i.Document.DeletedAt == null && i.Document.Status == DocumentStatus.Published)
+                            .Where(i => i.Document != null && i.Document.DeletedAt == null && i.Document.PublishedDocuments.Any())
                             .OrderBy(i => i.Order)
-                            .Select(i => new SidebarItemDto(i.Id, i.DocumentId, i.Document.Name, i.Order))
+                            .Select(i => new SidebarItemDto(i.Id, i.DocumentId, i.Document.Name, i.Order, true))
                             .ToList()
                     ))
-                    .Where(g => g.Items.Count > 0 || (g.Title != null && g.Title.ToLower() != "outros"))
+                    .Where(g => g.Items.Count > 0)
                     .ToList(),
                 p.Summary
             )).ToList();
@@ -415,7 +429,7 @@ namespace Api.Infrastructure.Services
 
             // 2. Buscar Documentos Publicados baseados no escopo de WIKI (leitura pública interna)
             var docQuery = await BuildWikiScopedQueryAsync(userId, activeTeamId);
-            var publishedDocsQuery = docQuery.Where(d => d.Status == DocumentStatus.Published);
+            var publishedDocsQuery = docQuery.Where(d => d.PublishedDocuments.Any());
 
             var documents = await publishedDocsQuery
                 .OrderBy(d => d.Name)
@@ -429,6 +443,7 @@ namespace Api.Infrastructure.Services
                     d.CreatedAt,
                     d.UpdatedAt,
                     d.DocumentCategories.Select(dc => new CategoryDto(dc.Category.Id, dc.Category.Name)).ToList(),
+                    true,
                     null
                 ))
                 .ToListAsync();
@@ -447,6 +462,7 @@ namespace Api.Infrastructure.Services
                     d.CreatedAt,
                     d.UpdatedAt,
                     d.DocumentCategories.Select(dc => new CategoryDto(dc.Category.Id, dc.Category.Name)).ToList(),
+                    true,
                     null
                 ))
                 .ToListAsync();
@@ -471,7 +487,7 @@ namespace Api.Infrastructure.Services
 
             var documents = await query
                 .Include(d => d.PublishedDocuments)
-                .Where(d => d.Status == DocumentStatus.Published &&
+                .Where(d => d.PublishedDocuments.Any() &&
                            (EF.Functions.ILike(d.Name, $"%{searchTerm}%") || EF.Functions.ILike(d.Content, $"%{searchTerm}%")))
                 .OrderBy(d => d.Name)
                 .Select(d => new DocumentDto(
@@ -484,6 +500,7 @@ namespace Api.Infrastructure.Services
                     d.CreatedAt,
                     d.UpdatedAt,
                     d.DocumentCategories.Select(dc => new CategoryDto(dc.Category.Id, dc.Category.Name)).ToList(),
+                    true,
                     d.PublishedDocuments.OrderByDescending(p => p.CreatedAt).Select(p => p.Version).FirstOrDefault()
                 ))
                 .ToListAsync();
@@ -498,27 +515,30 @@ namespace Api.Infrastructure.Services
             var query = await BuildWikiScopedQueryAsync(userId, activeTeamId);
             var document = await query
                 .Include(d => d.PublishedDocuments)
-                .Where(d => d.Status == DocumentStatus.Published) // Na Wiki só vemos publicados
                 .FirstOrDefaultAsync(d => d.Id == documentId);
 
             if (document == null)
-                return new ApiResponse<DocumentDto>("404", "Documento não encontrado ou não publicado.", null);
+                return new ApiResponse<DocumentDto>("404", "Documento não encontrado.", null);
 
-            var currentVersion = document.PublishedDocuments
+            var latestVersion = document.PublishedDocuments
                 .OrderByDescending(p => p.CreatedAt)
-                .FirstOrDefault()?.Version;
+                .FirstOrDefault();
+
+            if (latestVersion == null)
+                return new ApiResponse<DocumentDto>("404", "Este documento ainda não possui uma versão publicada.", null);
 
             var dto = new DocumentDto(
                 document.Id,
                 document.ProjectId,
                 document.Project.Name,
                 document.Name,
-                document.Content,
+                latestVersion.Content, // USAR O CONTEÚDO DA VERSÃO PUBLICADA, NÃO O DRAFT
                 document.Status.ToString(),
                 document.CreatedAt,
                 document.UpdatedAt,
                 document.DocumentCategories.Select(dc => new CategoryDto(dc.Category.Id, dc.Category.Name)).ToList(),
-                currentVersion
+                true,
+                latestVersion.Version
             );
 
             return new ApiResponse<DocumentDto>("200", "", dto);

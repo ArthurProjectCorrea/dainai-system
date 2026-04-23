@@ -17,11 +17,11 @@ namespace Api.Infrastructure
             // 1. Screens
             var screenSeeds = new List<Screen>
             {
-                new Screen { Id = 1, Name = "Controle de Acesso", NameSidebar = "Controle de Acesso", NameKey = "access_control" },
-                new Screen { Id = 2, Name = "Gerência de Usuários", NameSidebar = "Usuários", NameKey = "users_management" },
-                new Screen { Id = 3, Name = "Gerência de Equipes", NameSidebar = "Equipes", NameKey = "teams_management" },
-                new Screen { Id = 4, Name = "Gerência de Projetos", NameSidebar = "Projetos", NameKey = "projects_management" },
-                new Screen { Id = 5, Name = "Gerência de Documentos", NameSidebar = "Documentos", NameKey = "documents_management" }
+                new Screen { Name = "Controle de Acesso", NameSidebar = "Controle de Acesso", NameKey = "access_control" },
+                new Screen { Name = "Gerência de Usuários", NameSidebar = "Usuários", NameKey = "users_management" },
+                new Screen { Name = "Gerência de Equipes", NameSidebar = "Equipes", NameKey = "teams_management" },
+                new Screen { Name = "Gerência de Projetos", NameSidebar = "Projetos", NameKey = "projects_management" },
+                new Screen { Name = "Gerência de Documentos", NameSidebar = "Documentos", NameKey = "documents_management" }
             };
 
             foreach (var screenSeed in screenSeeds)
@@ -41,11 +41,11 @@ namespace Api.Infrastructure
             // 2. Permissions
             var permissionSeeds = new List<Permission>
             {
-                new Permission { Id = 1, Name = "Criar", NameKey = "create" },
-                new Permission { Id = 2, Name = "Editar", NameKey = "update" },
-                new Permission { Id = 3, Name = "Excluir", NameKey = "delete" },
-                new Permission { Id = 4, Name = "Visualizar", NameKey = "view" },
-                new Permission { Id = 5, Name = "Publicar/Aprovar", NameKey = "approve" }
+                new Permission { Name = "Criar", NameKey = "create" },
+                new Permission { Name = "Editar", NameKey = "update" },
+                new Permission { Name = "Excluir", NameKey = "delete" },
+                new Permission { Name = "Visualizar", NameKey = "view" },
+                new Permission { Name = "Aprovar", NameKey = "approve" }
             };
 
             foreach (var permissionSeed in permissionSeeds)
@@ -62,10 +62,10 @@ namespace Api.Infrastructure
             }
 
             // 3. Departments
-            var department = context.Departments.FirstOrDefault(d => d.Id == 1);
+            var department = context.Departments.FirstOrDefault(d => d.Name == "TI");
             if (department == null)
             {
-                department = new Department { Id = 1, Name = "TI" };
+                department = new Department { Name = "TI" };
                 context.Departments.Add(department);
             }
             else
@@ -74,10 +74,10 @@ namespace Api.Infrastructure
             }
 
             // 4. Positions
-            var posAdmin = context.Positions.FirstOrDefault(p => p.Id == 1);
+            var posAdmin = context.Positions.FirstOrDefault(p => p.Name == "Administrador do Sistema");
             if (posAdmin == null)
             {
-                posAdmin = new Position { Id = 1, Name = "Administrador do Sistema", DepartmentId = department.Id };
+                posAdmin = new Position { Name = "Administrador do Sistema", DepartmentId = department.Id };
                 context.Positions.Add(posAdmin);
             }
             else
@@ -86,10 +86,10 @@ namespace Api.Infrastructure
                 posAdmin.DepartmentId = department.Id;
             }
 
-            var posOperacional = context.Positions.FirstOrDefault(p => p.Id == 2);
+            var posOperacional = context.Positions.FirstOrDefault(p => p.Name == "Analista Operacional");
             if (posOperacional == null)
             {
-                posOperacional = new Position { Id = 2, Name = "Analista Operacional", DepartmentId = department.Id };
+                posOperacional = new Position { Name = "Analista Operacional", DepartmentId = department.Id };
                 context.Positions.Add(posOperacional);
             }
             else

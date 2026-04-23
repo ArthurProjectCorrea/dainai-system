@@ -15,6 +15,7 @@ namespace Api.Application.DTOs
         DateTime CreatedAt,
         DateTime? UpdatedAt,
         List<CategoryDto> Categories,
+        bool IsPublished = false,
         string? CurrentVersion = null
     );
 

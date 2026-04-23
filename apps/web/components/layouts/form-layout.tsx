@@ -100,7 +100,7 @@ export function FormLayout({
 
   return (
     <FormLayoutContext.Provider value={contextValue}>
-      <div className={cn('flex flex-col gap-0 relative', className)}>
+      <div className={cn('flex flex-col flex-1 relative', className)}>
         <FormHeader title={title} description={description}>
           {extraActions}
           <FormButtons
@@ -114,7 +114,7 @@ export function FormLayout({
           />
         </FormHeader>
 
-        <div className="w-full">{children}</div>
+        <div className="w-full flex-1 flex flex-col min-h-0">{children}</div>
       </div>
     </FormLayoutContext.Provider>
   )

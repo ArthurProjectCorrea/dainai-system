@@ -16,7 +16,7 @@ namespace Api.Application.Interfaces
         // Versões Publicadas
         Task<ApiResponse<DocumentDto>> PublishDocumentAsync(Guid userId, Guid? activeTeamId, Guid documentId);
         Task<ApiResponse<List<PublishedDocumentDto>>> GetDocumentVersionsAsync(Guid userId, Guid? activeTeamId, Guid documentId);
-        Task<ApiResponse<PublishedDocumentDto>> GetDocumentVersionByIdAsync(Guid userId, Guid? activeTeamId, Guid versionId);
+        Task<ApiResponse<DocumentDto>> GetDocumentVersionByIdAsync(Guid userId, Guid? activeTeamId, Guid versionId);
 
         // Categorias Globais
         Task<ApiResponse<List<CategoryDto>>> GetCategoriesAsync();

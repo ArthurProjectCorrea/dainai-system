@@ -5,6 +5,7 @@ export interface SidebarItem {
   documentId: string
   documentName?: string
   order: number
+  isPublished?: boolean
 }
 
 export interface SidebarGroup {

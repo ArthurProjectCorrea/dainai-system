@@ -99,7 +99,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
-        {(loading || teamsForSwitcher.length > 1) && (
+        {(loading || teamsForSwitcher.length >= 1) && (
           <TeamSwitcher
             teams={teamsForSwitcher}
             activeTeamId={activeTeamId}
