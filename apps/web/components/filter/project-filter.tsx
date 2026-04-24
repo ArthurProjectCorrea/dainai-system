@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { DatePicker } from '@/components/ui/date-picker'
+import { Calendar } from '@/components/ui/calendar'
 import { Separator } from '@/components/ui/separator'
 import { Field, FieldLabel, FieldContent, FieldSet } from '@/components/ui/field'
 
@@ -64,7 +64,7 @@ export function ProjectFilter<TData>({ table, onClose }: ProjectFilterProps<TDat
   }
 
   return (
-    <div className="flex flex-col gap-6 h-full">
+    <div className="flex flex-col gap-4 h-full">
       <FieldSet className="flex-1 space-y-4">
         {/* Status Field */}
         <Field>
@@ -86,25 +86,20 @@ export function ProjectFilter<TData>({ table, onClose }: ProjectFilterProps<TDat
         {/* Date Field */}
         <Field>
           <FieldLabel>Data de Criação</FieldLabel>
-          <FieldContent>
-            <DatePicker
-              date={date}
-              setDate={setDate}
-              placeholder="Escolha uma data"
-              className="w-full h-10"
-            />
+          <FieldContent className="flex justify-center w-full">
+            <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
           </FieldContent>
         </Field>
       </FieldSet>
 
-      <div className="space-y-4 py-8">
-        <Separator />
+      <div className="space-y-4 pt-4 pb-0">
+        <Separator className="opacity-50" />
         <div className="flex items-center gap-2">
-          <Button variant="outline" className="flex-1 gap-2 h-10" onClick={resetFilters}>
+          <Button variant="outline" className="flex-1 gap-2 h-11 rounded-xl" onClick={resetFilters}>
             <X className="h-4 w-4" />
             Limpar
           </Button>
-          <Button className="flex-1 gap-2 h-10" onClick={applyFilters}>
+          <Button className="flex-1 gap-2 h-11 rounded-xl shadow-lg" onClick={applyFilters}>
             <Check className="h-4 w-4" />
             Aplicar Filtros
           </Button>

@@ -1,8 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import Image from 'next/image'
-import { Building2, ChevronsUpDown, Check } from 'lucide-react'
+import { Users, ChevronsUpDown, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Kbd } from '@/components/ui/kbd'
 
@@ -21,7 +20,7 @@ import {
 } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { Team } from '@/types/team'
+import { Team } from '@/types'
 
 export function TeamSwitcher({
   teams,
@@ -36,12 +35,6 @@ export function TeamSwitcher({
 }) {
   const { isMobile } = useSidebar()
   const activeTeam = teams.find(team => team.id === activeTeamId) ?? teams[0]
-  const [logoError, setLogoError] = React.useState(false)
-  const teamLogo = activeTeam?.logotipoUrl ?? null
-
-  React.useEffect(() => {
-    setLogoError(false)
-  }, [teamLogo])
 
   if (loading || !activeTeam) {
     return (
@@ -70,19 +63,7 @@ export function TeamSwitcher({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                {teamLogo && !logoError ? (
-                  <Image
-                    src={teamLogo}
-                    alt={activeTeam.name}
-                    width={32}
-                    height={32}
-                    unoptimized
-                    className="size-8 rounded-lg object-cover"
-                    onError={() => setLogoError(true)}
-                  />
-                ) : (
-                  <Building2 className="size-4" />
-                )}
+                <Users className="size-4" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{activeTeam.name}</span>
@@ -101,8 +82,6 @@ export function TeamSwitcher({
             <DropdownMenuLabel className="text-xs text-muted-foreground">Times</DropdownMenuLabel>
 
             {teams.map((team, index) => {
-              const teamLogoItem = team.logotipoUrl ?? null
-
               return (
                 <DropdownMenuItem
                   key={team.id}
@@ -111,18 +90,7 @@ export function TeamSwitcher({
                   className={cn('gap-2 p-2', !team.isActive && 'opacity-60 cursor-not-allowed')}
                 >
                   <div className="flex size-6 items-center justify-center overflow-hidden rounded-md border">
-                    {teamLogoItem ? (
-                      <Image
-                        src={teamLogoItem}
-                        alt={team.name}
-                        width={24}
-                        height={24}
-                        unoptimized
-                        className={cn('size-6 object-cover', !team.isActive && 'grayscale')}
-                      />
-                    ) : (
-                      <Building2 className="size-3.5 shrink-0" />
-                    )}
+                    <Users className="size-3.5 shrink-0" />
                   </div>
                   <div className="flex flex-1 min-w-0 flex-col">
                     <span className="truncate font-medium">{team.name}</span>

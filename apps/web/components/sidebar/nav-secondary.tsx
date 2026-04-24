@@ -10,8 +10,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@/components/ui/sidebar'
-import { FeedbackDialog } from '@/components/feedback-dialog'
+import { FeedbackDialog } from '@/components/dialog/feedback-dialog'
 
 export function NavSecondary({
   items,
@@ -23,6 +24,7 @@ export function NavSecondary({
     icon: React.ReactNode
   }[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+  const { setOpenMobile } = useSidebar()
   const [feedbackOpen, setFeedbackOpen] = React.useState(false)
   const pathname = usePathname()
 
@@ -55,7 +57,13 @@ export function NavSecondary({
           {filteredItems.map(item => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild size="sm">
-                <Link href={item.url} onClick={e => handleClick(e, item.title)}>
+                <Link
+                  href={item.url}
+                  onClick={e => {
+                    handleClick(e, item.title)
+                    setOpenMobile(false)
+                  }}
+                >
                   {item.icon}
                   <span>{item.title}</span>
                 </Link>

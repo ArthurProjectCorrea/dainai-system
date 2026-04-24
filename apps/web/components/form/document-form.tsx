@@ -27,9 +27,9 @@ import {
   FieldLabel,
   FieldTitle,
 } from '@/components/ui/field'
-import { FormLayout } from '@/components/layouts/form-layout'
-import { FormSection, FormGrid } from '@/components/form-section'
-import { CreatableCombobox } from '@/components/creatable-combobox'
+import { FormLayout } from '../layouts/form-layout'
+import { FormSection, FormGrid } from '../layouts/form-section'
+import { CreatableCombobox } from '@/components/ui/creatable-combobox'
 
 import {
   AlertDialog,
@@ -48,9 +48,9 @@ import {
   publishDocumentAction,
   getCategoriesAction,
   createCategoryAction,
-} from '@/lib/action/document-actions'
-import type { Document, Category, DocumentStatus } from '@/types/document'
-import type { Project } from '@/types/project'
+} from '@/lib/action/document-action'
+import type { Document, Category, DocumentStatus } from '@/types'
+import type { Project } from '@/types'
 
 interface DocumentFormProps {
   mode: 'create' | 'edit' | 'view'
@@ -110,7 +110,7 @@ export function DocumentForm({
 
     // Validation
     if (!projectId) return toast.error('Selecione um projeto.')
-    if (!name) return toast.error('O nome é obrigatório.')
+    if (!name) return toast.error('O nome Ã© obrigatÃ³rio.')
 
     // Confirmation for Published docs
     if (status === 'Published' && !forceStatus) {
@@ -133,7 +133,7 @@ export function DocumentForm({
         toast.success('Documento atualizado!')
         if (forceStatus === 'Draft') {
           setStatus('Draft')
-          toast.info('Documento voltou para rascunho para aprovação.')
+          toast.info('Documento voltou para rascunho para aprovaÃ§Ã£o.')
         }
       } else {
         const res = await createDocumentAction({
@@ -162,7 +162,7 @@ export function DocumentForm({
     try {
       const res = await publishDocumentAction(initialData.id)
       if (res.error) throw new Error(res.error)
-      toast.success(`Documento publicado! Versão: ${res.data!.currentVersion}`)
+      toast.success(`Documento publicado! VersÃ£o: ${res.data!.currentVersion}`)
       setStatus('Published')
       router.push('/documents')
     } catch (error) {
@@ -197,7 +197,7 @@ export function DocumentForm({
   const publishButton = initialData && mode === 'edit' && canApprove && status === 'Completed' && (
     <Button type="button" className="gap-2 min-w-32" onClick={handlePublish} disabled={loading}>
       <Send className="h-4 w-4" />
-      Publicar Versão
+      Publicar VersÃ£o
     </Button>
   )
 
@@ -214,7 +214,9 @@ export function DocumentForm({
                 : 'Editar Documento'
           }
           description={
-            isView ? 'Conteúdo técnico do repositório' : 'Gerencie conteúdo Markdown e metadados'
+            isView
+              ? 'ConteÃºdo tÃ©cnico do repositÃ³rio'
+              : 'Gerencie conteÃºdo Markdown e metadados'
           }
           mode={mode}
           loading={loading}
@@ -317,7 +319,7 @@ export function DocumentForm({
                         {status === 'Published'
                           ? 'Publicado'
                           : status === 'Completed'
-                            ? 'Concluído'
+                            ? 'ConcluÃ­do'
                             : 'Rascunho'}
                       </FieldDescription>
                     </FieldContent>
@@ -336,7 +338,7 @@ export function DocumentForm({
                         {status === 'Published'
                           ? 'Publicado'
                           : status === 'Completed'
-                            ? 'Concluído'
+                            ? 'ConcluÃ­do'
                             : 'Rascunho'}
                       </Badge>
                     </div>
@@ -345,7 +347,7 @@ export function DocumentForm({
                   {initialData?.currentVersion && (
                     <Field orientation="horizontal">
                       <FieldContent>
-                        <FieldTitle className="text-xs font-medium">Versão</FieldTitle>
+                        <FieldTitle className="text-xs font-medium">VersÃ£o</FieldTitle>
                       </FieldContent>
                       <div className="flex items-center gap-1 font-bold text-xs">
                         <Hash className="h-3 w-3 text-primary" />
@@ -409,12 +411,12 @@ export function DocumentForm({
       <AlertDialog open={saveWarningOpen} onOpenChange={setSaveWarningOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Deseja salvar alterações?</AlertDialogTitle>
+            <AlertDialogTitle>Deseja salvar alteraÃ§Ãµes?</AlertDialogTitle>
             <AlertDialogDescription>
-              Este documento já possui uma versão publicada. Ao salvar estas alterações, a
-              <strong>versão atual continuará visível</strong> para os usuários, mas as novas
-              modificações voltarão para o status de <strong>Rascunho</strong> e precisarão ser
-              aprovadas novamente para se tornarem a nova versão oficial.
+              Este documento jÃ¡ possui uma versÃ£o publicada. Ao salvar estas alteraÃ§Ãµes, a
+              <strong>versÃ£o atual continuarÃ¡ visÃ­vel</strong> para os usuÃ¡rios, mas as novas
+              modificaÃ§Ãµes voltarÃ£o para o status de <strong>Rascunho</strong> e precisarÃ£o ser
+              aprovadas novamente para se tornarem a nova versÃ£o oficial.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -2,14 +2,15 @@
 
 import * as React from 'react'
 import { forbidden, useParams, useRouter } from 'next/navigation'
-import { toast } from 'sonner'
+import { notify } from '@/lib/notifications'
 import { useFormMode } from '@/hooks/use-form-mode'
 
 import { useAuth } from '@/hooks/use-auth'
-import { PageHeader } from '@/components/page-header'
+import { PageHeader } from '@/components/layouts/page-header'
 import { UserForm } from '@/components/form/user-form'
-import { getUserByIdAction, getUserOptionsAction } from '@/lib/action/user-actions'
-import type { UserDetailPayload } from '@/types/user'
+import { getUserByIdAction, getUserOptionsAction } from '@/lib/action/admin-action'
+import type { UserDetailPayload } from '@/types'
+import Loading from '@/components/ui/loading'
 
 function EditUserContent() {
   const router = useRouter()
@@ -29,7 +30,7 @@ function EditUserContent() {
         const result = isCreate ? await getUserOptionsAction() : await getUserByIdAction(userId!)
 
         if (result.error) {
-          toast.error(result.error)
+          notify.system.error(result.error)
           if (!isCreate) router.push('/admin/users')
           return
         }
@@ -40,7 +41,7 @@ function EditUserContent() {
           setPayload(result.data as UserDetailPayload)
         }
       } catch (error) {
-        toast.error('Erro ao carregar dados')
+        notify.system.error('Erro ao carregar dados')
         console.error(error)
       } finally {
         setIsLoadingData(false)
@@ -57,10 +58,10 @@ function EditUserContent() {
   }, [loading, hasPermission, userId, router, readOnly, isCreate])
 
   const screenName = React.useMemo(() => {
-    return activeAccesses.find(a => a.nameKey === 'users_management')?.name || 'Usuarios'
+    return activeAccesses.find(a => a.nameKey === 'users_management')?.nameSidebar || 'Usuarios'
   }, [activeAccesses])
 
-  if (loading) return null
+  if (loading || isLoadingData || !payload) return <Loading />
 
   const canAccess = readOnly
     ? hasPermission('users_management', 'view')
@@ -70,10 +71,6 @@ function EditUserContent() {
 
   if (!canAccess) {
     return forbidden()
-  }
-
-  if (isLoadingData || !payload) {
-    return null
   }
 
   return (
@@ -110,7 +107,7 @@ function EditUserContent() {
 
 export default function EditUserPage() {
   return (
-    <React.Suspense fallback={null}>
+    <React.Suspense fallback={<Loading />}>
       <EditUserContent />
     </React.Suspense>
   )

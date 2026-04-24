@@ -22,7 +22,7 @@ import * as React from 'react'
 import { ProfileDialog } from '@/components/dialog/profile-dialog'
 import { SettingsDialog } from '@/components/dialog/settings-dialog'
 import { useAuth } from '@/hooks/use-auth'
-import { toast } from 'sonner'
+import { notify } from '@/lib/notifications'
 
 export function NavUser() {
   const { user, loading, logout } = useAuth()
@@ -111,7 +111,7 @@ export function NavUser() {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onSelect={async () => {
-                  toast.success('Saindo do sistema...')
+                  notify.auth.logoutSuccess()
                   setTimeout(() => {
                     logout()
                   }, 1000)

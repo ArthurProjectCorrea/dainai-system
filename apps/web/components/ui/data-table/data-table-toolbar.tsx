@@ -11,6 +11,8 @@ import { DataTableViewOptions } from './data-table-view-options'
 import { DataTableFilterBar } from './data-table-filter-bar'
 import { QuickFilterConfig, DetailedFilterConfig } from './data-table-types'
 
+import { useIsMobile } from '@/hooks/use-mobile'
+
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
   quickFilter?: QuickFilterConfig
@@ -31,8 +33,10 @@ export function DataTableToolbar<TData>({
   onReload,
   newConfig,
 }: DataTableToolbarProps<TData>) {
+  const isMobile = useIsMobile()
+
   return (
-    <div className="flex items-center justify-between gap-4 py-1">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 py-2">
       <DataTableFilterBar
         table={table}
         quickFilter={quickFilter}
@@ -40,12 +44,12 @@ export function DataTableToolbar<TData>({
         onReload={onReload}
       />
 
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center justify-end space-x-2">
         <TooltipProvider>
           {onReload && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="outline" onClick={onReload} className="h-8 w-8 p-0">
+                <Button variant="outline" onClick={onReload} size="icon" className="h-10 w-10 p-0">
                   <RefreshCw className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -53,19 +57,19 @@ export function DataTableToolbar<TData>({
             </Tooltip>
           )}
 
-          <DataTableViewOptions table={table} />
+          {!isMobile && <DataTableViewOptions table={table} />}
 
           {newConfig && (
             <>
               {newConfig.url ? (
-                <Button size="sm" className="h-8" asChild>
+                <Button className="h-10" asChild>
                   <Link href={newConfig.url}>
                     <Plus className="mr-2 h-4 w-4" />
                     Novo Registro
                   </Link>
                 </Button>
               ) : (
-                <Button size="sm" className="h-8" onClick={newConfig.onClick}>
+                <Button className="h-10" onClick={newConfig.onClick}>
                   <Plus className="mr-2 h-4 w-4" />
                   Novo Registro
                 </Button>

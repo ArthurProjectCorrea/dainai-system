@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/hooks/use-auth'
-import { PageHeader } from '@/components/page-header'
+import { PageHeader } from '@/components/layouts/page-header'
 import { ProjectDashboardSection } from '@/components/chart/project-chart'
 import { DocumentDashboardSection } from '@/components/chart/document-chart'
 import { Separator } from '@/components/ui/separator'

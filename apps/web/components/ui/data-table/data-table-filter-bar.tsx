@@ -21,7 +21,7 @@ export function DataTableFilterBar<TData>({
     table?.getState().columnFilters.some(filter => filter.id !== quickFilter?.column) ?? false
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-row flex-wrap items-center gap-2 w-full sm:w-auto">
       {quickFilter && (
         <DataTableQuickFilter table={table} config={quickFilter} onFilterChange={onFilterChange} />
       )}
@@ -38,7 +38,7 @@ export function DataTableFilterBar<TData>({
         <Button
           variant="ghost"
           onClick={() => table.resetColumnFilters()}
-          className="h-8 px-2 lg:px-3 text-muted-foreground hover:text-foreground"
+          className="hidden sm:flex h-8 px-2 lg:px-3 text-muted-foreground hover:text-foreground"
         >
           Limpar Filtros
           <X className="ml-2 h-4 w-4" />

@@ -1,6 +1,6 @@
 'use client'
 
-import { PageHeader } from '@/components/page-header'
+import { PageHeader } from '@/components/layouts/page-header'
 import { useAuth } from '@/hooks/use-auth'
 
 export default function DebugPage() {
@@ -26,9 +26,9 @@ export default function DebugPage() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-xl border bg-background p-4 shadow-sm">
-            <p className="text-sm font-medium text-muted-foreground">Profile</p>
+            <p className="text-sm font-medium text-muted-foreground">User Data</p>
             <pre className="mt-3 max-h-[32rem] overflow-auto rounded-lg bg-muted p-3 text-xs">
-              {JSON.stringify(user?.profile ?? null, null, 2)}
+              {JSON.stringify(user ?? null, null, 2)}
             </pre>
           </div>
           <div className="rounded-xl border bg-background p-4 shadow-sm">

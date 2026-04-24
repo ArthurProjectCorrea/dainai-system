@@ -1,18 +1,19 @@
 'use client'
 
 import * as React from 'react'
-import { toast } from 'sonner'
+import { notify } from '@/lib/notifications'
 import { Building2, ShieldCheck, ShieldAlert } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { forbidden } from 'next/navigation'
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header'
-import { StatCard } from '@/components/stat-card'
+import { StatCard } from '@/components/ui/stat-card'
 import type { ColumnDef } from '@tanstack/react-table'
 
 import { useAdminModule } from '@/hooks/use-admin-module'
 import { ModulePageLayout } from '@/components/layouts/module-page-layout'
 import { DataTable } from '@/components/ui/data-table/data-table'
-import type { AccessControlPayload, Position } from '@/types/access-control'
+import type { AccessControlPayload, Position } from '@/types'
+import { getAccessControlDataAction, deletePositionAction } from '@/lib/action/admin-action'
 
 export default function AccessControlPage() {
   // The access-control endpoint returns a complex object (not a simple list),
@@ -28,12 +29,11 @@ export default function AccessControlPage() {
   const fetchData = React.useCallback(async (options?: { silent?: boolean }) => {
     if (!options?.silent) setIsLoading(true)
     try {
-      const response = await fetch('/api/v1/admin/access-control')
-      if (!response.ok) throw new Error('Falha ao carregar dados')
-      const result = await response.json().catch(() => ({}))
-      setAcPayload(result.data)
+      const result = await getAccessControlDataAction()
+      if (result.error) throw new Error(result.error)
+      setAcPayload(result.data || null)
     } catch (error) {
-      toast.error('Erro ao carregar controle de acesso')
+      notify.system.error('Erro ao carregar controle de acesso')
       console.error(error)
     } finally {
       if (!options?.silent) setIsLoading(false)
@@ -51,15 +51,12 @@ export default function AccessControlPage() {
 
   const handleDeletePosition = async (id: number) => {
     try {
-      const response = await fetch(`/api/v1/admin/access-control/positions/${id}`, {
-        method: 'DELETE',
-      })
-      const result = await response.json().catch(() => ({}))
-      if (!response.ok) throw new Error(result.message || 'Falha ao remover')
-      toast.success('Cargo removido com sucesso')
+      const result = await deletePositionAction(String(id))
+      if (result.error) throw new Error(result.error)
+      notify.admin.accessControl.positionDeleteSuccess()
       fetchData({ silent: true })
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erro desconhecido')
+      notify.system.error(error instanceof Error ? error.message : 'Erro desconhecido')
     }
   }
 

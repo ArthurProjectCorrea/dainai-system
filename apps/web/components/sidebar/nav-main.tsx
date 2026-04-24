@@ -18,7 +18,7 @@ import {
 import { type SidebarMainItem } from '@/components/sidebar/sidebar'
 
 export function NavMain({ items }: { items: SidebarMainItem[] }) {
-  const { state, toggleSidebar } = useSidebar()
+  const { state, toggleSidebar, setOpenMobile } = useSidebar()
   const [openGroup, setOpenGroup] = React.useState<string | null>(() => {
     const activeGroupedItem = items.find(item => item.items?.length && item.isActive)
     return activeGroupedItem ? (activeGroupedItem.url ?? activeGroupedItem.title ?? null) : null
@@ -51,7 +51,11 @@ export function NavMain({ items }: { items: SidebarMainItem[] }) {
                 >
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild tooltip={item.title}>
-                      <Link href={item.url} className="flex items-center gap-2">
+                      <Link
+                        href={item.url}
+                        className="flex items-center gap-2"
+                        onClick={() => setOpenMobile(false)}
+                      >
                         {item.icon}
                         <span>{item.title}</span>
                       </Link>
@@ -94,7 +98,7 @@ export function NavMain({ items }: { items: SidebarMainItem[] }) {
                         {item.items?.map(subItem => (
                           <SidebarMenuSubItem key={subItem.url}>
                             <SidebarMenuSubButton asChild>
-                              <Link href={subItem.url}>
+                              <Link href={subItem.url} onClick={() => setOpenMobile(false)}>
                                 <span>{subItem.title}</span>
                               </Link>
                             </SidebarMenuSubButton>

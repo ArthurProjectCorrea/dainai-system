@@ -6,11 +6,11 @@ import { toast } from 'sonner'
 import { useFormMode } from '@/hooks/use-form-mode'
 import { useAuth } from '@/hooks/use-auth'
 
-import { PageHeader } from '@/components/page-header'
+import { PageHeader } from '@/components/layouts/page-header'
 import { DocumentForm } from '@/components/form/document-form'
-import { getDocumentByIdAction } from '@/lib/action/document-actions'
-import type { Document } from '@/types/document'
-import type { Project } from '@/types/project'
+import { getDocumentByIdAction } from '@/lib/action/document-action'
+import type { Document, Project } from '@/types'
+import Loading from '@/components/ui/loading'
 
 function DocumentActionContent() {
   const router = useRouter()
@@ -75,10 +75,10 @@ function DocumentActionContent() {
   }
 
   const screenName = React.useMemo(() => {
-    return activeAccesses.find(a => a.nameKey === 'documents_management')?.name || 'Documentos'
+    return activeAccesses.find(a => a.nameKey === 'documents_management')?.nameSidebar || 'Documentos'
   }, [activeAccesses])
 
-  if (loading) return null
+  if (loading || isLoadingData) return <Loading />
 
   const canAccess = readOnly
     ? hasPermission('documents_management', 'view')
@@ -88,10 +88,6 @@ function DocumentActionContent() {
 
   if (!canAccess) {
     return forbidden()
-  }
-
-  if (isLoadingData) {
-    return null // Could be a skeleton
   }
 
   return (
@@ -129,7 +125,7 @@ function DocumentActionContent() {
 
 export default function DocumentActionPage() {
   return (
-    <React.Suspense fallback={null}>
+    <React.Suspense fallback={<Loading />}>
       <DocumentActionContent />
     </React.Suspense>
   )

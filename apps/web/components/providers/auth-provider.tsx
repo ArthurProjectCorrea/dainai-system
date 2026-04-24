@@ -2,7 +2,7 @@
 
 import React, { createContext, useEffect, useState } from 'react'
 import { logoutAction } from '@/lib/action/auth-actions'
-import { User, UserMeResponse } from '@/types/auth'
+import { User, UserMeResponse } from '@/types'
 
 type PermissionMap = Record<string, string[]>
 
@@ -58,6 +58,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (!res.ok) {
           console.error('Session invalid, forcing logout...')
+          if (typeof window !== 'undefined') {
+            window.sessionStorage.setItem('auth_flash', 'session_expired')
+          }
           await logout()
           return
         }
@@ -71,23 +74,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         const normalizedTeams = meData.data.teams.map(team => {
           const teamAny = team as typeof team & {
-            IconUrl?: string | null
-            LogotipoUrl?: string | null
-            Logotipo_Url?: string | null
-            logotipo_url?: string | null
             IsActive?: boolean
           }
 
           return {
             id: team.id,
             name: team.name,
-            iconUrl: team.iconUrl ?? teamAny.IconUrl ?? null,
-            logotipoUrl:
-              team.logotipoUrl ??
-              teamAny.logotipo_url ??
-              teamAny.LogotipoUrl ??
-              teamAny.Logotipo_Url ??
-              null,
             isActive: team.isActive ?? teamAny.IsActive ?? true,
           }
         })
@@ -179,7 +171,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     // 1. Limpeza Client-side (imediata)
     if (typeof window !== 'undefined') {
-      window.localStorage.clear()
+      window.localStorage.removeItem('active_team_id')
+      window.localStorage.removeItem('auth_token') // por precaução se houver
       // Deletar cookies de client-side
       document.cookie = 'active_team_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
       document.cookie = 'AuthToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'

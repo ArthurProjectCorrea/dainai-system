@@ -1,11 +1,11 @@
 'use client'
 
 import * as React from 'react'
-import { toast } from 'sonner'
+import { notify } from '@/lib/notifications'
 import { Copy as CopyIcon, RotateCw, Building2 } from 'lucide-react'
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis } from 'recharts'
 import { SidebarConfigCard } from '@/components/project/sidebar-config-card'
-import { SidebarGroup } from '@/types/project'
+import { SidebarGroup } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -17,8 +17,8 @@ import {
 } from '@/components/ui/select'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
-import { FormLayout } from '@/components/layouts/form-layout'
-import { FormSection, FormGrid } from '@/components/form-section'
+import { FormLayout } from '../layouts/form-layout'
+import { FormSection, FormGrid } from '../layouts/form-section'
 import { cn } from '@/lib/utils'
 import {
   Field,
@@ -43,19 +43,19 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { useAuth } from '@/hooks/use-auth'
-import { getTeamsAction } from '@/lib/action/team-actions'
+import { getTeamsAction } from '@/lib/action/admin-action'
 import {
   createProjectAction,
   updateProjectAction,
   rotateProjectTokenAction,
-} from '@/lib/action/project-actions'
-import { CreateProjectRequest, Project, UpdateProjectRequest } from '@/types/project'
-import type { Team } from '@/types/team'
+} from '@/lib/action/project-action'
+import { CreateProjectRequest, Project, UpdateProjectRequest } from '@/types'
+import type { Team } from '@/types'
 
 const chartConfig = {
   count: {
     label: 'Feedbacks',
-    color: 'hsl(var(--primary))',
+    color: 'var(--primary)',
   },
 }
 
@@ -113,7 +113,7 @@ export function ProjectForm({
         if (result.data) {
           setTeams(result.data)
         } else if (result.error) {
-          toast.error(result.error)
+          notify.system.error(result.error)
         }
       } catch (error) {
         console.error('Failed to fetch teams:', error)
@@ -147,10 +147,11 @@ export function ProjectForm({
         throw new Error(result.error)
       }
 
-      toast.success(isEdit ? 'Projeto atualizado!' : 'Projeto criado!')
+      notify.admin.project.saveSuccess(isEdit)
       onSuccess?.()
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erro ao salvar projeto')
+      notify.system.error('Erro ao salvar projeto')
+      console.error(error)
     } finally {
       setLoading(false)
     }
@@ -162,12 +163,16 @@ export function ProjectForm({
     setIsGenerating(true)
     try {
       const result = await rotateProjectTokenAction(data!.id)
-      if (result.error) throw new Error(result.error)
-
-      setRawToken(result.data.integrationToken)
-      toast.success('Chave gerada com sucesso!')
+      if (result.error) {
+        notify.system.error(result.error)
+        return
+      }
+      if (result.data) {
+        setRawToken(result.data.integrationToken)
+      }
+      notify.admin.project.tokenRotated()
     } catch (error) {
-      toast.error('Erro ao gerar token')
+      notify.system.error('Erro ao gerar token')
       console.error(error)
     } finally {
       setIsGenerating(false)
@@ -177,7 +182,7 @@ export function ProjectForm({
   const copyToken = () => {
     if (!rawToken) return
     navigator.clipboard.writeText(rawToken)
-    toast.success('Chave copiada!')
+    notify.admin.project.tokenCopied()
   }
 
   // Transform scoreDistribution to chart data
@@ -214,7 +219,6 @@ export function ProjectForm({
           </div>
         ) : fetchingTeams ? (
           <div className="h-10 flex items-center px-3 border rounded-md bg-muted/20">
-            {/* Using raw spinner as text here or keep consistent */}
             <span className="text-xs text-muted-foreground">Carregando...</span>
           </div>
         ) : (
@@ -371,11 +375,14 @@ export function ProjectForm({
                     <PolarAngleAxis dataKey="score" tick={{ fontSize: 10 }} />
                     <Radar
                       dataKey="count"
-                      fill="var(--color-count)"
-                      fillOpacity={0.6}
+                      fill="var(--primary)"
+                      fillOpacity={0.8}
+                      stroke="var(--primary)"
+                      strokeWidth={2}
                       dot={{
                         r: 4,
                         fillOpacity: 1,
+                        fill: 'var(--primary)',
                       }}
                     />
                   </RadarChart>

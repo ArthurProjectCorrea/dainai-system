@@ -19,9 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { SidebarGroup, SidebarGroupType, SidebarItem } from '@/types/project'
-import { Document } from '@/types/document'
-import { getDocumentsAction } from '@/lib/action/document-actions'
+import { SidebarGroup, SidebarGroupType, SidebarItem } from '@/types'
+import { Document } from '@/types'
+import { getDocumentsAction } from '@/lib/action/document-action'
 import { cn } from '@/lib/utils'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'

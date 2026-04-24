@@ -13,11 +13,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Field, FieldLabel, FieldContent, FieldSet } from '@/components/ui/field'
-import { DateRangePicker } from '@/components/ui/date-range-picker'
+import { Calendar } from '@/components/ui/calendar'
 import { Badge } from '@/components/ui/badge'
 import { DateRange } from 'react-day-picker'
-import type { Category } from '@/types/document'
-import type { Project } from '@/types/project'
+import type { Category } from '@/types'
+import type { Project } from '@/types'
 
 interface DocumentFilterProps<TData> {
   table: Table<TData>
@@ -43,8 +43,8 @@ export function DocumentFilter<TData>({
   const [projectId, setProjectId] = React.useState<string>(
     () => (projectColumn?.getFilterValue() as string) || 'all',
   )
-  const [selectedCategoryIds, setSelectedCategoryIds] = React.useState<number[]>(
-    () => (categoriesColumn?.getFilterValue() as number[]) || [],
+  const [selectedCategoryIds, setSelectedCategoryIds] = React.useState<string[]>(
+    () => (categoriesColumn?.getFilterValue() as string[]) || [],
   )
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
     () => dateColumn?.getFilterValue() as DateRange,
@@ -81,7 +81,7 @@ export function DocumentFilter<TData>({
     dateColumn?.setFilterValue(undefined)
   }
 
-  const toggleCategory = (id: number) => {
+  const toggleCategory = (id: string) => {
     setSelectedCategoryIds(prev =>
       prev.includes(id) ? prev.filter(cId => cId !== id) : [...prev, id],
     )
@@ -137,12 +137,13 @@ export function DocumentFilter<TData>({
 
         <Field>
           <FieldLabel>Data de Criação</FieldLabel>
-          <FieldContent>
-            <DateRangePicker
-              value={dateRange}
-              onChange={setDateRange}
+          <FieldContent className="flex justify-center w-full">
+            <Calendar
+              mode="range"
+              selected={dateRange}
+              onSelect={setDateRange}
               className="w-full"
-              showClear
+              initialFocus
             />
           </FieldContent>
         </Field>

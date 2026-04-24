@@ -268,5 +268,61 @@ namespace Api.Tests.E2E
             });
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
+
+        // ─── SECURITY & BRUTE FORCE SCENARIOS ────────────────────────────────────
+
+        [Fact]
+        public async Task Login_BruteForce_ShouldLockoutAccountAfter5Attempts()
+        {
+            const string targetEmail = "lockout-test@dainai.local";
+            
+            // Tenta logar 5 vezes com a senha errada
+            for (int i = 0; i < 5; i++)
+            {
+                var resp = await _fixture.Client.PostAsJsonAsync("/api/v1/auth/login", new
+                {
+                    email = DockerApiFixture.AdminEmail,
+                    password = "WrongPassword123!"
+                });
+                resp.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            }
+
+            // A 6ª tentativa deve indicar que a conta está bloqueada (ou continuar retornando 401 mas com mensagem de lockout)
+            var lockoutResp = await _fixture.Client.PostAsJsonAsync("/api/v1/auth/login", new
+            {
+                email = DockerApiFixture.AdminEmail,
+                password = "WrongPassword123!"
+            });
+
+            var body = await lockoutResp.Content.ReadAsStringAsync();
+            body.Should().Contain("bloqueada temporariamente");
+        }
+
+        [Fact]
+        public async Task VerifyOtp_BruteForce_ShouldReturn429After5Attempts()
+        {
+            // Solicita um código para o admin
+            await _fixture.Client.PostAsJsonAsync("/api/v1/auth/forgot-password", new { email = DockerApiFixture.AdminEmail });
+
+            // Tenta 5 códigos errados
+            for (int i = 0; i < 5; i++)
+            {
+                var resp = await _fixture.Client.PostAsJsonAsync("/api/v1/auth/verify-otp", new
+                {
+                    email = DockerApiFixture.AdminEmail,
+                    otp = "000000"
+                });
+                resp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            }
+
+            // A 6ª tentativa deve retornar 429
+            var blockedResp = await _fixture.Client.PostAsJsonAsync("/api/v1/auth/verify-otp", new
+            {
+                email = DockerApiFixture.AdminEmail,
+                otp = "000000"
+            });
+
+            blockedResp.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
+        }
     }
 }

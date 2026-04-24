@@ -32,9 +32,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (user?.teams ?? []).map(team => ({
       id: team.id,
       name: team.name,
-      iconUrl: team.iconUrl,
       position: teamContextById.get(team.id)?.position ?? 'Sem cargo',
-      logotipoUrl: team.logotipoUrl ?? null,
       isActive: team.isActive,
     }))
   }, [user?.teamAccesses, user?.teams])

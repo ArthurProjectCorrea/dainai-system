@@ -12,7 +12,8 @@ All future work on the `apps/web` project **MUST** follow the established archit
 
 1. **Mutations via Server Actions**: Every state-changing operation (POST, PUT, DELETE) must be implemented as a Server Action in `lib/[module]-actions.ts`. Direct `fetch` to proxy in Client Components for mutations is deprecated.
 2. **Standardized UI (FormLayout)**: Admin forms must use the `FormLayout` component with `FormSection` and `Field`.
-3. **Data Flow**: Use Client Components for interactive pages, fetching data via Server Actions and managing permissions with `useAuth` and `useFormMode` hooks.
-4. **Mandatory Reading**: Before writing any UI or API integration code, you **MUST** read the documentation in `docs/project/web/`.
+3. **Standalone UI (CompactFormLayout)**: Standalone forms (e.g., Auth, password reset, public pages) **MUST** use the `CompactFormLayout` component to ensure centralized animations, responsive structure, loading states, and premium aesthetics without repetitive Tailwind classes.
+4. **Data Flow**: Use Client Components for interactive pages, fetching data via Server Actions and managing permissions with `useAuth` and `useFormMode` hooks.
+5. **Mandatory Reading**: Before writing any UI or API integration code, you **MUST** read the documentation in `docs/project/web/`.
 
 <!-- END:nextjs-agent-rules -->

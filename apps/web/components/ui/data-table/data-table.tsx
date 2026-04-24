@@ -15,8 +15,18 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { Pencil, Trash2, Eye, LucideIcon } from 'lucide-react'
+import { Pencil, Trash2, Eye, LucideIcon, MoreVertical, ChevronDown, ChevronUp } from 'lucide-react'
 import Link from 'next/link'
+import { cn } from '@/lib/utils'
+import { useIsMobile } from '@/hooks/use-mobile'
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
 
 import {
   Table,
@@ -42,6 +52,7 @@ import { Button } from '@/components/ui/button'
 import { DataTablePagination } from './data-table-pagination'
 import { DataTableToolbar } from './data-table-toolbar'
 import { DataTableSkeleton } from './data-table-skeleton'
+import { DataTableMobileSkeleton } from './data-table-mobile-skeleton'
 import { DataTableDialog } from './data-table-dialog'
 import { QuickFilterConfig, DetailedFilterConfig } from './data-table-types'
 
@@ -101,6 +112,18 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [sorting, setSorting] = React.useState<SortingState>([])
+  const isMobile = useIsMobile()
+  const [expandedRows, setExpandedRows] = React.useState<Set<string>>(new Set())
+
+  const toggleRow = (rowId: string) => {
+    const newExpanded = new Set(expandedRows)
+    if (newExpanded.has(rowId)) {
+      newExpanded.delete(rowId)
+    } else {
+      newExpanded.add(rowId)
+    }
+    setExpandedRows(newExpanded)
+  }
 
   // Dialog State
   const [dialogOpen, setDialogOpen] = React.useState(false)
@@ -143,7 +166,6 @@ export function DataTable<TData, TValue>({
                                 '[id]',
                                 String((row.original as { id: string | number }).id),
                               )}
-                            target="_blank"
                           >
                             <Eye className="h-4 w-4" />
                           </Link>
@@ -281,8 +303,12 @@ export function DataTable<TData, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
+  const showEdit = editConfig?.show !== false && (editConfig?.url || editConfig?.dialog)
+  const showView = viewConfig?.show !== false && (viewConfig?.url || viewConfig?.dialog)
+  const showDelete = deleteConfig?.show !== false && deleteConfig?.onDelete
+
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <DataTableToolbar
         table={table}
         quickFilter={quickFilter}
@@ -304,46 +330,255 @@ export function DataTable<TData, TValue>({
             : undefined
         }
       />
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map(header => {
-                  return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
+      {isMobile ? (
+        <div className="flex flex-col gap-6">
+          {isLoading ? (
+            <DataTableMobileSkeleton rowCount={3} />
+          ) : table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map(row => {
+              const visibleCells = row.getVisibleCells()
+              const firstCell = visibleCells.find(
+                c => c.column.id !== 'actions' && c.column.id !== 'select',
+              )
+              visibleCells.filter(
+                c =>
+                  c.column.id !== 'actions' &&
+                  c.column.id !== 'select' &&
+                  c.column.id !== firstCell?.column.id,
+              )
+              const isExpanded = expandedRows.has(row.id)
+
+              return (
+                <div
+                  key={row.id}
+                  className="rounded-xl border bg-card text-card-foreground shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden"
+                >
+                  <div className="flex items-center justify-between p-4 border-b bg-muted/30">
+                    <div className="flex items-center gap-2">
+                      {/* Detect status badge to show in header */}
+                      {visibleCells
+                        .filter(
+                          c => (c.column.columnDef.meta as { title?: string })?.title === 'Status',
+                        )
+                        .map(cell => (
+                          <div key={cell.id} className="scale-90">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </div>
+                        ))}
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="rounded-full hover:bg-accent/50 h-9 w-9"
+                        >
+                          <MoreVertical className="h-5 w-5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48 p-1 shadow-xl">
+                        {showView && (
+                          <DropdownMenuItem asChild className="px-3 py-2 cursor-pointer">
+                            {viewConfig.url ? (
+                              <Link
+                                href={viewConfig.url
+                                  .replace(':id', String((row.original as { id: string }).id))
+                                  .replace('[id]', String((row.original as { id: string }).id))}
+                              >
+                                <span className="text-sm">Visualizar</span>
+                              </Link>
+                            ) : (
+                              <button
+                                className="w-full text-left outline-none"
+                                onClick={() => {
+                                  setDialogTitle('Visualizar Registro')
+                                  setDialogForm(() => viewConfig.dialog!)
+                                  setDialogData(row.original)
+                                  setDialogOpen(true)
+                                }}
+                              >
+                                <span className="text-sm">Visualizar</span>
+                              </button>
+                            )}
+                          </DropdownMenuItem>
+                        )}
+                        {showEdit && (
+                          <DropdownMenuItem asChild className="px-3 py-2 cursor-pointer">
+                            {editConfig.url ? (
+                              <Link
+                                href={editConfig.url
+                                  .replace(':id', String((row.original as { id: string }).id))
+                                  .replace('[id]', String((row.original as { id: string }).id))}
+                              >
+                                <span className="text-sm">Editar</span>
+                              </Link>
+                            ) : (
+                              <button
+                                className="w-full text-left outline-none"
+                                onClick={() => {
+                                  setDialogTitle('Editar Registro')
+                                  setDialogForm(() => editConfig.dialog!)
+                                  setDialogData(row.original)
+                                  setDialogOpen(true)
+                                }}
+                              >
+                                <span className="text-sm">Editar</span>
+                              </button>
+                            )}
+                          </DropdownMenuItem>
+                        )}
+                        {(rowActions?.length ?? 0) > 0 && (
+                          <DropdownMenuSeparator className="my-1" />
+                        )}
+                        {rowActions?.map((action, idx) => {
+                          if (action.show === false) return null
+                          const isDisabled =
+                            typeof action.disabled === 'function'
+                              ? action.disabled(row.original)
+                              : action.disabled
+
+                          return (
+                            <DropdownMenuItem
+                              key={idx}
+                              disabled={isDisabled}
+                              className={cn(
+                                'px-3 py-2 cursor-pointer',
+                                action.variant === 'destructive' ? 'text-destructive' : '',
+                              )}
+                              onClick={() => !isDisabled && action.onClick(row.original)}
+                            >
+                              <span className="text-sm">{action.label}</span>
+                            </DropdownMenuItem>
+                          )
+                        })}
+                        {showDelete && (
+                          <>
+                            <DropdownMenuSeparator className="my-1" />
+                            <DropdownMenuItem
+                              className="px-3 py-2 cursor-pointer text-destructive"
+                              onClick={() => {
+                                setRowToDelete(row.original)
+                                setDeleteAlertOpen(true)
+                              }}
+                            >
+                              <span className="text-sm">Excluir</span>
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  <div className="divide-y divide-border/30 bg-card/50">
+                    {visibleCells
+                      .filter(
+                        c =>
+                          c.column.id !== 'actions' &&
+                          c.column.id !== 'select' &&
+                          (c.column.columnDef.meta as { title?: string })?.title !== 'Status',
+                      )
+                      .slice(0, isExpanded ? undefined : 3)
+                      .map(cell => (
+                        <div
+                          key={cell.id}
+                          className="flex justify-between items-center px-5 py-3 text-sm animate-in fade-in slide-in-from-top-1 duration-200"
+                        >
+                          <span className="text-muted-foreground font-medium uppercase text-[10px] tracking-wider opacity-80">
+                            {(cell.column.columnDef.meta as { title?: string })?.title ||
+                              cell.column.id}
+                          </span>
+                          <span className="font-semibold text-right text-foreground">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+
+                  {visibleCells.filter(
+                    c =>
+                      c.column.id !== 'actions' &&
+                      c.column.id !== 'select' &&
+                      (c.column.columnDef.meta as { title?: string })?.title !== 'Status',
+                  ).length > 3 && (
+                    <Button
+                      variant="ghost"
+                      className="w-full rounded-none border-t border-border/20 text-primary hover:text-primary-foreground hover:bg-primary transition-colors h-11 font-bold text-xs uppercase tracking-wider"
+                      onClick={() => toggleRow(row.id)}
+                    >
+                      {isExpanded ? (
+                        <>
+                          <ChevronUp className="mr-2 h-4 w-4" /> Mostrar menos
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="mr-2 h-4 w-4" /> Mostrar mais
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              )
+            })
+          ) : (
+            <div className="flex flex-col items-center justify-center p-12 text-muted-foreground border-2 border-dashed rounded-xl bg-muted/20">
+              <span className="font-semibold text-lg italic">Nenhum resultado encontrado.</span>
+              <p className="text-sm mt-1">Tente ajustar seus filtros ou recarregar.</p>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map(headerGroup => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map(header => (
+                    <TableHead
+                      key={header.id}
+                      colSpan={header.colSpan}
+                      className={cn(
+                        'px-4 py-3',
+                        header.id === 'actions' && 'w-0 text-center whitespace-nowrap',
+                      )}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <DataTableSkeleton columnCount={columns.length} />
-            ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map(row => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                  {row.getVisibleCells().map(cell => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  Nenhum resultado encontrado.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <DataTableSkeleton columnCount={columns.length} />
+              ) : table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map(row => (
+                  <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                    {row.getVisibleCells().map(cell => (
+                      <TableCell
+                        key={cell.id}
+                        className={cn(
+                          'px-4',
+                          cell.column.id === 'actions' && 'w-0 text-center whitespace-nowrap',
+                        )}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    Nenhum resultado encontrado.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
       <DataTablePagination table={table} />
 
       <DataTableDialog

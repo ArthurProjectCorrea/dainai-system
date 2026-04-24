@@ -118,12 +118,12 @@ export function DataTableQuickFilter<TData>({
 
   // Default to text
   return (
-    <div className="relative flex items-center">
+    <div className="relative flex items-center flex-1 sm:flex-initial">
       <Input
         placeholder={config.placeholder || 'Filtrar...'}
         value={(value as string) ?? ''}
         onChange={event => handleValueChange(event.target.value)}
-        className="h-8 w-40 lg:w-64"
+        className="h-9 sm:h-8 flex-1 sm:w-40 lg:w-64"
       />
       {!!value && (
         <Button

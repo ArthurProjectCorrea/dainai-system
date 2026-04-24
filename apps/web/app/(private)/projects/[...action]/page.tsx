@@ -6,12 +6,13 @@ import { toast } from 'sonner'
 
 import { useAuth } from '@/hooks/use-auth'
 import { useFormMode } from '@/hooks/use-form-mode'
-import { PageHeader } from '@/components/page-header'
+import { PageHeader } from '@/components/layouts/page-header'
 import { ProjectForm } from '@/components/form/project-form'
-import { getProjectByIdAction } from '@/lib/action/project-actions'
-import type { Project } from '@/types/project'
+import { getProjectByIdAction } from '@/lib/action/project-action'
+import type { Project } from '@/types'
+import Loading from '@/components/ui/loading'
 
-export default function ProjectDetailsPage() {
+function ProjectDetailsContent() {
   const params = useParams<{ action: string | string[] }>()
   const router = useRouter()
   const { hasPermission, loading, activeAccesses } = useAuth()
@@ -51,11 +52,11 @@ export default function ProjectDetailsPage() {
   }, [loading, hasPermission, fetchProject])
 
   const screenName = React.useMemo(() => {
-    return activeAccesses.find(a => a.nameKey === 'projects_management')?.name || 'Projetos'
+    return activeAccesses.find(a => a.nameKey === 'projects_management')?.nameSidebar || 'Projetos'
   }, [activeAccesses])
 
-  if (loading || isLoadingData) return null
-  if (!project && !isCreate) return null
+  if (loading || isLoadingData) return <Loading />
+  if (!project && !isCreate) return <Loading />
 
   return (
     <div className="flex flex-1 flex-col relative">
@@ -86,5 +87,13 @@ export default function ProjectDetailsPage() {
         />
       </div>
     </div>
+  )
+}
+
+export default function ProjectDetailsPage() {
+  return (
+    <React.Suspense fallback={<Loading />}>
+      <ProjectDetailsContent />
+    </React.Suspense>
   )
 }

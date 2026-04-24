@@ -13,13 +13,11 @@ namespace Api.Application.DTOs
 
     public record PositionResponse(int Id, string Name, int DepartmentId, bool IsActive, List<int> ScreenPermissions);
 
-    public record TeamResponse(Guid Id, string Name, string? IconUrl, string? LogotipoUrl, bool IsActive);
+    public record TeamResponse(Guid Id, string Name, bool IsActive);
     public record SaveTeamRequest(
         [Required(ErrorMessage = "O nome da equipe é obrigatório")]
         string Name,
 
-        string? IconUrl,
-        string? LogotipoUrl,
         bool IsActive
     );
 

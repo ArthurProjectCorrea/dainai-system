@@ -597,14 +597,8 @@ namespace Api.Infrastructure.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("IconUrl")
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("LogotipoUrl")
-                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()

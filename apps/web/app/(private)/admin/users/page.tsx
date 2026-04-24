@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { forbidden } from 'next/navigation'
-import { toast } from 'sonner'
+import { notify } from '@/lib/notifications'
 import { Users2, ShieldCheck, ShieldAlert, UserRound, Mail } from 'lucide-react'
 
 import { useAdminModule } from '@/hooks/use-admin-module'
@@ -11,11 +11,12 @@ import { ModulePageLayout } from '@/components/layouts/module-page-layout'
 import { DataTable } from '@/components/ui/data-table/data-table'
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header'
 import { Badge } from '@/components/ui/badge'
-import { StatCard } from '@/components/stat-card'
+import { StatCard } from '@/components/ui/stat-card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 
-import type { UserManagementIndicators, UserManagementUser } from '@/types/user'
+import type { UserManagementIndicators, UserManagementUser } from '@/types'
+import { deleteUserAction, resendInvitationAction } from '@/lib/action/admin-action'
 
 export default function UsersPage() {
   const {
@@ -129,30 +130,22 @@ export default function UsersPage() {
 
   async function handleResendInvitation(user: UserManagementUser) {
     try {
-      const response = await fetch(`/api/v1/admin/users/${user.id}/resend-invitation`, {
-        method: 'POST',
-      })
-      if (!response.ok) {
-        const errorResult = await response.json().catch(() => null)
-        throw new Error(errorResult?.message || 'Erro ao reenviar convite')
-      }
-      toast.success('Link de convite enviado com sucesso!')
+      const result = await resendInvitationAction(user.id)
+      if (result.error) throw new Error(result.error)
+      notify.admin.user.invitationResent()
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erro ao reenviar convite')
+      notify.system.error(error instanceof Error ? error.message : 'Erro ao reenviar convite')
     }
   }
 
   async function handleDelete(user: UserManagementUser) {
     try {
-      const response = await fetch(`/api/v1/admin/users/${user.id}`, { method: 'DELETE' })
-      if (!response.ok) {
-        const errorResult = await response.json().catch(() => null)
-        throw new Error(errorResult?.message || 'Erro ao excluir usuario')
-      }
-      toast.success('Usuario removido com sucesso')
+      const result = await deleteUserAction(user.id)
+      if (result.error) throw new Error(result.error)
+      notify.admin.user.deleteSuccess()
       fetchData({ silent: true })
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erro ao excluir usuario')
+      notify.system.error(error instanceof Error ? error.message : 'Erro ao excluir usuário')
     }
   }
 

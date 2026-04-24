@@ -13,7 +13,7 @@ import { ModulePageLayout } from '@/components/layouts/module-page-layout'
 import { DataTable } from '@/components/ui/data-table/data-table'
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header'
 import { Badge } from '@/components/ui/badge'
-import { StatCard } from '@/components/stat-card'
+import { StatCard } from '@/components/ui/stat-card'
 import { DocumentFilter } from '@/components/filter/document-filter'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import {
@@ -30,9 +30,9 @@ import {
   deleteDocumentAction,
   getCategoriesAction,
   publishDocumentAction,
-} from '@/lib/action/document-actions'
-import type { Document, DocumentIndicator, Category } from '@/types/document'
-import type { Project } from '@/types/project'
+} from '@/lib/action/document-action'
+import type { Document, DocumentIndicator, Category } from '@/types'
+import type { Project } from '@/types'
 
 export default function DocumentsPage() {
   const {
@@ -151,14 +151,14 @@ export default function DocumentsPage() {
           </HoverCard>
         )
       },
-      filterFn: (row, id, value: number[]) => {
+      filterFn: (row, id, value: string[]) => {
         if (!value || value.length === 0) return true
         const rowCats: Category[] = row.getValue(id)
         return rowCats.some(c => value.includes(c.id))
       },
     },
     {
-      accessorKey: 'status',
+      accessorKey: 'isPublished',
       header: ({ column }) => (
         <div className="flex justify-center">
           <DataTableColumnHeader column={column} title="Status" />
@@ -166,12 +166,12 @@ export default function DocumentsPage() {
       ),
       meta: { title: 'Status' },
       cell: ({ row }) => {
-        const s = row.original.status
-        const variant = s === 'Published' ? 'default' : s === 'Completed' ? 'secondary' : 'outline'
-        const label = s === 'Published' ? 'Publicado' : s === 'Completed' ? 'Concluído' : 'Rascunho'
+        const isPublished = row.original.isPublished
         return (
           <div className="flex justify-center">
-            <Badge variant={variant as 'default' | 'secondary' | 'outline'}>{label}</Badge>
+            <Badge variant={isPublished ? 'default' : 'outline'}>
+              {isPublished ? 'Publicado' : 'Rascunho'}
+            </Badge>
           </div>
         )
       },
@@ -221,10 +221,10 @@ export default function DocumentsPage() {
     try {
       const res = await publishDocumentAction(docToApprove.id)
       if (res.error) throw new Error(res.error)
-      toast.success('Documento aprovado e publicado com sucesso!')
+      toast.success('Documento publicado com sucesso!')
       fetchData({ silent: true })
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erro ao aprovar documento')
+      toast.error(error instanceof Error ? error.message : 'Erro ao publicar documento')
     } finally {
       setIsApproveOpen(false)
       setDocToApprove(null)
@@ -239,20 +239,20 @@ export default function DocumentsPage() {
           <StatCard
             icon={<FileText className="h-4 w-4 text-primary" />}
             title="Total"
-            value={indicators?.totalDocuments || 0}
+            value={indicators?.total || 0}
             description="Documentos gerenciados"
           />
           <StatCard
             icon={<Globe className="h-4 w-4 text-emerald-500" />}
             title="Publicados"
-            value={indicators?.publishedDocuments || 0}
-            description="Visíveis para o público"
+            value={indicators?.published || 0}
+            description="Visíveis na Wiki"
           />
           <StatCard
             icon={<Clock className="h-4 w-4 text-amber-500" />}
-            title="Aguardando Aprovação"
-            value={indicators?.completedDocuments || 0}
-            description="Documentos prontos para revisão"
+            title="Rascunhos"
+            value={indicators?.drafts || 0}
+            description="Documentos em edição"
           />
         </>
       }
@@ -285,12 +285,12 @@ export default function DocumentsPage() {
         rowActions={[
           {
             icon: CheckCircle2,
-            label: 'Aprovar',
+            label: 'Publicar',
             onClick: doc => {
               setDocToApprove(doc)
               setIsApproveOpen(true)
             },
-            disabled: doc => doc.status !== 'Completed',
+            disabled: doc => doc.isPublished,
             show: canUpdate,
           },
         ]}
@@ -299,15 +299,15 @@ export default function DocumentsPage() {
       <AlertDialog open={isApproveOpen} onOpenChange={setIsApproveOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Deseja aprovar este documento?</AlertDialogTitle>
+            <AlertDialogTitle>Deseja publicar este documento?</AlertDialogTitle>
             <AlertDialogDescription>
-              Ao aprovar, uma nova versão deste documento será gerada e ele ficará visível
-              publicamente com o status de <strong>Publicado</strong>.
+              Ao publicar, uma nova versão deste documento será gerada e ele ficará visível na Wiki
+              como <strong>Publicado</strong>.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleApprove}>Confirmar Aprovação</AlertDialogAction>
+            <AlertDialogAction onClick={handleApprove}>Confirmar Publicação</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

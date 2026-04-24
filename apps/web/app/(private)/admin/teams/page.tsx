@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { forbidden } from 'next/navigation'
-import { Building2, Users2, ShieldCheck, ShieldAlert } from 'lucide-react'
+import { Users2, ShieldCheck, ShieldAlert } from 'lucide-react'
 
 import { useAdminModule } from '@/hooks/use-admin-module'
 import { ModulePageLayout } from '@/components/layouts/module-page-layout'
@@ -11,11 +11,12 @@ import { DataTable } from '@/components/ui/data-table/data-table'
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header'
 import { TeamForm } from '@/components/form/team-form'
 import { Badge } from '@/components/ui/badge'
-import { StatCard } from '@/components/stat-card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { toast } from 'sonner'
+import { StatCard } from '@/components/ui/stat-card'
 
-import { Team } from '@/types/team'
+import { notify } from '@/lib/notifications'
+
+import { Team } from '@/types'
+import { deleteTeamAction } from '@/lib/action/admin-action'
 
 export default function TeamsPage() {
   const {
@@ -37,21 +38,6 @@ export default function TeamsPage() {
   if (!canView) return forbidden()
 
   const columns: ColumnDef<Team>[] = [
-    {
-      accessorKey: 'logotipoUrl',
-      header: () => <div className="text-center">Logotipo</div>,
-      meta: { title: 'Logotipo' },
-      cell: ({ row }) => (
-        <div className="flex justify-center">
-          <Avatar size="default" className="border">
-            <AvatarImage src={row.original.logotipoUrl || ''} />
-            <AvatarFallback>
-              <Building2 className="size-4" />
-            </AvatarFallback>
-          </Avatar>
-        </div>
-      ),
-    },
     {
       accessorKey: 'name',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Nome" />,
@@ -78,15 +64,12 @@ export default function TeamsPage() {
 
   async function handleDelete(team: Team) {
     try {
-      const response = await fetch(`/api/v1/admin/teams/${team.id}`, { method: 'DELETE' })
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
-        throw new Error(error.message || 'Erro ao excluir equipe')
-      }
-      toast.success('Equipe excluída com sucesso')
+      const result = await deleteTeamAction(team.id)
+      if (result.error) throw new Error(result.error)
+      notify.admin.team.deleteSuccess()
       fetchData({ silent: true })
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erro ao excluir equipe')
+      notify.system.error(error instanceof Error ? error.message : 'Erro ao excluir equipe')
     }
   }
 

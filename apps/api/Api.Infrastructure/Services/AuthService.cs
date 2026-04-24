@@ -37,9 +37,16 @@ namespace Api.Infrastructure.Services
         public async Task<ApiResponse<LoginResponse>> LoginAsync(LoginRequest request)
         {
             var user = await _userManager.FindByEmailAsync(request.Email);
-            if (user == null) return new ApiResponse<LoginResponse>("401", "Credenciais inválidas", null);
+            if (user == null) return new ApiResponse<LoginResponse>("401", "E-mail ou senha inválidos.", null);
+
+            // Verificação de Lockout antes mesmo de tentar a senha
+            if (await _userManager.IsLockedOutAsync(user))
+            {
+                return new ApiResponse<LoginResponse>("401", "Muitas tentativas falhas. Conta bloqueada temporariamente.", null);
+            }
 
             var profile = await _context.Profiles
+                .AsNoTracking()
                 .Include(p => p.ProfileTeams)
                     .ThenInclude(pt => pt.Team)
                 .FirstOrDefaultAsync(p => p.UserId == user.Id);
@@ -47,9 +54,7 @@ namespace Api.Infrastructure.Services
             if (profile != null)
             {
                 if (!profile.IsActive)
-                {
-                    return new ApiResponse<LoginResponse>("401", "Credenciais inválidas", null);
-                }
+                    return new ApiResponse<LoginResponse>("401", "E-mail ou senha inválidos.", null);
 
                 if (profile.ProfileTeams.Count == 1 && !profile.ProfileTeams.First().Team.IsActive)
                 {
@@ -57,13 +62,17 @@ namespace Api.Infrastructure.Services
                 }
             }
 
-            var result = await _signInManager.PasswordSignInAsync(user, request.Password, false, false);
-            if (!result.Succeeded) return new ApiResponse<LoginResponse>("401", "Credenciais inválidas", null);
+            // Ativado lockoutOnFailure: true
+            var result = await _signInManager.PasswordSignInAsync(user, request.Password, isPersistent: false, lockoutOnFailure: true);
 
+            if (result.IsLockedOut)
+                return new ApiResponse<LoginResponse>("401", "Muitas tentativas falhas. Conta bloqueada temporariamente.", null);
+
+            if (!result.Succeeded)
+                return new ApiResponse<LoginResponse>("401", "E-mail ou senha inválidos.", null);
+
+            // Invalidação de cache de permissões (apenas a versão atual)
             await _cache.RemoveAsync($"rbac_v4_{user.Id}");
-            await _cache.RemoveAsync($"rbac_v3_{user.Id}");
-            await _cache.RemoveAsync($"rbac_v2_{user.Id}");
-            await _cache.RemoveAsync($"rbac_{user.Id}");
 
             return new ApiResponse<LoginResponse>("200", "Login realizado com sucesso",
                 new LoginResponse(user.Id, user.Email!, profile?.Name ?? "Usuário"));
@@ -133,7 +142,6 @@ namespace Api.Infrastructure.Services
                 profile.ProfileTeams.Select(pt => new UserTeamDto(
                     pt.Team.Id,
                     pt.Team.Name,
-                    pt.Team.LogotipoUrl,
                     pt.Team.IsActive
                 )).ToList(),
                 teamAccesses

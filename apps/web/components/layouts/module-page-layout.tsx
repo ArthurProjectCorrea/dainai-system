@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { PageHeader } from '@/components/page-header'
+
+import { PageHeader } from '@/components/layouts/page-header'
 
 interface BreadcrumbItem {
   label: string

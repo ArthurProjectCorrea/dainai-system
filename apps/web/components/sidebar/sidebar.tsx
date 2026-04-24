@@ -84,8 +84,8 @@ export const sidebarData = {
       icon: <House />,
     },
     {
-      title: 'Documentação',
-      url: '/docs',
+      title: 'Wiki',
+      url: '/wiki',
       icon: <BookText />,
     },
     {

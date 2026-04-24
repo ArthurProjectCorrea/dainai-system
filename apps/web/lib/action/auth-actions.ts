@@ -3,8 +3,7 @@
 import { clearSession } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
-
-const API_BASE = process.env.BACKEND_API_URL || 'http://localhost:5000/api/v1'
+import { apiFetch, getApiBase } from '@/lib/api-client'
 
 function extractCookieValue(setCookieHeader: string, cookieName: string): string | null {
   const escapedName = cookieName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -39,39 +38,17 @@ function extractAuthCookie(response: Response): { name: string; value: string } 
   return null
 }
 
-export async function getAuthHeaders() {
-  const cookieStore = await cookies()
-  const authToken = cookieStore.get('AuthToken')?.value
-  const identityToken = cookieStore.get('.AspNetCore.Identity.Application')?.value
-  const activeTeamId = cookieStore.get('active_team_id')?.value
-
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  }
-
-  if (authToken) {
-    headers['Cookie'] = `AuthToken=${authToken}`
-  } else if (identityToken) {
-    headers['Cookie'] = `.AspNetCore.Identity.Application=${identityToken}`
-  }
-
-  if (activeTeamId) {
-    headers['X-Active-Team-Id'] = activeTeamId
-  }
-
-  return headers
-}
-
 export async function loginAction(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
   if (!email || !password) {
-    return { error: 'E-mail e senha sao obrigatorios.' }
+    return { error: 'E-mail e senha sao obrigatorios.', success: false }
   }
 
   try {
-    const response = await fetch(`${API_BASE}/auth/login`, {
+    const apiBase = await getApiBase()
+    const response = await fetch(`${apiBase}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -80,18 +57,21 @@ export async function loginAction(formData: FormData) {
 
     if (!response.ok) {
       if (response.status === 401) {
-        return { error: 'E-mail ou senha invalidos.' }
+        return { error: 'E-mail ou senha inválidos.', success: false }
       }
 
       const data = await response.json().catch(() => ({}))
-      return { error: data.message || 'Erro ao realizar login.' }
+      return { error: data.message || 'Erro ao realizar login.', success: false }
     }
 
     // Mirror backend auth cookie to Next domain
     const authCookie = extractAuthCookie(response)
     if (!authCookie) {
-      return { error: 'Nao foi possivel iniciar a sessao. Tente novamente.' }
+      return { error: 'Nao foi possivel iniciar a sessao. Tente novamente.', success: false }
     }
+
+    // Limpeza preventiva antes de salvar nova sessão
+    await clearSession()
 
     const cookieStore = await cookies()
     cookieStore.set(authCookie.name, authCookie.value, {
@@ -101,81 +81,44 @@ export async function loginAction(formData: FormData) {
       path: '/',
     })
 
-    return { success: true }
-  } catch {
-    return { error: 'Erro de conexao com o servidor.' }
+    return { success: true, error: undefined }
+  } catch (error) {
+    console.error('Login error:', error)
+    return { error: 'Erro de conexão com o servidor.', success: false }
   }
 }
 
 export async function logoutAction() {
-  const cookieStore = await cookies()
-  const authToken = cookieStore.get('AuthToken')?.value
-  const identityToken = cookieStore.get('.AspNetCore.Identity.Application')?.value
-  const authCookieHeader = authToken
-    ? `AuthToken=${authToken}`
-    : identityToken
-      ? `.AspNetCore.Identity.Application=${identityToken}`
-      : null
+  await apiFetch('/auth/logout', {
+    method: 'POST',
+  }).catch(() => null)
 
-  if (authCookieHeader) {
-    await fetch(`${API_BASE}/auth/logout`, {
-      method: 'POST',
-      headers: { Cookie: authCookieHeader },
-      cache: 'no-store',
-    }).catch(() => null)
-  }
-
-  cookieStore.delete('AuthToken')
-  cookieStore.delete('.AspNetCore.Identity.Application')
   await clearSession()
   redirect('/auth/login')
 }
 
 export async function forgotPasswordAction(formData: FormData) {
   const email = formData.get('email') as string
+  const res = await apiFetch<void>('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  })
 
-  try {
-    const res = await fetch(`${API_BASE}/auth/forgot-password`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-      cache: 'no-store',
-    })
-
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}))
-      return { error: data.message || 'Erro ao enviar codigo.' }
-    }
-
-    return { success: true }
-  } catch {
-    return { error: 'Erro de conexao com o servidor.' }
-  }
+  if (res.error) return { error: res.error, success: false }
+  return { success: true, error: undefined }
 }
 
 export async function verifyOtpAction(formData: FormData) {
   const email = formData.get('email') as string
   const code = formData.get('otp') as string
 
-  try {
-    const res = await fetch(`${API_BASE}/auth/verify-otp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, code }),
-      cache: 'no-store',
-    })
+  const res = await apiFetch<{ resetToken: string }>('/auth/verify-otp', {
+    method: 'POST',
+    body: JSON.stringify({ email, code }),
+  })
 
-    const data = await res.json().catch(() => ({}))
-
-    if (!res.ok) {
-      return { error: data.message || 'Codigo invalido.' }
-    }
-
-    const passwordToken = data?.data?.resetToken ?? ''
-    return { success: true, passwordToken }
-  } catch {
-    return { error: 'Erro de conexao com o servidor.' }
-  }
+  if (res.error) return { error: res.error, success: false }
+  return { success: true, passwordToken: res.data?.resetToken, error: undefined }
 }
 
 export async function resetPasswordAction(passwordToken: string, formData: FormData) {
@@ -183,38 +126,28 @@ export async function resetPasswordAction(passwordToken: string, formData: FormD
   const confirmPassword = formData.get('confirm-password') as string
 
   if (password !== confirmPassword) {
-    return { error: 'As senhas nao conferem.' }
+    return { error: 'As senhas nao conferem.', success: false }
   }
 
   if (!passwordToken) {
-    return { error: 'Token de redefinicao ausente.' }
+    return { error: 'Token de redefinicao ausente.', success: false }
   }
 
-  try {
-    const res = await fetch(`${API_BASE}/auth/reset-password`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Cookie: `Reset-Token=${passwordToken}`,
-      },
-      body: JSON.stringify({
-        newPassword: password,
-        confirmPassword,
-      }),
-      cache: 'no-store',
-    })
+  const res = await apiFetch<void>('/auth/reset-password', {
+    method: 'POST',
+    headers: {
+      Cookie: `Reset-Token=${passwordToken}`,
+    },
+    body: JSON.stringify({
+      newPassword: password,
+      confirmPassword,
+    }),
+  })
 
-    if (res.status === 401) {
-      return { error: 'Codigo expirado. Solicite um novo.' }
-    }
-
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}))
-      return { error: errorData.message || 'Erro ao redefinir senha.' }
-    }
-
-    return { success: true, message: 'Senha alterada com sucesso.' }
-  } catch {
-    return { error: 'Erro de conexao com o servidor.' }
+  if (res.error) {
+    if (res.status === 401) return { error: 'Codigo expirado. Solicite um novo.', success: false }
+    return { error: res.error, success: false }
   }
+
+  return { success: true, message: 'Senha alterada com sucesso.', error: undefined }
 }

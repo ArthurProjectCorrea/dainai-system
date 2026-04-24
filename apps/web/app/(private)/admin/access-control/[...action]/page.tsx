@@ -2,18 +2,19 @@
 
 import * as React from 'react'
 import { forbidden, useParams, useRouter, useSearchParams } from 'next/navigation'
-import { toast } from 'sonner'
+import { notify } from '@/lib/notifications'
 
 import { useAuth } from '@/hooks/use-auth'
 import { useFormMode } from '@/hooks/use-form-mode'
-import { PageHeader } from '@/components/page-header'
+import { PageHeader } from '@/components/layouts/page-header'
 import { AccessControlForm } from '@/components/form/access-control-form'
 import {
   getAccessControlDataAction,
   getDepartmentByIdAction,
   getPositionByIdAction,
-} from '@/lib/action/access-control-actions'
-import type { AccessControlPayload, Position, Department } from '@/types/access-control'
+} from '@/lib/action/admin-action'
+import type { AccessControlPayload, Position, Department } from '@/types'
+import Loading from '@/components/ui/loading'
 
 function EditAccessControlContent() {
   const router = useRouter()
@@ -48,7 +49,7 @@ function EditAccessControlContent() {
               : await getPositionByIdAction(id)
 
           if (result.error) {
-            toast.error(result.error)
+            notify.system.error(result.error)
             router.push('/admin/access-control')
             return
           }
@@ -56,7 +57,7 @@ function EditAccessControlContent() {
           setInitialData(result.data || null)
         }
       } catch (error) {
-        toast.error('Erro ao carregar dados')
+        notify.system.error('Erro ao carregar dados')
         console.error(error)
       } finally {
         setIsLoadingData(false)
@@ -75,10 +76,10 @@ function EditAccessControlContent() {
   }, [loading, hasPermission, id, type, router, readOnly, isCreate])
 
   const screenName = React.useMemo(() => {
-    return activeAccesses.find(a => a.nameKey === 'access_control')?.name || 'Controle de Acesso'
+    return activeAccesses.find(a => a.nameKey === 'access_control')?.nameSidebar || 'Controle de Acesso'
   }, [activeAccesses])
 
-  if (loading) return null
+  if (loading || isLoadingData || !options || (!isCreate && !initialData)) return <Loading />
 
   const canAccessSync = readOnly
     ? hasPermission('access_control', 'view')
@@ -88,10 +89,6 @@ function EditAccessControlContent() {
 
   if (!canAccessSync) {
     return forbidden()
-  }
-
-  if (isLoadingData || !options || (!isCreate && !initialData)) {
-    return null
   }
 
   const breadcrumbLabel = isCreate
@@ -132,7 +129,7 @@ function EditAccessControlContent() {
 
 export default function EditAccessControlPage() {
   return (
-    <React.Suspense fallback={null}>
+    <React.Suspense fallback={<Loading />}>
       <EditAccessControlContent />
     </React.Suspense>
   )

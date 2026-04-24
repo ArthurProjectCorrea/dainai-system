@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { toast } from 'sonner'
+import { notify } from '@/lib/notifications'
 import { Upload, XIcon, UserRound, Plus, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
@@ -24,11 +24,11 @@ import {
   FieldLabel,
   FieldTitle,
 } from '@/components/ui/field'
-import { FormLayout } from '@/components/layouts/form-layout'
-import { FormSection, FormGrid } from '@/components/form-section'
+import { FormLayout } from '../layouts/form-layout'
+import { FormSection, FormGrid } from '../layouts/form-section'
 
-import { createUserAction, updateUserAction } from '@/lib/action/user-actions'
-import type { SaveUserPayload, UserManagementOptions, UserManagementUser } from '@/types/user'
+import { createUserAction, updateUserAction } from '@/lib/action/admin-action'
+import type { SaveUserPayload, UserManagementOptions, UserManagementUser } from '@/types'
 
 interface UserFormProps {
   mode: 'create' | 'edit' | 'view'
@@ -96,9 +96,9 @@ export function UserForm({ mode, user, options, onSuccess, onCancel, onEdit }: U
       if (!res.ok) throw new Error('Upload falhou')
       const result = await res.json()
       setAvatarUrl(result.data)
-      toast.success('Imagem enviada!')
+      notify.system.success('Imagem enviada!')
     } catch {
-      toast.error('Erro ao enviar imagem')
+      notify.system.error('Erro ao enviar imagem')
     } finally {
       setUploading(false)
     }
@@ -108,7 +108,7 @@ export function UserForm({ mode, user, options, onSuccess, onCancel, onEdit }: U
 
   const removeAssignment = (key: string) => {
     if (assignments.length === 1) {
-      toast.error('O usuário deve ter pelo menos uma atribuição')
+      notify.system.error('O usuário deve ter pelo menos uma atribuição')
       return
     }
     setAssignments(assignments.filter(a => a.key !== key))
@@ -128,7 +128,7 @@ export function UserForm({ mode, user, options, onSuccess, onCancel, onEdit }: U
 
     // Validação básica
     if (assignments.some(a => !a.teamId || !a.departmentId || !a.positionId)) {
-      toast.error('Preencha todas as atribuições corretamente')
+      notify.system.error('Preencha todas as atribuições corretamente')
       setLoading(false)
       return
     }
@@ -154,14 +154,14 @@ export function UserForm({ mode, user, options, onSuccess, onCancel, onEdit }: U
         throw new Error(result.error)
       }
 
-      toast.success(mode === 'edit' ? 'Usuário atualizado!' : 'Usuário criado!')
+      notify.admin.user.saveSuccess(mode === 'edit')
       if (onSuccess) {
         onSuccess()
       } else {
         router.push('/admin/users')
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erro ao salvar usuário')
+      notify.system.error(error instanceof Error ? error.message : 'Erro ao salvar usuário')
     } finally {
       setLoading(false)
     }

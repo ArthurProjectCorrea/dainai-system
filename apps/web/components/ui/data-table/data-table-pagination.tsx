@@ -11,21 +11,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>
 }
 
 export function DataTablePagination<TData>({ table }: DataTablePaginationProps<TData>) {
+  const isMobile = useIsMobile()
+
   return (
-    <div className="flex items-center justify-between px-2">
-      <div className="flex-1 text-sm text-muted-foreground">
-        {table.getFilteredSelectedRowModel().rows.length} de{' '}
-        {table.getFilteredRowModel().rows.length} linha(s) selecionadas.
-      </div>
-      <div className="flex items-center space-x-6 lg:space-x-8">
+    <div className="flex flex-col items-center justify-between gap-4 px-2 py-2 sm:flex-row sm:gap-0">
+      {!isMobile && (
+        <div className="flex-1 text-sm text-muted-foreground">
+          {table.getFilteredSelectedRowModel().rows.length} de{' '}
+          {table.getFilteredRowModel().rows.length} linha(s) selecionadas.
+        </div>
+      )}
+      <div className="flex flex-wrap items-center justify-center gap-4 sm:space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">Linhas por página</p>
+          {!isMobile && <p className="text-sm font-medium">Linhas por página</p>}
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={value => {
@@ -44,8 +49,16 @@ export function DataTablePagination<TData>({ table }: DataTablePaginationProps<T
             </SelectContent>
           </Select>
         </div>
-        <div className="flex w-24 items-center justify-center text-sm font-medium">
-          Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
+        <div className="flex w-fit min-w-[80px] items-center justify-center text-sm font-medium">
+          {isMobile ? (
+            <span>
+              {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+            </span>
+          ) : (
+            <span>
+              Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
+            </span>
+          )}
         </div>
         <div className="flex items-center space-x-2">
           <Button

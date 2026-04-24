@@ -21,14 +21,14 @@ export function proxy(request: NextRequest) {
   }
 
   // 2. Proteção de Rotas Privadas
-  const pathSegments = pathname.split('/').filter(Boolean)
   const isPublicPath =
     pathname.startsWith('/auth') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
+    pathname === '/' ||
     pathname === '/favicon.ico'
 
-  if (!isPublicPath && pathSegments.length > 0) {
+  if (!isPublicPath) {
     // Se não estiver logado, manda para o login
     if (!isAuthenticated) {
       return NextResponse.redirect(new URL('/auth/login', request.url))
@@ -65,16 +65,4 @@ export function proxy(request: NextRequest) {
       headers: requestHeaders,
     },
   })
-}
-
-export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (metadata files)
-     */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
-  ],
 }

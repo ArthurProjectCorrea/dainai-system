@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  serverExternalPackages: [],
+
+  // Allow mobile access and other network devices
 }
+
+// @ts-expect-error - allowedDevOrigins is required for network access in some Next versions
+nextConfig.allowedDevOrigins = ['172.26.224.1', 'localhost:3000']
 
 export default nextConfig

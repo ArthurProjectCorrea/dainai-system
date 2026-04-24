@@ -1,15 +1,16 @@
 'use client'
 
 import * as React from 'react'
-import { toast } from 'sonner'
+import { notify } from '@/lib/notifications'
 
-import { FormLayout } from '@/components/layouts/form-layout'
-import { FormSection, FormGrid } from '@/components/form-section'
+import { FormLayout } from '../layouts/form-layout'
+import { FormSection, FormGrid } from '../layouts/form-section'
 
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -24,9 +25,10 @@ import {
   FieldLabel,
   FieldTitle,
 } from '@/components/ui/field'
-import { CreatableCombobox } from '@/components/creatable-combobox'
+import { CreatableCombobox } from '@/components/ui/creatable-combobox'
+import { useIsMobile } from '@/hooks/use-mobile'
 
-import { saveDepartmentAction, savePositionAction } from '@/lib/action/access-control-actions'
+import { saveDepartmentAction, savePositionAction } from '@/lib/action/admin-action'
 
 import { isPermissionSupported, SCOPES_SUPPORTED_SCREENS } from '@/lib/permissions'
 import type {
@@ -36,7 +38,7 @@ import type {
   SavePositionRequest,
   SaveDepartmentRequest,
   Position,
-} from '@/types/access-control'
+} from '@/types'
 
 type PositionWithAccesses = Position & {
   accesses?: { screenId: number; permissionId: number; scope?: string }[]
@@ -68,6 +70,7 @@ export function AccessControlForm({
   onEdit,
 }: AccessControlFormProps) {
   const [loading, setLoading] = React.useState(false)
+  const isMobile = useIsMobile()
 
   // Form States
   const [name, setName] = React.useState((initialData as Position)?.name || '')
@@ -171,10 +174,14 @@ export function AccessControlForm({
         throw new Error(result.error)
       }
 
-      toast.success(type === 'create' ? 'Criado com sucesso' : 'Atualizado com sucesso')
+      if (mode === 'department') {
+        notify.admin.accessControl.departmentSaveSuccess(type === 'edit')
+      } else {
+        notify.admin.accessControl.positionSaveSuccess(type === 'edit')
+      }
       onSuccess?.()
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erro ao processar solicitação')
+      notify.system.error(error instanceof Error ? error.message : 'Erro ao processar solicitação')
       console.error(error)
     } finally {
       setLoading(false)
@@ -273,50 +280,50 @@ export function AccessControlForm({
               title="Gerenciamento de Acessos"
               description="Selecione quais ações este cargo pode realizar em cada módulo do sistema."
             >
-              <div className="overflow-x-auto rounded-md border mt-2">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-muted/50 border-b">
-                      <th className="p-3 text-left font-medium text-muted-foreground">
-                        Nome da Tela
-                      </th>
-                      <th className="p-3 text-left font-medium text-muted-foreground w-32">
-                        Escopo
-                      </th>
-                      {options.permissions.map(perm => (
-                        <th
-                          key={perm.id}
-                          className="p-3 text-center font-medium text-muted-foreground w-20"
-                        >
-                          {perm.name}
-                        </th>
-                      ))}
-                      <th className="p-3 text-center font-medium text-muted-foreground w-20">
-                        Todas
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {options.screens.map(screen => {
-                      const supportedPerms = options.permissions.filter(p =>
-                        isPermissionSupported(screen.nameKey, p.nameKey),
-                      )
+              {isMobile ? (
+                <div className="space-y-4 mt-4">
+                  {options.screens.map(screen => {
+                    const supportedPerms = options.permissions.filter(p =>
+                      isPermissionSupported(screen.nameKey, p.nameKey),
+                    )
 
-                      const allChecked =
-                        supportedPerms.length > 0 &&
-                        supportedPerms.every(p => selectedAccesses.get(screen.id)?.has(p.id))
+                    const allChecked =
+                      supportedPerms.length > 0 &&
+                      supportedPerms.every(p => selectedAccesses.get(screen.id)?.has(p.id))
 
-                      return (
-                        <tr key={screen.id} className="group hover:bg-muted/30 transition-colors">
-                          <td className="p-3 py-2">
-                            <div className="font-medium text-foreground text-xs">{screen.name}</div>
-                            <div className="text-[9px] text-muted-foreground/60 font-mono uppercase tracking-tighter">
+                    return (
+                      <div
+                        key={screen.id}
+                        className="rounded-xl border bg-muted/10 p-4 space-y-4 shadow-sm"
+                      >
+                        <div className="flex items-center justify-between border-b border-border/50 pb-3">
+                          <div>
+                            <div className="font-bold text-sm text-foreground">{screen.name}</div>
+                            <div className="text-[10px] text-muted-foreground uppercase tracking-tight font-mono">
                               {screen.nameKey}
                             </div>
-                          </td>
-                          <td className="p-1 px-3">
-                            {supportedPerms.length > 0 &&
-                            SCOPES_SUPPORTED_SCREENS.includes(screen.nameKey) ? (
+                          </div>
+                          <div className="flex items-center gap-2 bg-background/50 px-2 py-1 rounded-md border border-border/50">
+                            <span className="text-[10px] uppercase font-bold text-muted-foreground">
+                              Todas
+                            </span>
+                            <Checkbox
+                              checked={allChecked}
+                              onCheckedChange={checked =>
+                                toggleAllForScreen(screen.id, checked as boolean)
+                              }
+                              className="h-4 w-4"
+                              disabled={readOnly}
+                            />
+                          </div>
+                        </div>
+
+                        {supportedPerms.length > 0 &&
+                          SCOPES_SUPPORTED_SCREENS.includes(screen.nameKey) && (
+                            <div className="space-y-1.5">
+                              <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
+                                Escopo de Acesso
+                              </Label>
                               <Select
                                 value={screenScopes.get(screen.id) || 'team'}
                                 onValueChange={value => {
@@ -326,8 +333,8 @@ export function AccessControlForm({
                                 }}
                                 disabled={readOnly}
                               >
-                                <SelectTrigger className="flex h-7 w-32 text-xs">
-                                  <SelectValue placeholder="Selecione" />
+                                <SelectTrigger className="h-9 text-xs bg-background">
+                                  <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="all">Global</SelectItem>
@@ -335,42 +342,143 @@ export function AccessControlForm({
                                   <SelectItem value="user">Usuário</SelectItem>
                                 </SelectContent>
                               </Select>
-                            ) : null}
-                          </td>
+                            </div>
+                          )}
+
+                        <div className="grid grid-cols-2 gap-2">
                           {options.permissions.map(perm => {
                             const isSupported = isPermissionSupported(screen.nameKey, perm.nameKey)
+                            if (!isSupported) return null
 
                             return (
-                              <td key={perm.id} className="p-1 text-center">
-                                {isSupported ? (
-                                  <Checkbox
-                                    checked={selectedAccesses.get(screen.id)?.has(perm.id) || false}
-                                    onCheckedChange={() => togglePermission(screen.id, perm.id)}
-                                    className="mx-auto h-3.5 w-3.5"
-                                    disabled={readOnly}
-                                  />
-                                ) : (
-                                  <div className="w-3.5 h-3.5 mx-auto border border-dashed rounded-[2px] opacity-10" />
-                                )}
-                              </td>
+                              <div
+                                key={perm.id}
+                                className="flex items-center gap-3 p-2 rounded-lg bg-background border border-border/50 shadow-sm transition-colors hover:bg-muted/50"
+                              >
+                                <Checkbox
+                                  checked={selectedAccesses.get(screen.id)?.has(perm.id) || false}
+                                  onCheckedChange={() => togglePermission(screen.id, perm.id)}
+                                  className="h-4 w-4"
+                                  disabled={readOnly}
+                                />
+                                <span className="text-[11px] font-medium leading-none">
+                                  {perm.name}
+                                </span>
+                              </div>
                             )
                           })}
-                          <td className="p-1 text-center">
-                            <Checkbox
-                              checked={allChecked}
-                              onCheckedChange={checked =>
-                                toggleAllForScreen(screen.id, checked as boolean)
-                              }
-                              className="mx-auto h-3.5 w-3.5"
-                              disabled={readOnly}
-                            />
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-md border mt-2">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-muted/50 border-b">
+                        <th className="p-3 text-left font-medium text-muted-foreground">
+                          Nome da Tela
+                        </th>
+                        <th className="p-3 text-left font-medium text-muted-foreground w-32">
+                          Escopo
+                        </th>
+                        {options.permissions.map(perm => (
+                          <th
+                            key={perm.id}
+                            className="p-3 text-center font-medium text-muted-foreground w-20"
+                          >
+                            {perm.name}
+                          </th>
+                        ))}
+                        <th className="p-3 text-center font-medium text-muted-foreground w-20">
+                          Todas
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {options.screens.map(screen => {
+                        const supportedPerms = options.permissions.filter(p =>
+                          isPermissionSupported(screen.nameKey, p.nameKey),
+                        )
+
+                        const allChecked =
+                          supportedPerms.length > 0 &&
+                          supportedPerms.every(p => selectedAccesses.get(screen.id)?.has(p.id))
+
+                        return (
+                          <tr key={screen.id} className="group hover:bg-muted/30 transition-colors">
+                            <td className="p-3 py-2">
+                              <div className="font-medium text-foreground text-xs">
+                                {screen.name}
+                              </div>
+                              <div className="text-[9px] text-muted-foreground/60 font-mono uppercase tracking-tighter">
+                                {screen.nameKey}
+                              </div>
+                            </td>
+                            <td className="p-1 px-3">
+                              {supportedPerms.length > 0 &&
+                              SCOPES_SUPPORTED_SCREENS.includes(screen.nameKey) ? (
+                                <Select
+                                  value={screenScopes.get(screen.id) || 'team'}
+                                  onValueChange={value => {
+                                    const newScopes = new Map(screenScopes)
+                                    newScopes.set(screen.id, value)
+                                    setScreenScopes(newScopes)
+                                  }}
+                                  disabled={readOnly}
+                                >
+                                  <SelectTrigger className="flex h-7 w-32 text-xs">
+                                    <SelectValue placeholder="Selecione" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="all">Global</SelectItem>
+                                    <SelectItem value="team">Equipe</SelectItem>
+                                    <SelectItem value="user">Usuário</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              ) : null}
+                            </td>
+                            {options.permissions.map(perm => {
+                              const isSupported = isPermissionSupported(
+                                screen.nameKey,
+                                perm.nameKey,
+                              )
+
+                              return (
+                                <td key={perm.id} className="p-1 text-center">
+                                  {isSupported ? (
+                                    <Checkbox
+                                      checked={
+                                        selectedAccesses.get(screen.id)?.has(perm.id) || false
+                                      }
+                                      onCheckedChange={() => togglePermission(screen.id, perm.id)}
+                                      className="mx-auto h-3.5 w-3.5"
+                                      disabled={readOnly}
+                                    />
+                                  ) : (
+                                    <div className="w-3.5 h-3.5 mx-auto border border-dashed rounded-[2px] opacity-10" />
+                                  )}
+                                </td>
+                              )
+                            })}
+                            <td className="p-1 text-center">
+                              <Checkbox
+                                checked={allChecked}
+                                onCheckedChange={checked =>
+                                  toggleAllForScreen(screen.id, checked as boolean)
+                                }
+                                className="mx-auto h-3.5 w-3.5"
+                                disabled={readOnly}
+                              />
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </FormSection>
           )}
         </FormGrid>

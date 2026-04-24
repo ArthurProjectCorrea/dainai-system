@@ -566,21 +566,24 @@ namespace Api.Infrastructure.Services
 
         public async Task<ApiResponse<List<TeamResponse>>> GetTeamsAsync()
         {
-            var teams = await _context.Teams
+            var response = await _context.Teams
                 .Where(t => t.DeletedAt == null)
+                .OrderBy(t => t.Name)
+                .Select(t => new TeamResponse(t.Id, t.Name, t.IsActive))
                 .ToListAsync();
-            var response = teams.Select(t => new TeamResponse(t.Id, t.Name, t.IconUrl, t.LogotipoUrl, t.IsActive)).ToList();
+
             return new ApiResponse<List<TeamResponse>>("200", "", response);
         }
 
         public async Task<ApiResponse<TeamResponse>> GetTeamByIdAsync(Guid id)
         {
-            var team = await _context.Teams.FindAsync(id);
-            if (team == null || team.DeletedAt != null)
+            var team = await _context.Teams
+                .FirstOrDefaultAsync(t => t.Id == id && t.DeletedAt == null);
+
+            if (team == null)
                 return new ApiResponse<TeamResponse>("404", "Equipe não encontrada", null);
 
-            var response = new TeamResponse(team.Id, team.Name, team.IconUrl, team.LogotipoUrl, team.IsActive);
-            return new ApiResponse<TeamResponse>("200", "", response);
+            return new ApiResponse<TeamResponse>("200", "", MapTeamToResponse(team));
         }
 
         public async Task<ApiResponse<TeamResponse>> CreateTeamAsync(SaveTeamRequest request)
@@ -588,56 +591,50 @@ namespace Api.Infrastructure.Services
             var team = new Team
             {
                 Name = request.Name,
-                IconUrl = request.IconUrl,
-                LogotipoUrl = request.LogotipoUrl,
                 IsActive = request.IsActive
             };
             _context.Teams.Add(team);
             await _context.SaveChangesAsync();
 
-            var response = new TeamResponse(team.Id, team.Name, team.IconUrl, team.LogotipoUrl, team.IsActive);
-            return new ApiResponse<TeamResponse>("201", "Equipe criada com sucesso", response);
+            return new ApiResponse<TeamResponse>("201", "Equipe criada com sucesso", MapTeamToResponse(team));
         }
 
         public async Task<ApiResponse<TeamResponse>> UpdateTeamAsync(Guid id, SaveTeamRequest request)
         {
-            var team = await _context.Teams.FindAsync(id);
-            if (team == null) return new ApiResponse<TeamResponse>("404", "Equipe não encontrada", null);
+            var team = await _context.Teams
+                .FirstOrDefaultAsync(t => t.Id == id && t.DeletedAt == null);
 
-            // File cleanup logic
-            if (!string.IsNullOrEmpty(team.LogotipoUrl) && team.LogotipoUrl != request.LogotipoUrl)
-            {
-                _fileService.DeleteFile(team.LogotipoUrl);
-            }
-
-            if (!string.IsNullOrEmpty(team.IconUrl) && team.IconUrl != request.IconUrl)
-            {
-                _fileService.DeleteFile(team.IconUrl);
-            }
+            if (team == null)
+                return new ApiResponse<TeamResponse>("404", "Equipe não encontrada", null);
 
             team.Name = request.Name;
-            team.IconUrl = request.IconUrl;
-            team.LogotipoUrl = request.LogotipoUrl;
             team.IsActive = request.IsActive;
+            team.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
-            var response = new TeamResponse(team.Id, team.Name, team.IconUrl, team.LogotipoUrl, team.IsActive);
-            return new ApiResponse<TeamResponse>("200", "Equipe atualizada com sucesso", response);
+            return new ApiResponse<TeamResponse>("200", "Equipe atualizada com sucesso", MapTeamToResponse(team));
         }
 
         public async Task<ApiResponse<object>> DeleteTeamAsync(Guid id)
         {
-            var team = await _context.Teams.FindAsync(id);
-            if (team == null) return new ApiResponse<object>("404", "Equipe não encontrada", null);
+            var team = await _context.Teams
+                .FirstOrDefaultAsync(t => t.Id == id && t.DeletedAt == null);
+
+            if (team == null)
+                return new ApiResponse<object>("404", "Equipe não encontrada", null);
 
             var hasProfiles = await _context.ProfileTeams.AnyAsync(pt => pt.TeamId == id);
-            if (hasProfiles) return new ApiResponse<object>("400", "Equipe possui usuários vinculados", null);
+            if (hasProfiles)
+                return new ApiResponse<object>("400", "Equipe possui usuários vinculados", null);
 
             team.DeletedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return new ApiResponse<object>("200", "Equipe removida com sucesso", null);
         }
+
+        private static TeamResponse MapTeamToResponse(Team team) =>
+            new TeamResponse(team.Id, team.Name, team.IsActive);
 
         public async Task<ApiResponse<List<ScreenResponse>>> GetScreensAsync()
         {
@@ -667,7 +664,7 @@ namespace Api.Infrastructure.Services
             var teams = await _context.Teams
                 .Where(t => t.DeletedAt == null)
                 .OrderBy(t => t.Name)
-                .Select(t => new TeamResponse(t.Id, t.Name, t.IconUrl, t.LogotipoUrl, t.IsActive))
+                .Select(t => new TeamResponse(t.Id, t.Name, t.IsActive))
                 .ToListAsync();
 
             var positions = await _context.Positions

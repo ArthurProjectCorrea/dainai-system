@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/chart'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/hooks/use-auth'
-import { StatCard } from '@/components/stat-card'
+import { StatCard } from '@/components/ui/stat-card'
 import { cn } from '@/lib/utils'
 
 interface ProjectDashboardData {

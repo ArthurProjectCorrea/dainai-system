@@ -10,13 +10,13 @@ import { ModulePageLayout } from '@/components/layouts/module-page-layout'
 import { DataTable } from '@/components/ui/data-table/data-table'
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header'
 import { Badge } from '@/components/ui/badge'
-import { StatCard } from '@/components/stat-card'
+import { StatCard } from '@/components/ui/stat-card'
 import { ProjectFilter } from '@/components/filter/project-filter'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
-import type { Project, ProjectIndicator } from '@/types/project'
+import type { Project, ProjectIndicator } from '@/types'
 import { ProjectForm } from '@/components/form/project-form'
 
 export default function ProjectsPage() {

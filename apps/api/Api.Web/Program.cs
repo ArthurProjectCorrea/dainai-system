@@ -1,4 +1,6 @@
+using Api.Application.DTOs;
 using Api.Application.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Api.Domain;
 using Api.Infrastructure;
 using Api.Infrastructure.Services;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +40,11 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
     options.Password.RequiredLength = 8;
     options.Password.RequireNonAlphanumeric = true;
     options.User.RequireUniqueEmail = true;
+
+    // Lockout Configuration
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
 })
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
@@ -80,7 +88,21 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 
 // 6. Controllers & Swagger
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errorMessage = context.ModelState
+                .Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .FirstOrDefault() ?? "Dados de entrada inválidos";
+
+            var response = new ApiResponse<object>("400", errorMessage, null);
+            return new BadRequestObjectResult(response);
+        };
+    });
 builder.Services.AddEndpointsApiExplorer();
 // CORS Configuration for Next.js Web Client
 var webClientUrl = builder.Configuration["App:WebClientUrl"] ?? "http://localhost:3000";
@@ -95,20 +117,29 @@ builder.Services.AddCors(options =>
             .AllowCredentials();  // Essential for cookies
     });
 });
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
+    // Incluir XML do projeto Application também
+    var appXmlFilename = "Api.Application.xml";
+    var appXmlPath = Path.Combine(AppContext.BaseDirectory, appXmlFilename);
+    if (File.Exists(appXmlPath))
+    {
+        options.IncludeXmlComments(appXmlPath);
+    }
+});
 
 var app = builder.Build();
 
 // 7. Pipeline Configuration
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Dainai API v1");
-        c.DocumentTitle = "Dainai API Docs";
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Dainai API v1");
+    c.DocumentTitle = "Dainai API Docs";
+});
 
 if (!app.Environment.IsDevelopment())
 {

@@ -2,8 +2,8 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { FormHeader } from '@/components/form-header'
-import { FormButtons } from '@/components/form-buttons'
+import { FormHeader } from './form-header'
+import { FormButtons } from './form-buttons'
 
 export type FormVariant = 'page' | 'dialog'
 
@@ -37,6 +37,7 @@ interface FormLayoutProps {
   saveLabel?: string
   cancelLabel?: string
   onEdit?: () => void
+  hideButtons?: boolean
   /** @deprecated use variant="dialog" instead */
   isDialog?: boolean
   /** @deprecated handled by variant and FormSection */
@@ -58,6 +59,7 @@ export function FormLayout({
   onEdit,
   isDialog,
   extraActions,
+  hideButtons,
 }: FormLayoutProps) {
   const getEffectiveVariant = (): FormVariant => {
     if (isDialog) return 'dialog'
@@ -81,18 +83,20 @@ export function FormLayout({
       <FormLayoutContext.Provider value={contextValue}>
         <div className={cn('space-y-6', className)}>
           <div className="w-full space-y-4">{children}</div>
-          <div className="flex items-center justify-end gap-3 pt-6 border-t mt-6">
-            {extraActions}
-            <FormButtons
-              mode={mode}
-              loading={loading}
-              onCancel={onCancel}
-              formId={formId}
-              saveLabel={saveLabel}
-              cancelLabel={cancelLabel}
-              onEdit={onEdit}
-            />
-          </div>
+          {!hideButtons && (
+            <div className="flex items-center justify-end gap-3 pt-4 border-t mt-4">
+              {extraActions}
+              <FormButtons
+                mode={mode}
+                loading={loading}
+                onCancel={onCancel}
+                formId={formId}
+                saveLabel={saveLabel}
+                cancelLabel={cancelLabel}
+                onEdit={onEdit}
+              />
+            </div>
+          )}
         </div>
       </FormLayoutContext.Provider>
     )
@@ -103,15 +107,17 @@ export function FormLayout({
       <div className={cn('flex flex-col flex-1 relative', className)}>
         <FormHeader title={title} description={description}>
           {extraActions}
-          <FormButtons
-            mode={mode}
-            loading={loading}
-            onCancel={onCancel}
-            formId={formId}
-            saveLabel={saveLabel}
-            cancelLabel={cancelLabel}
-            onEdit={onEdit}
-          />
+          {!hideButtons && (
+            <FormButtons
+              mode={mode}
+              loading={loading}
+              onCancel={onCancel}
+              formId={formId}
+              saveLabel={saveLabel}
+              cancelLabel={cancelLabel}
+              onEdit={onEdit}
+            />
+          )}
         </FormHeader>
 
         <div className="w-full flex-1 flex flex-col min-h-0">{children}</div>
