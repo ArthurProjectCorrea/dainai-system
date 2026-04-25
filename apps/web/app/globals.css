@@ -143,3 +143,74 @@ body,
   display: none;
   /* Safari and Chrome */
 }
+
+/* MdEditor Mobile Toolbar Grid Layout */
+.md-editor-toolbar-wrapper {
+  padding: 4px !important;
+  height: auto !important;
+}
+
+.md-editor-toolbar {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)) !important;
+  gap: 2px !important;
+  height: auto !important;
+}
+
+.md-editor-toolbar-left,
+.md-editor-toolbar-right {
+  display: contents !important;
+}
+
+.md-editor-toolbar-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 44px !important;
+  width: 100% !important;
+  border-radius: 4px !important;
+  transition: background-color 0.2s !important;
+}
+
+.md-editor-toolbar-item:hover {
+  background-color: var(--accent) !important;
+}
+
+/* Hide dividers in grid mode to keep it clean */
+.md-editor-toolbar-divider {
+  display: none !important;
+}
+
+/* MdEditor Responsive Height */
+.md-editor-responsive-height {
+  height: auto !important;
+  min-height: 400px !important;
+}
+
+@media (min-width: 1024px) {
+  .md-editor-responsive-height {
+    height: calc(100vh - 12rem) !important;
+  }
+}
+
+/* Form FAB Extra Actions Styling */
+.form-fab-actions button,
+.form-fab-actions .btn {
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 0 !important; /* Fix pill shape */
+  border-radius: 9999px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0 !important; /* Hide text */
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1) !important;
+}
+
+.form-fab-actions button svg,
+.form-fab-actions .btn svg {
+  width: 20px !important;
+  height: 20px !important;
+  margin: 0 !important;
+}

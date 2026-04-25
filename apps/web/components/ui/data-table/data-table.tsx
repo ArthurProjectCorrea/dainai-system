@@ -481,15 +481,29 @@ export function DataTable<TData, TValue>({
                       .map(cell => (
                         <div
                           key={cell.id}
-                          className="flex justify-between items-center px-5 py-3 text-sm animate-in fade-in slide-in-from-top-1 duration-200"
+                          className={cn(
+                            'flex justify-between px-5 py-3 text-sm animate-in fade-in slide-in-from-top-1 duration-200',
+                            (cell.column.columnDef.meta as { title?: string })?.title ===
+                              'Categorias'
+                              ? 'flex-col gap-2 items-start'
+                              : 'flex-row items-center gap-4',
+                          )}
                         >
-                          <span className="text-muted-foreground font-medium uppercase text-[10px] tracking-wider opacity-80">
+                          <span className="text-muted-foreground font-medium uppercase text-[10px] tracking-wider opacity-80 shrink-0">
                             {(cell.column.columnDef.meta as { title?: string })?.title ||
                               cell.column.id}
                           </span>
-                          <span className="font-semibold text-right text-foreground">
+                          <div
+                            className={cn(
+                              'font-semibold text-foreground',
+                              (cell.column.columnDef.meta as { title?: string })?.title ===
+                                'Categorias'
+                                ? 'w-full'
+                                : 'text-right',
+                            )}
+                          >
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </span>
+                          </div>
                         </div>
                       ))}
                   </div>

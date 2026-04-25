@@ -239,19 +239,19 @@ export default function DocumentsPage() {
           <StatCard
             icon={<FileText className="h-4 w-4 text-primary" />}
             title="Total"
-            value={indicators?.total || 0}
+            value={indicators?.totalDocuments || 0}
             description="Documentos gerenciados"
           />
           <StatCard
             icon={<Globe className="h-4 w-4 text-emerald-500" />}
             title="Publicados"
-            value={indicators?.published || 0}
+            value={indicators?.publishedDocuments || 0}
             description="Visíveis na Wiki"
           />
           <StatCard
             icon={<Clock className="h-4 w-4 text-amber-500" />}
             title="Rascunhos"
-            value={indicators?.drafts || 0}
+            value={indicators?.draftDocuments || 0}
             description="Documentos em edição"
           />
         </>

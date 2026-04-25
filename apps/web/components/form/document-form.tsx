@@ -111,7 +111,7 @@ export function DocumentForm({
 
     // Validation
     if (!projectId) return toast.error('Selecione um projeto.')
-    if (!name) return toast.error('O nome Ã© obrigatÃ³rio.')
+    if (!name) return toast.error('O nome é obrigatório.')
 
     // Confirmation for Published docs
     if (status === 'Published' && !forceStatus) {
@@ -134,7 +134,7 @@ export function DocumentForm({
         toast.success('Documento atualizado!')
         if (forceStatus === 'Draft') {
           setStatus('Draft')
-          toast.info('Documento voltou para rascunho para aprovaÃ§Ã£o.')
+          toast.info('Documento voltou para rascunho para aprovação.')
         }
       } else {
         const res = await createDocumentAction({
@@ -163,7 +163,7 @@ export function DocumentForm({
     try {
       const res = await publishDocumentAction(initialData.id)
       if (res.error) throw new Error(res.error)
-      toast.success(`Documento publicado! VersÃ£o: ${res.data!.currentVersion}`)
+      toast.success(`Documento publicado! Versão: ${res.data!.currentVersion}`)
       setStatus('Published')
       router.push('/documents')
     } catch (error) {
@@ -198,7 +198,7 @@ export function DocumentForm({
   const publishButton = initialData && mode === 'edit' && canApprove && status === 'Completed' && (
     <Button type="button" className="gap-2 min-w-32" onClick={handlePublish} disabled={loading}>
       <Send className="h-4 w-4" />
-      Publicar VersÃ£o
+      Publicar Versão
     </Button>
   )
 
@@ -215,9 +215,7 @@ export function DocumentForm({
                 : 'Editar Documento'
           }
           description={
-            isView
-              ? 'ConteÃºdo tÃ©cnico do repositÃ³rio'
-              : 'Gerencie conteÃºdo Markdown e metadados'
+            isView ? 'Conteúdo técnico do repositório' : 'Gerencie conteúdo Markdown e metadados'
           }
           mode={mode}
           loading={loading}
@@ -275,7 +273,7 @@ export function DocumentForm({
                         placeholder="Adicionar..."
                       />
                     )}
-                    <div className="flex flex-wrap gap-1 p-1.5 border rounded-md bg-muted/5 min-h-9">
+                    <div className="flex flex-row flex-wrap gap-1.5 p-2 border rounded-md bg-muted/5 min-h-10 max-h-40 overflow-y-auto items-center">
                       {selectedCategoryIds.length === 0 && (
                         <span className="text-xs text-muted-foreground/40 italic">
                           Sem categorias
@@ -287,14 +285,14 @@ export function DocumentForm({
                           <Badge
                             key={id}
                             variant="secondary"
-                            className="gap-1 pl-2 pr-1 h-5 text-xs"
+                            className="gap-1 pl-2 pr-1 h-5 text-xs max-w-[140px]"
                           >
-                            {cat?.name || id}
+                            <span className="truncate">{cat?.name || id}</span>
                             {!isView && (
                               <button
                                 type="button"
                                 onClick={() => removeCategory(id)}
-                                className="text-muted-foreground hover:text-destructive p-0.5"
+                                className="text-muted-foreground hover:text-destructive p-0.5 shrink-0"
                               >
                                 <XIcon className="h-2.5 w-2.5" />
                               </button>
@@ -309,40 +307,27 @@ export function DocumentForm({
                 <div className="space-y-3 pt-3 border-t">
                   <Field orientation="horizontal">
                     <FieldContent>
-                      <FieldTitle className="text-xs font-medium">Status</FieldTitle>
-                      <FieldDescription className="text-xs">
+                      <FieldTitle>Status do Documento</FieldTitle>
+                      <FieldDescription>
                         {status === 'Published'
-                          ? 'Publicado'
+                          ? 'Documento publicado e visível para usuários.'
                           : status === 'Completed'
-                            ? 'ConcluÃ­do'
-                            : 'Rascunho'}
+                            ? 'Conteúdo finalizado e aguardando publicação.'
+                            : 'Documento em fase de rascunho.'}
                       </FieldDescription>
                     </FieldContent>
-                    <div className="flex flex-col items-end gap-1.5">
-                      <Switch
-                        id="status-toggle"
-                        checked={status !== 'Draft'}
-                        onCheckedChange={checked => setStatus(checked ? 'Completed' : 'Draft')}
-                        disabled={isView || status === 'Published' || mode === 'create'}
-                        className="scale-90"
-                      />
-                      <Badge
-                        variant={status === 'Published' ? 'default' : 'secondary'}
-                        className="h-4 text-xs px-1.5"
-                      >
-                        {status === 'Published'
-                          ? 'Publicado'
-                          : status === 'Completed'
-                            ? 'ConcluÃ­do'
-                            : 'Rascunho'}
-                      </Badge>
-                    </div>
+                    <Switch
+                      id="status-toggle"
+                      checked={status !== 'Draft'}
+                      onCheckedChange={checked => setStatus(checked ? 'Completed' : 'Draft')}
+                      disabled={isView || status === 'Published' || mode === 'create'}
+                    />
                   </Field>
 
                   {initialData?.currentVersion && (
                     <Field orientation="horizontal">
                       <FieldContent>
-                        <FieldTitle className="text-xs font-medium">VersÃ£o</FieldTitle>
+                        <FieldTitle className="text-xs font-medium">Versão</FieldTitle>
                       </FieldContent>
                       <div className="flex items-center gap-1 font-bold text-xs">
                         <Hash className="h-3 w-3 text-primary" />
@@ -361,9 +346,9 @@ export function DocumentForm({
                 onChange={setContent}
                 theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
                 language="en-US"
-                className="border-none"
-                style={{ height: 'calc(100vh - 12rem)' }}
+                className="border-none md-editor-responsive-height"
                 disabled={isView}
+                preview={false}
                 toolbars={
                   isView
                     ? ['fullscreen', 'catalog']
@@ -406,12 +391,12 @@ export function DocumentForm({
       <AlertDialog open={saveWarningOpen} onOpenChange={setSaveWarningOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Deseja salvar alteraÃ§Ãµes?</AlertDialogTitle>
+            <AlertDialogTitle>Deseja salvar alterações?</AlertDialogTitle>
             <AlertDialogDescription>
-              Este documento jÃ¡ possui uma versÃ£o publicada. Ao salvar estas alteraÃ§Ãµes, a
-              <strong>versÃ£o atual continuarÃ¡ visÃ­vel</strong> para os usuÃ¡rios, mas as novas
-              modificaÃ§Ãµes voltarÃ£o para o status de <strong>Rascunho</strong> e precisarÃ£o ser
-              aprovadas novamente para se tornarem a nova versÃ£o oficial.
+              Este documento já possui uma versão publicada. Ao salvar estas alterações, a
+              <strong>versão atual continuará visível</strong> para os usuários, mas as novas
+              modificações voltarão para o status de <strong>Rascunho</strong> e precisarão ser
+              aprovadas novamente para se tornarem a nova versão oficial.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -94,6 +94,7 @@ export function FormLayout({
                 saveLabel={saveLabel}
                 cancelLabel={cancelLabel}
                 onEdit={onEdit}
+                extraActions={extraActions}
               />
             </div>
           )}
@@ -106,7 +107,7 @@ export function FormLayout({
     <FormLayoutContext.Provider value={contextValue}>
       <div className={cn('flex flex-col flex-1 relative', className)}>
         <FormHeader title={title} description={description}>
-          {extraActions}
+          <div className="hidden md:block">{extraActions}</div>
           {!hideButtons && (
             <FormButtons
               mode={mode}
@@ -116,6 +117,7 @@ export function FormLayout({
               saveLabel={saveLabel}
               cancelLabel={cancelLabel}
               onEdit={onEdit}
+              extraActions={extraActions}
             />
           )}
         </FormHeader>

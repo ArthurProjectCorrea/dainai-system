@@ -122,9 +122,9 @@ export interface Document {
 }
 
 export interface DocumentIndicator {
-  total: number
-  published: number
-  drafts: number
+  totalDocuments: number
+  publishedDocuments: number
+  draftDocuments: number
 }
 
 export interface PublishedDocument {

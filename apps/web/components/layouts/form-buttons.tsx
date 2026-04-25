@@ -16,6 +16,7 @@ interface FormButtonsProps {
   saveLabel?: string
   cancelLabel?: string
   onEdit?: () => void
+  extraActions?: React.ReactNode
 }
 
 export function FormButtons({
@@ -26,6 +27,7 @@ export function FormButtons({
   saveLabel,
   cancelLabel,
   onEdit,
+  extraActions,
 }: FormButtonsProps) {
   const isMobile = useIsMobile()
   const { variant } = useFormLayoutContext()
@@ -65,7 +67,7 @@ export function FormButtons({
     const Actions = (
       <div
         className={cn(
-          'flex flex-col gap-3 transition-all duration-300',
+          'flex flex-col gap-3 transition-all duration-300 items-center',
           expandDirection === 'up' ? 'mb-3 origin-bottom' : 'mt-3 origin-top',
           isExpanded ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none',
         )}
@@ -113,13 +115,18 @@ export function FormButtons({
             {loading ? <Spinner className="size-5" /> : <Save className="size-5" />}
           </Button>
         )}
+
+        {/* Extra Actions (e.g., Publish) */}
+        {extraActions && (
+          <div className="form-fab-actions flex flex-col gap-3 items-center">{extraActions}</div>
+        )}
       </div>
     )
 
     return (
       <div
         className={cn(
-          'fixed right-6 z-50 flex flex-col items-end transition-all duration-300 ease-in-out select-none',
+          'fixed right-6 z-50 flex flex-col items-center transition-all duration-300 ease-in-out select-none',
           isDragging ? 'transition-none' : 'animate-in fade-in slide-in-from-bottom-4',
         )}
         style={{ bottom: `${position.y}px` }}
@@ -187,6 +194,7 @@ export function FormButtons({
           Editar
         </Button>
       )}
+      {extraActions}
     </>
   )
 }
