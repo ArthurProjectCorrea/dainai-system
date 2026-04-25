@@ -152,39 +152,17 @@ namespace Api.Infrastructure
 
             // 7. Initial Admin User
             var adminEmail = "admin@empresa.com";
-            var user = await userManager.FindByEmailAsync(adminEmail);
-            if (user == null)
-            {
-                user = new User { Id = Guid.NewGuid(), UserName = adminEmail, Email = adminEmail, EmailConfirmed = true };
-                await userManager.CreateAsync(user, "Admin123!");
-            }
-            else
-            {
-                user.UserName = adminEmail;
-                user.EmailConfirmed = true;
-                await userManager.UpdateAsync(user);
+            var adminUser = await CreateOrUpdateUser(userManager, adminEmail, "Admin123!");
 
-                if (await userManager.HasPasswordAsync(user))
-                {
-                    var removePasswordResult = await userManager.RemovePasswordAsync(user);
-                    if (!removePasswordResult.Succeeded)
-                    {
-                        throw new InvalidOperationException("Não foi possível limpar a senha do usuário admin durante o seed.");
-                    }
-                }
-
-                var addPasswordResult = await userManager.AddPasswordAsync(user, "Admin123!");
-                if (!addPasswordResult.Succeeded)
-                {
-                    throw new InvalidOperationException("Não foi possível definir a senha do usuário admin durante o seed.");
-                }
-            }
+            // 7.1. Brute Force Test User
+            var bruteForceEmail = "lockout-test@dainai.local";
+            await CreateOrUpdateUser(userManager, bruteForceEmail, "Admin123!");
 
             // 8. Profile
-            var profile = await context.Profiles.FirstOrDefaultAsync(p => p.UserId == user.Id);
+            var profile = await context.Profiles.FirstOrDefaultAsync(p => p.UserId == adminUser.Id);
             if (profile == null)
             {
-                profile = new Profile { Id = user.Id, UserId = user.Id, Name = "Administrador Root" };
+                profile = new Profile { Id = adminUser.Id, UserId = adminUser.Id, Name = "Administrador Root" };
                 context.Profiles.Add(profile);
             }
             else
@@ -217,6 +195,32 @@ namespace Api.Infrastructure
             }
 
             await context.SaveChangesAsync();
+        }
+
+        private static async Task<User> CreateOrUpdateUser(UserManager<User> userManager, string email, string password)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                user = new User { Id = Guid.NewGuid(), UserName = email, Email = email, EmailConfirmed = true, LockoutEnabled = true };
+                await userManager.CreateAsync(user, password);
+            }
+            else
+            {
+                user.UserName = email;
+                user.EmailConfirmed = true;
+                user.LockoutEnabled = true;
+                user.AccessFailedCount = 0; // Reset failures on seed
+                user.LockoutEnd = null; // Clear lockout on seed
+                await userManager.UpdateAsync(user);
+
+                if (await userManager.HasPasswordAsync(user))
+                {
+                    await userManager.RemovePasswordAsync(user);
+                }
+                await userManager.AddPasswordAsync(user, password);
+            }
+            return user;
         }
     }
 }

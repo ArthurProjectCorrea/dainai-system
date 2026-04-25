@@ -75,7 +75,9 @@ function DocumentActionContent() {
   }
 
   const screenName = React.useMemo(() => {
-    return activeAccesses.find(a => a.nameKey === 'documents_management')?.nameSidebar || 'Documentos'
+    return (
+      activeAccesses.find(a => a.nameKey === 'documents_management')?.nameSidebar || 'Documentos'
+    )
   }, [activeAccesses])
 
   if (loading || isLoadingData) return <Loading />

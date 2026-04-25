@@ -10,6 +10,7 @@ namespace Api.Tests.E2E
 {
     [Trait("Category", "E2E")]
     [Trait("Module", "Teams")]
+    [Collection("DockerApi")]
     public class TeamsE2ETests : IAsyncLifetime
     {
         private DockerApiFixture _fixture = null!;

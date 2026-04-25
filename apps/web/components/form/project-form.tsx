@@ -168,7 +168,7 @@ export function ProjectForm({
         return
       }
       if (result.data) {
-        setRawToken(result.data.integrationToken)
+        setRawToken(result.data.integrationToken ?? null)
       }
       notify.admin.project.tokenRotated()
     } catch (error) {

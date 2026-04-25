@@ -43,8 +43,8 @@ export function DocumentFilter<TData>({
   const [projectId, setProjectId] = React.useState<string>(
     () => (projectColumn?.getFilterValue() as string) || 'all',
   )
-  const [selectedCategoryIds, setSelectedCategoryIds] = React.useState<string[]>(
-    () => (categoriesColumn?.getFilterValue() as string[]) || [],
+  const [selectedCategoryIds, setSelectedCategoryIds] = React.useState<number[]>(
+    () => (categoriesColumn?.getFilterValue() as number[]) || [],
   )
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
     () => dateColumn?.getFilterValue() as DateRange,
@@ -81,7 +81,7 @@ export function DocumentFilter<TData>({
     dateColumn?.setFilterValue(undefined)
   }
 
-  const toggleCategory = (id: string) => {
+  const toggleCategory = (id: number) => {
     setSelectedCategoryIds(prev =>
       prev.includes(id) ? prev.filter(cId => cId !== id) : [...prev, id],
     )

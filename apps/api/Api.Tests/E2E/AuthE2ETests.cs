@@ -8,6 +8,7 @@ namespace Api.Tests.E2E
 {
     [Trait("Category", "E2E")]
     [Trait("Module", "Auth")]
+    [Collection("DockerApi")]
     public class AuthE2ETests : IAsyncLifetime
     {
         private DockerApiFixture _fixture = null!;
@@ -94,7 +95,7 @@ namespace Api.Tests.E2E
             var verifyResp = await _fixture.Client.PostAsJsonAsync("/api/v1/auth/verify-otp", new
             {
                 email = DockerApiFixture.AdminEmail,
-                otp = otp
+                code = otp
             });
             verifyResp.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -121,7 +122,7 @@ namespace Api.Tests.E2E
             var otp2 = await DockerApiFixture.GetOtpFromMailHogAsync(DockerApiFixture.AdminEmail);
             if (otp2 != null)
             {
-                await _fixture.Client.PostAsJsonAsync("/api/v1/auth/verify-otp", new { email = DockerApiFixture.AdminEmail, otp = otp2 });
+                await _fixture.Client.PostAsJsonAsync("/api/v1/auth/verify-otp", new { email = DockerApiFixture.AdminEmail, code = otp2 });
                 await _fixture.Client.PostAsJsonAsync("/api/v1/auth/reset-password", new
                 {
                     newPassword = DockerApiFixture.AdminPassword,
@@ -205,7 +206,7 @@ namespace Api.Tests.E2E
             await _fixture.Client.PostAsJsonAsync("/api/v1/auth/verify-otp", new
             {
                 email = DockerApiFixture.AdminEmail,
-                otp = otp
+                code = otp
             });
 
             var response = await _fixture.Client.PostAsJsonAsync("/api/v1/auth/reset-password", new
@@ -228,7 +229,7 @@ namespace Api.Tests.E2E
             var response = await _fixture.Client.PostAsJsonAsync("/api/v1/auth/verify-otp", new
             {
                 email = DockerApiFixture.AdminEmail,
-                otp = "000000"
+                code = "000000"
             });
 
             response.StatusCode.Should().BeOneOf(
@@ -264,7 +265,7 @@ namespace Api.Tests.E2E
             var response = await _fixture.Client.PostAsJsonAsync("/api/v1/auth/verify-otp", new
             {
                 email = "nonexistent@never.com",
-                otp = "123456"
+                code = "123456"
             });
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
@@ -274,23 +275,41 @@ namespace Api.Tests.E2E
         [Fact]
         public async Task Login_BruteForce_ShouldLockoutAccountAfter5Attempts()
         {
-            const string targetEmail = "lockout-test@dainai.local";
+            var bruteForceEmail = $"lockout-login-{Guid.NewGuid():N}@dainai.local";
             
             // Tenta logar 5 vezes com a senha errada
             for (int i = 0; i < 5; i++)
             {
                 var resp = await _fixture.Client.PostAsJsonAsync("/api/v1/auth/login", new
                 {
-                    email = DockerApiFixture.AdminEmail,
+                    email = bruteForceEmail,
                     password = "WrongPassword123!"
                 });
+                // Para e-mail inexistente também deve retornar 401
                 resp.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
             }
 
-            // A 6ª tentativa deve indicar que a conta está bloqueada (ou continuar retornando 401 mas com mensagem de lockout)
+            // A 6ª tentativa para um email inexistente não bloqueia o "usuario" (pois ele não existe),
+            // mas o teste original usava AdminEmail.
+            // Se usarmos um email que EXISTE (Admin), ele bloqueia.
+            // Mas o Admin pode estar bloqueado de outros testes.
+            
+            // Vou usar o AdminEmail aqui MAS vou garantir que o teste seja o primeiro ou isolado.
+            // Na verdade, vou usar o lockout-test que criei no seed.
+            const string seedBruteEmail = "lockout-test@dainai.local";
+            
+            for (int i = 0; i < 5; i++)
+            {
+                await _fixture.Client.PostAsJsonAsync("/api/v1/auth/login", new
+                {
+                    email = seedBruteEmail,
+                    password = "WrongPassword123!"
+                });
+            }
+
             var lockoutResp = await _fixture.Client.PostAsJsonAsync("/api/v1/auth/login", new
             {
-                email = DockerApiFixture.AdminEmail,
+                email = seedBruteEmail,
                 password = "WrongPassword123!"
             });
 
@@ -301,16 +320,17 @@ namespace Api.Tests.E2E
         [Fact]
         public async Task VerifyOtp_BruteForce_ShouldReturn429After5Attempts()
         {
-            // Solicita um código para o admin
-            await _fixture.Client.PostAsJsonAsync("/api/v1/auth/forgot-password", new { email = DockerApiFixture.AdminEmail });
+            var bruteForceEmail = $"lockout-otp-{Guid.NewGuid():N}@dainai.local";
+            // Solicita um código para o email de teste (mesmo que não exista, o serviço processa para brute force)
+            await _fixture.Client.PostAsJsonAsync("/api/v1/auth/forgot-password", new { email = bruteForceEmail });
 
             // Tenta 5 códigos errados
             for (int i = 0; i < 5; i++)
             {
                 var resp = await _fixture.Client.PostAsJsonAsync("/api/v1/auth/verify-otp", new
                 {
-                    email = DockerApiFixture.AdminEmail,
-                    otp = "000000"
+                    email = bruteForceEmail,
+                    code = "000000"
                 });
                 resp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             }
@@ -318,8 +338,8 @@ namespace Api.Tests.E2E
             // A 6ª tentativa deve retornar 429
             var blockedResp = await _fixture.Client.PostAsJsonAsync("/api/v1/auth/verify-otp", new
             {
-                email = DockerApiFixture.AdminEmail,
-                otp = "000000"
+                email = bruteForceEmail,
+                code = "000000"
             });
 
             blockedResp.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);

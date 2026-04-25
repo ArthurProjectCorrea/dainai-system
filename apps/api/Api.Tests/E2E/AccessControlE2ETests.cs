@@ -10,6 +10,7 @@ namespace Api.Tests.E2E
 {
     [Trait("Category", "E2E")]
     [Trait("Module", "AccessControl")]
+    [Collection("DockerApi")]
     public class AccessControlE2ETests : IAsyncLifetime
     {
         private DockerApiFixture _fixture = null!;

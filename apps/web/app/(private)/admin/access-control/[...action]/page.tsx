@@ -76,7 +76,9 @@ function EditAccessControlContent() {
   }, [loading, hasPermission, id, type, router, readOnly, isCreate])
 
   const screenName = React.useMemo(() => {
-    return activeAccesses.find(a => a.nameKey === 'access_control')?.nameSidebar || 'Controle de Acesso'
+    return (
+      activeAccesses.find(a => a.nameKey === 'access_control')?.nameSidebar || 'Controle de Acesso'
+    )
   }, [activeAccesses])
 
   if (loading || isLoadingData || !options || (!isCreate && !initialData)) return <Loading />

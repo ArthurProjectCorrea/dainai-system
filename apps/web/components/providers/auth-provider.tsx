@@ -130,6 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: meData.data.profile.id,
           email: meData.data.profile.email,
           name: meData.data.profile.name,
+          avatarUrl: meData.data.profile.avatarUrl,
           profile: meData.data.profile,
           teams: normalizedTeams,
           teamAccesses: normalizedTeamAccesses,

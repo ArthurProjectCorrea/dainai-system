@@ -151,7 +151,7 @@ export default function DocumentsPage() {
           </HoverCard>
         )
       },
-      filterFn: (row, id, value: string[]) => {
+      filterFn: (row, id, value: number[]) => {
         if (!value || value.length === 0) return true
         const rowCats: Category[] = row.getValue(id)
         return rowCats.some(c => value.includes(c.id))
