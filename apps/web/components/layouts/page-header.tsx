@@ -61,9 +61,7 @@ export function PageHeader({ breadcrumbs }: PageHeaderProps) {
                           </Link>
                         </BreadcrumbLink>
                       ) : (
-                        <span className="cursor-default truncate text-base font-medium">
-                          {item.label}
-                        </span>
+                        <span className="cursor-default truncate">{item.label}</span>
                       )}
                     </BreadcrumbItem>
                     {!isLast && (

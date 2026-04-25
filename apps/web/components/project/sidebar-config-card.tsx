@@ -32,6 +32,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent,
@@ -49,7 +50,6 @@ import { CSS } from '@dnd-kit/utilities'
 // --- Helpers ---
 
 const DynamicIcon = ({ name, className }: { name: string; className?: string }) => {
-  // Normaliza o nome do ícone: kebab-case -> PascalCase
   const normalizedName = name
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
@@ -103,7 +103,7 @@ function SortableDocumentItem({
       ref={setNodeRef}
       style={style}
       className={cn(
-        'flex items-center justify-between p-2 rounded-lg bg-background border shadow-sm group/item mb-1.5',
+        'flex items-center justify-between p-1.5 md:p-2 rounded-lg bg-background border shadow-sm group/item mb-1',
         isDragging && 'border-primary ring-2 ring-primary/20 shadow-lg z-50',
       )}
     >
@@ -111,7 +111,7 @@ function SortableDocumentItem({
         <div
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-muted transition-colors"
+          className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-muted transition-colors touch-none"
         >
           <GripVerticalIcon className="h-3.5 w-3.5 text-muted-foreground/60" />
         </div>
@@ -131,10 +131,10 @@ function SortableDocumentItem({
           type="button"
           size="icon"
           variant="ghost"
-          className="h-7 w-7 text-destructive transition-all hover:bg-destructive/10 opacity-0 group-hover/item:opacity-100"
+          className="h-6 w-6 text-destructive transition-all hover:bg-destructive/10 opacity-0 group-hover/item:opacity-100"
           onClick={onRemove}
         >
-          <Trash2Icon className="h-3.5 w-3.5" />
+          <Trash2Icon className="h-3 w-3" />
         </Button>
       )}
     </div>
@@ -185,23 +185,23 @@ function SortableGroupCard({
       ref={setNodeRef}
       style={style}
       className={cn(
-        'group/card relative border rounded-xl bg-muted/10 p-4 transition-all mb-4',
+        'group/card relative border rounded-xl bg-muted/10 p-3 md:p-4 transition-all mb-3 md:mb-4',
         isDragging && 'border-primary ring-4 ring-primary/10 shadow-2xl z-40 bg-background',
         isOutros && 'border-muted-foreground/20 bg-muted/5 opacity-90',
       )}
     >
-      <div className="flex items-start justify-between gap-4 mb-4">
+      <div className="flex items-start justify-between gap-2 md:gap-4 mb-3 md:mb-4">
         <div
           {...attributes}
           {...listeners}
-          className="mt-2 cursor-grab active:cursor-grabbing p-1.5 rounded hover:bg-muted transition-colors"
+          className="mt-1.5 md:mt-2 cursor-grab active:cursor-grabbing p-1 md:p-1.5 rounded hover:bg-muted transition-colors touch-none"
         >
-          <GripVerticalIcon className="h-4 w-4 text-muted-foreground/40" />
+          <GripVerticalIcon className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground/40" />
         </div>
 
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4">
-          <div className="md:col-span-5 space-y-1.5">
-            <Label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <Label className="text-[9px] uppercase tracking-wider font-bold text-muted-foreground">
               Título do Grupo
             </Label>
             <Input
@@ -210,13 +210,13 @@ function SortableGroupCard({
               placeholder="Ex: Primeiros Passos"
               disabled={readOnly || isOutros}
               className={cn(
-                'font-semibold bg-background h-9 text-xs',
+                'font-semibold bg-background h-10 text-xs w-full',
                 isOutros && 'bg-muted cursor-not-allowed',
               )}
             />
           </div>
-          <div className="md:col-span-3 space-y-1.5">
-            <Label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
+          <div className="space-y-1">
+            <Label className="text-[9px] uppercase tracking-wider font-bold text-muted-foreground">
               Estilo Sidebar
             </Label>
             <Select
@@ -224,7 +224,7 @@ function SortableGroupCard({
               onValueChange={val => onUpdate({ type: val as SidebarGroupType })}
               disabled={readOnly}
             >
-              <SelectTrigger className="bg-background h-9 text-xs">
+              <SelectTrigger className="bg-background h-10 text-xs w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -235,47 +235,35 @@ function SortableGroupCard({
               </SelectContent>
             </Select>
           </div>
-          <div className="md:col-span-4 space-y-1.5">
-            <Label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
+          <div className="md:col-span-2 space-y-1">
+            <Label className="text-[9px] uppercase tracking-wider font-bold text-muted-foreground">
               Ícone
             </Label>
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center h-9 w-9 shrink-0 border rounded-md bg-background text-primary">
+              <div className="flex items-center justify-center h-10 w-10 shrink-0 border rounded-md bg-background text-primary">
                 <DynamicIcon name={group.icon || 'Folder'} className="h-4 w-4" />
               </div>
               <Input
                 value={group.icon || ''}
                 onChange={e => onUpdate({ icon: e.target.value })}
-                placeholder="Ex: Book, Settings..."
+                placeholder="Ex: Book..."
                 disabled={readOnly}
-                className="bg-background flex-1 h-9 text-xs"
+                className="bg-background flex-1 h-10 text-xs"
               />
             </div>
           </div>
         </div>
-
-        {!readOnly && !isOutros && (
-          <Button
-            type="button"
-            size="icon"
-            variant="ghost"
-            className="mt-4 h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-            onClick={onRemove}
-          >
-            <Trash2Icon className="h-4 w-4" />
-          </Button>
-        )}
       </div>
 
-      <div className="space-y-1 pl-10">
+      <div className="space-y-1 pl-6 md:pl-10">
         <div className="flex items-center justify-between mb-2 px-1">
-          <Badge variant="secondary" className="text-[10px] font-semibold py-0 h-4.5 uppercase">
-            {group.items.length} {group.items.length === 1 ? 'documento' : 'documentos'}
+          <Badge variant="secondary" className="text-[9px] font-semibold py-0 h-4 uppercase">
+            {group.items.length} {group.items.length === 1 ? 'doc' : 'docs'}
           </Badge>
           {isOutros && (
             <Badge
               variant="outline"
-              className="text-[10px] font-semibold py-0 h-4.5 uppercase border-primary/30 text-primary"
+              className="text-[9px] font-semibold py-0 h-4 uppercase border-primary/30 text-primary"
             >
               Principal
             </Badge>
@@ -307,7 +295,20 @@ function SortableGroupCard({
           </div>
         </SortableContext>
 
-        {/* O botão "Adicionar Documento" foi removido a pedido para simplificar e focar no Drag and Drop */}
+        {!readOnly && !isOutros && (
+          <div className="mt-4 flex border-t pt-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-full md:w-auto md:ml-auto text-destructive hover:text-destructive hover:bg-destructive/10 h-10 md:h-8 text-[10px] uppercase font-bold border-destructive/20"
+              onClick={onRemove}
+            >
+              <Trash2Icon className="h-3.5 w-3.5 mr-2" />
+              Excluir Grupo
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -334,6 +335,7 @@ export function SidebarConfigCard({
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
 
@@ -349,7 +351,6 @@ export function SidebarConfigCard({
     fetchDocs()
   }, [projectId])
 
-  // Identificar documentos que não estão em nenhum grupo
   const unassignedDocuments = React.useMemo(() => {
     const assignedDocIds = new Set(groups.flatMap(g => g.items.map(i => i.documentId)))
     return documents.filter(doc => !assignedDocIds.has(doc.id))
@@ -365,7 +366,6 @@ export function SidebarConfigCard({
     [],
   )
 
-  // Sincroniza com o pai de forma segura fora do ciclo de renderização
   React.useEffect(() => {
     onChange(groups)
   }, [groups, onChange])
@@ -389,7 +389,6 @@ export function SidebarConfigCard({
     if (!activeContainer || !overContainer || activeContainer === overContainer) return
 
     if (active.data.current?.type === 'item') {
-      // Se estamos movendo DO pool PARA um grupo
       if (activeContainer === 'pool' && overContainer !== 'pool') {
         const docId = activeId.replace('unassigned-', '')
         const doc = documents.find(d => d.id === docId)
@@ -422,7 +421,6 @@ export function SidebarConfigCard({
         return
       }
 
-      // Movimentos entre grupos reais
       setGroups(prev => {
         const activeGroup = prev.find(g => g.id === activeContainer)
         const overGroup = prev.find(g => g.id === overContainer)
@@ -493,7 +491,6 @@ export function SidebarConfigCard({
           return prev
         })
       } else {
-        // Força sincronia com o pai usando o estado mais atualizado disponível no setGroups
         handleUpdate(prev => prev)
       }
     }
@@ -530,30 +527,6 @@ export function SidebarConfigCard({
               Organize os documentos do projeto na navegação lateral.
             </CardDescription>
           </div>
-          {!readOnly && (
-            <Button
-              onClick={() =>
-                handleUpdate([
-                  ...groups,
-                  {
-                    id: crypto.randomUUID(),
-                    title: 'Novo Grupo',
-                    type: 'List',
-                    order: groups.length,
-                    icon: 'Folder',
-                    items: [],
-                  },
-                ])
-              }
-              type="button"
-              size="sm"
-              variant="outline"
-              className="gap-2 h-8 text-xs"
-            >
-              <FolderPlusIcon className="h-3.5 w-3.5" />
-              Adicionar Grupo
-            </Button>
-          )}
         </div>
       </CardHeader>
       <CardContent className="px-4 md:px-6 py-4 pt-0">
@@ -592,7 +565,33 @@ export function SidebarConfigCard({
                 ))}
               </SortableContext>
 
-              {/* Pool de Documentos Não Atribuídos */}
+              {!readOnly && (
+                <div className="mt-6 flex justify-center">
+                  <Button
+                    onClick={() =>
+                      handleUpdate([
+                        ...groups,
+                        {
+                          id: crypto.randomUUID(),
+                          title: 'Novo Grupo',
+                          type: 'List',
+                          order: groups.length,
+                          icon: 'Folder',
+                          items: [],
+                        },
+                      ])
+                    }
+                    type="button"
+                    variant="outline"
+                    className="w-full sm:w-auto gap-2 h-10 md:h-9 text-xs font-semibold border-dashed hover:border-primary/50 hover:bg-primary/5 transition-all"
+                  >
+                    <FolderPlusIcon className="h-4 w-4" />
+                    <span className="hidden sm:inline">Adicionar Novo Grupo</span>
+                    <span className="sm:hidden">Novo Grupo</span>
+                  </Button>
+                </div>
+              )}
+
               {!readOnly && unassignedDocuments.length > 0 && (
                 <div className="mt-8 border-t pt-6">
                   <div className="flex items-center justify-between mb-4">
@@ -622,7 +621,7 @@ export function SidebarConfigCard({
                             isPublished: doc.isPublished,
                           }}
                           onRemove={() => {}}
-                          readOnly={true} // Não permite remover do pool, apenas arrastar
+                          readOnly={true}
                         />
                       )
                     })}

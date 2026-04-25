@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/field'
 import { FormLayout } from '../layouts/form-layout'
 import { FormSection, FormGrid } from '../layouts/form-section'
+import { SearchableSelect } from '@/components/ui/searchable-select'
 
 import { createUserAction, updateUserAction } from '@/lib/action/admin-action'
 import type { SaveUserPayload, UserManagementOptions, UserManagementUser } from '@/types'
@@ -321,27 +322,20 @@ export function UserForm({ mode, user, options, onSuccess, onCancel, onEdit }: U
                   >
                     <Field>
                       <FieldLabel>Time</FieldLabel>
-                      <Select
+                      <SearchableSelect
                         value={assignment.teamId}
                         onValueChange={value => updateAssignment(assignment.key, { teamId: value })}
                         disabled={mode === 'view'}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Selecione o time" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {options.teams.map(team => (
-                            <SelectItem key={team.id} value={team.id}>
-                              {team.name} {!team.isActive && '(Inativo)'}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        placeholder="Selecione o time"
+                        options={options.teams.map(team => ({
+                          value: team.id,
+                          label: `${team.name} ${!team.isActive ? '(Inativo)' : ''}`,
+                        }))}
+                      />
                     </Field>
-
                     <Field>
                       <FieldLabel>Departamento</FieldLabel>
-                      <Select
+                      <SearchableSelect
                         value={assignment.departmentId}
                         onValueChange={value =>
                           updateAssignment(assignment.key, {
@@ -350,44 +344,30 @@ export function UserForm({ mode, user, options, onSuccess, onCancel, onEdit }: U
                           })
                         }
                         disabled={mode === 'view'}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Selecione o depto." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {departments.map(dept => (
-                            <SelectItem key={dept.id} value={dept.id}>
-                              {dept.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        placeholder="Selecione o depto."
+                        options={departments.map(dept => ({
+                          value: dept.id,
+                          label: dept.name,
+                        }))}
+                      />
                     </Field>
 
                     <Field>
                       <FieldLabel>Cargo</FieldLabel>
-                      <Select
+                      <SearchableSelect
                         value={assignment.positionId}
                         onValueChange={value =>
                           updateAssignment(assignment.key, { positionId: value })
                         }
                         disabled={!assignment.departmentId || mode === 'view'}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue
-                            placeholder={
-                              assignment.departmentId ? 'Selecione o cargo' : 'Aguardando depto.'
-                            }
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {filteredPositions.map(position => (
-                            <SelectItem key={position.id} value={String(position.id)}>
-                              {position.name} {!position.isActive && '(Inativo)'}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        placeholder={
+                          assignment.departmentId ? 'Selecione o cargo' : 'Aguardando depto.'
+                        }
+                        options={filteredPositions.map(position => ({
+                          value: String(position.id),
+                          label: `${position.name} ${!position.isActive ? '(Inativo)' : ''}`,
+                        }))}
+                      />
                     </Field>
 
                     <div className="flex items-end justify-end">

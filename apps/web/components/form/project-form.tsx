@@ -28,8 +28,16 @@ import {
   FieldLabel,
   FieldTitle,
 } from '@/components/ui/field'
+import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { SearchableSelect } from '@/components/ui/searchable-select'
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from '@/components/ui/input-group'
 
 import {
   AlertDialog,
@@ -222,18 +230,16 @@ export function ProjectForm({
             <span className="text-xs text-muted-foreground">Carregando...</span>
           </div>
         ) : (
-          <Select value={teamId} onValueChange={setTeamId} disabled={readOnly}>
-            <SelectTrigger id="teamId">
-              <SelectValue placeholder="Selecione uma equipe" />
-            </SelectTrigger>
-            <SelectContent>
-              {teams.map(team => (
-                <SelectItem key={team.id} value={team.id}>
-                  {team.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <SearchableSelect
+            value={teamId}
+            onValueChange={setTeamId}
+            disabled={readOnly}
+            placeholder="Selecione uma equipe"
+            options={teams.map(team => ({
+              value: team.id,
+              label: team.name,
+            }))}
+          />
         )}
       </Field>
 
@@ -283,75 +289,28 @@ export function ProjectForm({
               {basicFields}
             </FormSection>
 
-            {/* Integration Section - Only in Edit mode */}
-            {!isDialog && isEdit && (
+            {/* Summary Section - Swapped here */}
+            {isEdit && !isDialog && (
               <FormSection
-                title="Integração (API)"
-                description="Chave utilizada para invocar o Webhook Público via header x-project-token."
-                className="flex-1"
+                title="Sobre o Projeto"
+                description="Uma breve descrição que será exibida na página inicial da Wiki."
               >
-                {rawToken ? (
-                  <Alert className="bg-muted/50 border-muted">
-                    <AlertTitle className="text-sm font-bold">Token Gerado</AlertTitle>
-                    <AlertDescription className="mt-2 text-xs flex items-center gap-2">
-                      <code className="bg-background border rounded px-2 py-1 flex-1 font-mono text-xs truncate">
-                        {rawToken}
-                      </code>
-                      <Button
-                        onClick={copyToken}
-                        size="sm"
-                        variant="secondary"
-                        className="h-7 px-3"
-                      >
-                        <CopyIcon className="h-3 w-3 mr-2" />
-                        Copiar
-                      </Button>
-                    </AlertDescription>
-                  </Alert>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-10 text-center border border-dashed rounded-lg bg-muted/5">
-                    <p className="text-xs text-muted-foreground mb-4">
-                      A chave fica oculta após a geração inicial por segurança.
-                    </p>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          type="button"
-                          disabled={isGenerating || !canUpdate || readOnly}
-                          variant="outline"
-                          size="sm"
-                          className="h-8 gap-2"
-                        >
-                          {isGenerating ? (
-                            <RotateCw className="h-3 w-3 animate-spin" />
-                          ) : (
-                            <RotateCw className="h-3 w-3" />
-                          )}
-                          Gerar Nova Chave
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Ao gerar uma nova chave, a integração atual parará de funcionar
-                            imediatamente. Você precisará atualizar o token em todos os seus
-                            webhooks.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Agora não</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={handleGenerateToken}
-                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                          >
-                            Sim, rotacionar chave
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                )}
+                <Field>
+                  <FieldLabel>Resumo do Projeto</FieldLabel>
+                  <FieldContent>
+                    <Textarea
+                      placeholder="Descreva o propósito deste projeto, quem são os responsáveis e links úteis..."
+                      className="min-h-[180px] md:min-h-[250px] resize-none"
+                      value={summary}
+                      onChange={e => setSummary(e.target.value)}
+                      disabled={readOnly}
+                    />
+                  </FieldContent>
+                  <FieldDescription>
+                    Este texto ajuda os novos membros da equipe a entenderem o contexto desse
+                    projeto rapidamente.
+                  </FieldDescription>
+                </Field>
               </FormSection>
             )}
           </div>
@@ -422,25 +381,82 @@ export function ProjectForm({
                 readOnly={readOnly}
               />
 
+              {/* Integration Section - Swapped here */}
               <FormSection
-                title="Sobre o Projeto"
-                description="Uma breve descrição que será exibida na página inicial da Wiki."
+                title="Integração (API)"
+                description="Chave utilizada para invocar o Webhook Público via header x-project-token."
+                className="flex-1 h-fit"
               >
-                <Field>
-                  <FieldLabel>Resumo do Projeto</FieldLabel>
-                  <FieldContent>
-                    <Textarea
-                      placeholder="Descreva o propósito deste projeto, quem são os responsáveis e links úteis..."
-                      className="min-h-[300px] resize-none"
-                      value={summary}
-                      onChange={e => setSummary(e.target.value)}
-                    />
-                  </FieldContent>
-                  <FieldDescription>
-                    Este texto ajuda os novos membros da equipe a entenderem o contexto desse
-                    projeto rapidamente.
-                  </FieldDescription>
-                </Field>
+                {rawToken ? (
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      Token Gerado
+                    </Label>
+                    <InputGroup className="w-full">
+                      <InputGroupInput
+                        readOnly
+                        value={rawToken}
+                        className="font-mono text-xs bg-muted/30"
+                      />
+                      <InputGroupAddon align="inline-end">
+                        <InputGroupButton
+                          onClick={copyToken}
+                          size="icon-sm"
+                          variant="ghost"
+                          title="Copiar token"
+                        >
+                          <CopyIcon className="h-3.5 w-3.5" />
+                        </InputGroupButton>
+                      </InputGroupAddon>
+                    </InputGroup>
+                    <p className="text-[10px] text-muted-foreground italic">
+                      Este token não será exibido novamente após recarregar a página.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-10 text-center border border-dashed rounded-xl bg-muted/5">
+                    <p className="text-xs text-muted-foreground mb-4 max-w-[200px]">
+                      A chave fica oculta por segurança. Gere uma nova se necessário.
+                    </p>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          type="button"
+                          disabled={isGenerating || !canUpdate || readOnly}
+                          variant="outline"
+                          size="sm"
+                          className="h-9 gap-2 px-4"
+                        >
+                          {isGenerating ? (
+                            <RotateCw className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <RotateCw className="h-3.5 w-3.5" />
+                          )}
+                          Gerar Nova Chave
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Ao gerar uma nova chave, a integração atual parará de funcionar
+                            imediatamente. Você precisará atualizar o token em todos os seus
+                            webhooks.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Agora não</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleGenerateToken}
+                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                          >
+                            Sim, rotacionar chave
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                )}
               </FormSection>
             </FormGrid>
           </div>

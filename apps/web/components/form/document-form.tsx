@@ -30,6 +30,7 @@ import {
 import { FormLayout } from '../layouts/form-layout'
 import { FormSection, FormGrid } from '../layouts/form-section'
 import { CreatableCombobox } from '@/components/ui/creatable-combobox'
+import { SearchableSelect } from '@/components/ui/searchable-select'
 
 import {
   AlertDialog,
@@ -233,22 +234,16 @@ export function DocumentForm({
                   <FieldLabel htmlFor="projectId" className="text-xs mb-1">
                     Projeto Relacionado
                   </FieldLabel>
-                  <Select
+                  <SearchableSelect
                     value={projectId}
                     onValueChange={setProjectId}
                     disabled={mode !== 'create' || isView}
-                  >
-                    <SelectTrigger id="projectId" className="h-9 text-xs">
-                      <SelectValue placeholder="Selecione o projeto" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {projects.map(p => (
-                        <SelectItem key={p.id} value={p.id} className="text-xs">
-                          {p.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    placeholder="Selecione o projeto"
+                    options={projects.map(p => ({
+                      value: p.id,
+                      label: p.name,
+                    }))}
+                  />
                 </Field>
 
                 <Field>
