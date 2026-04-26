@@ -17,6 +17,7 @@ interface FormButtonsProps {
   cancelLabel?: string
   onEdit?: () => void
   extraActions?: React.ReactNode
+  hideCancel?: boolean
 }
 
 export function FormButtons({
@@ -28,6 +29,7 @@ export function FormButtons({
   cancelLabel,
   onEdit,
   extraActions,
+  hideCancel,
 }: FormButtonsProps) {
   const isMobile = useIsMobile()
   const { variant } = useFormLayoutContext()
@@ -72,20 +74,22 @@ export function FormButtons({
           isExpanded ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none',
         )}
       >
-        <Button
-          type="button"
-          variant="secondary"
-          size="icon"
-          onClick={() => {
-            onCancel()
-            setIsExpanded(false)
-          }}
-          className="size-12 rounded-full shadow-lg border-primary/10 bg-background/90 backdrop-blur-md"
-          disabled={loading}
-          title={cancelLabel || defaultCancelLabel}
-        >
-          <ChevronLeft className="size-5" />
-        </Button>
+        {!hideCancel && (
+          <Button
+            type="button"
+            variant="secondary"
+            size="icon"
+            onClick={() => {
+              onCancel()
+              setIsExpanded(false)
+            }}
+            className="size-12 rounded-full shadow-lg border-primary/10 bg-background/90 backdrop-blur-md"
+            disabled={loading}
+            title={cancelLabel || defaultCancelLabel}
+          >
+            <ChevronLeft className="size-5" />
+          </Button>
+        )}
 
         {isView && onEdit && (
           <Button
@@ -171,16 +175,18 @@ export function FormButtons({
 
   return (
     <>
-      <Button
-        type="button"
-        variant="outline"
-        onClick={onCancel}
-        className="gap-2"
-        disabled={loading}
-      >
-        <ChevronLeft className="h-4 w-4" />
-        {cancelLabel || defaultCancelLabel}
-      </Button>
+      {!hideCancel && (
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          className="gap-2"
+          disabled={loading}
+        >
+          <ChevronLeft className="h-4 w-4" />
+          {cancelLabel || defaultCancelLabel}
+        </Button>
+      )}
 
       {!isView && (
         <Button type="submit" form={formId} disabled={loading} className="min-w-32 gap-2">

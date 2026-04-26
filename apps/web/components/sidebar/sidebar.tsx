@@ -8,6 +8,7 @@ import {
   Shredder,
   BookText,
   House,
+  Settings2,
 } from 'lucide-react'
 
 const name_sidebar: string | undefined = undefined
@@ -73,6 +74,11 @@ export const sidebarData = {
           url: '/admin/teams',
           name_key: 'teams_management',
           is_permission: true,
+        },
+        {
+          title: 'Parâmetros',
+          url: '/admin/parameters',
+          icon: <Settings2 className="w-4 h-4" />,
         },
       ],
     },

@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { notify } from '@/lib/notifications'
-import { Upload, XIcon, UserRound, Plus, Trash2 } from 'lucide-react'
+import { CloudUpload, XIcon, UserRound, Plus, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
@@ -17,6 +17,14 @@ import {
   FieldLabel,
   FieldTitle,
 } from '@/components/ui/field'
+import { 
+  Empty, 
+  EmptyHeader, 
+  EmptyMedia, 
+  EmptyTitle, 
+  EmptyDescription, 
+  EmptyContent 
+} from '@/components/ui/empty'
 import { FormLayout } from '../layouts/form-layout'
 import { FormSection, FormGrid } from '../layouts/form-section'
 import { SearchableSelect } from '@/components/ui/searchable-select'
@@ -98,7 +106,10 @@ export function UserForm({ mode, user, options, onSuccess, onCancel, onEdit }: U
     }
   }
 
-  const addAssignment = () => setAssignments([...assignments, createEmptyAssignment()])
+  const addPhrase = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setAssignments([...assignments, createEmptyAssignment()])
+  }
 
   const removeAssignment = (key: string) => {
     if (assignments.length === 1) {
@@ -197,7 +208,6 @@ export function UserForm({ mode, user, options, onSuccess, onCancel, onEdit }: U
                   disabled={mode === 'view'}
                 />
               </Field>
-
               <Field>
                 <FieldLabel htmlFor="email">E-mail</FieldLabel>
                 <Input
@@ -231,64 +241,51 @@ export function UserForm({ mode, user, options, onSuccess, onCancel, onEdit }: U
           </FormSection>
 
           <FormSection title="Avatar" className="h-full">
-            <div className="flex flex-row items-center gap-6 py-2 px-0">
-              <div className="relative group shrink-0">
-                <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-muted bg-muted shadow-sm transition-colors group-hover:border-primary/20">
-                  {avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
-                  ) : (
-                    <UserRound className="h-10 w-10 text-muted-foreground/30" />
-                  )}
-                </div>
-
-                {uploading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-background/60 rounded-full backdrop-blur-[1px]">
-                    <Spinner className="h-6 w-6 text-primary" />
-                  </div>
-                )}
-              </div>
-
-              <div className="flex-1 space-y-4">
-                <div className="space-y-1.5">
-                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/50">
-                    Foto de Perfil
-                  </p>
-                  <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col h-full">
+              <div className="flex-1">
+                {avatarUrl ? (
+                  <div className="relative group mx-auto size-32 rounded-full border-2 border-muted overflow-hidden bg-muted shadow-sm">
+                    <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                     {!mode || mode !== 'view' ? (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-8 border-primary/20 hover:bg-primary/5 hover:text-primary transition-all active:scale-95 px-3"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={uploading}
-                      >
-                        <Upload className="mr-2 h-3.5 w-3.5" />
-                        Trocar Foto
-                      </Button>
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
+                        <Button type="button" variant="secondary" size="xs" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                          Trocar
+                        </Button>
+                        <Button type="button" variant="destructive" size="xs" onClick={() => setAvatarUrl('')} disabled={uploading}>
+                          Remover
+                        </Button>
+                      </div>
                     ) : null}
-
-                    {avatarUrl && mode !== 'view' && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all active:scale-95 px-3"
-                        onClick={() => setAvatarUrl('')}
-                      >
-                        <XIcon className="mr-2 h-3.5 w-3.5" />
-                        Remover
-                      </Button>
+                    {uploading && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-background/60 rounded-full backdrop-blur-[1px]">
+                        <Spinner className="h-6 w-6 text-primary" />
+                      </div>
                     )}
                   </div>
-                </div>
-
-                <div className="pt-2 border-t border-muted/30">
-                  <p className="text-xs text-muted-foreground/60 leading-relaxed">
-                    PNG, JPG ou WEBP. <span className="font-medium">Máx 2MB.</span>
-                  </p>
-                </div>
+                ) : (
+                  <Empty className="border border-dashed h-40">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <CloudUpload className="size-5" />
+                      </EmptyMedia>
+                      <EmptyTitle>Foto de Perfil</EmptyTitle>
+                      <EmptyDescription className="text-[10px]">
+                        PNG, JPG ou WEBP. Máx 2MB.
+                      </EmptyDescription>
+                    </EmptyHeader>
+                    <EmptyContent>
+                      {!mode || mode !== 'view' ? (
+                        <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                          Upload Foto
+                        </Button>
+                      ) : (
+                        <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+                           <UserRound className="size-6 text-muted-foreground/30" />
+                        </div>
+                      )}
+                    </EmptyContent>
+                  </Empty>
+                )}
               </div>
               <input
                 type="file"
@@ -344,7 +341,6 @@ export function UserForm({ mode, user, options, onSuccess, onCancel, onEdit }: U
                         }))}
                       />
                     </Field>
-
                     <Field>
                       <FieldLabel>Cargo</FieldLabel>
                       <SearchableSelect
@@ -381,7 +377,7 @@ export function UserForm({ mode, user, options, onSuccess, onCancel, onEdit }: U
               })}
 
               {mode !== 'view' && (
-                <Button type="button" variant="outline" onClick={addAssignment}>
+                <Button type="button" variant="outline" onClick={() => setAssignments([...assignments, createEmptyAssignment()])}>
                   <Plus className="mr-2 h-4 w-4" />
                   Adicionar Atribuição
                 </Button>

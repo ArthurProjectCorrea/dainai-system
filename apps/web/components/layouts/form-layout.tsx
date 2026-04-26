@@ -42,6 +42,7 @@ interface FormLayoutProps {
   isDialog?: boolean
   /** @deprecated handled by variant and FormSection */
   noCardWrapper?: boolean
+  hideCancel?: boolean
 }
 
 export function FormLayout({
@@ -60,6 +61,7 @@ export function FormLayout({
   isDialog,
   extraActions,
   hideButtons,
+  hideCancel,
 }: FormLayoutProps) {
   const getEffectiveVariant = (): FormVariant => {
     if (isDialog) return 'dialog'
@@ -95,6 +97,7 @@ export function FormLayout({
                 cancelLabel={cancelLabel}
                 onEdit={onEdit}
                 extraActions={extraActions}
+                hideCancel={hideCancel}
               />
             </div>
           )}
@@ -118,6 +121,7 @@ export function FormLayout({
               cancelLabel={cancelLabel}
               onEdit={onEdit}
               extraActions={extraActions}
+              hideCancel={hideCancel}
             />
           )}
         </FormHeader>
