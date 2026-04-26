@@ -2,9 +2,23 @@
 
 import React from 'react'
 
-export function VoxelWaves() {
+interface VoxelWavesProps {
+  bgColor?: string
+  orbColor?: string
+  className?: string
+}
+
+export function VoxelWaves({ 
+  bgColor = "#001969", 
+  orbColor = "#AB83F3",
+  className 
+}: VoxelWavesProps) {
+  // Simple check to see if it's an oklch string or hex/css color
+  const finalBgColor = bgColor.includes('oklch') ? 'black' : bgColor
+  const finalOrbColor = orbColor.includes('oklch') ? '#AB83F3' : orbColor
+
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden bg-[#001969]">
+    <div className={`absolute inset-0 z-0 overflow-hidden ${className}`} style={{ backgroundColor: finalBgColor }}>
       <style
         dangerouslySetInnerHTML={{
           __html: `
@@ -19,15 +33,16 @@ export function VoxelWaves() {
         }
         
         .circle-obj {
-          background: radial-gradient(closest-side, #AB83F3, transparent);
+          background: radial-gradient(closest-side, ${finalOrbColor}, transparent);
           animation: traverse-up-left 12s ease-in-out infinite alternate;
         }
         .circle-obj2 {
-          background: radial-gradient(closest-side, #2EB8FF, transparent);
+          background: radial-gradient(closest-side, ${finalOrbColor}, transparent);
+          opacity: 0.6;
           animation: traverse-up-right 16s ease-in-out infinite alternate;
         }
         .circle-obj3 {
-          background: radial-gradient(closest-side, #AB83F3, transparent);
+          background: radial-gradient(closest-side, ${finalOrbColor}, transparent);
           animation: traverse-down-right 14s ease-in-out infinite alternate;
         }
       `,
@@ -35,7 +50,10 @@ export function VoxelWaves() {
       />
 
       {/* Base elegant gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#001969] via-transparent to-[#001969]/80 z-10"></div>
+      <div 
+        className="absolute inset-0 z-10" 
+        style={{ background: `linear-gradient(to bottom right, ${finalBgColor}, transparent, ${finalBgColor}cc)` }}
+      />
 
       {/* Animated Traverse Orbs */}
       <div className="absolute inset-0 opacity-80 mix-blend-screen z-0">
@@ -51,7 +69,7 @@ export function VoxelWaves() {
       </div>
 
       {/* Top Glassmorphism Overlay to smooth everything out */}
-      <div className="absolute inset-0 bg-[#001969]/10 backdrop-blur-[2px] z-20"></div>
+      <div className="absolute inset-0 backdrop-blur-[2px] z-20" style={{ backgroundColor: `${finalBgColor}1a` }} />
     </div>
   )
 }
