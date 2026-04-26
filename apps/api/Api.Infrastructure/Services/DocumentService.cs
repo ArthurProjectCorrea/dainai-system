@@ -239,14 +239,15 @@ namespace Api.Infrastructure.Services
 
             _context.PublishedDocuments.Add(snapshot);
 
-            // --- Sidebar Auto-grouping ---
-            // Check if document is already in the sidebar
-            var isInSidebar = await _context.ProjectSidebarItems.AnyAsync(i => i.DocumentId == documentId);
+            // --- Sidebar Auto-grouping (Internal API Routine) ---
+            var isInSidebar = await _context.ProjectSidebarItems
+                .AnyAsync(i => i.DocumentId == documentId && i.Group.ProjectId == document.ProjectId);
+
             if (!isInSidebar)
             {
-                // Find or create "Outros" group for this project
                 var othersGroup = await _context.ProjectSidebarGroups
-                    .FirstOrDefaultAsync(g => g.ProjectId == document.ProjectId && g.Title == "Outros");
+                    .FirstOrDefaultAsync(g => g.ProjectId == document.ProjectId &&
+                                              (g.Title == "Outros" || g.Title == "OUTROS" || g.Title == "outros"));
 
                 if (othersGroup == null)
                 {
@@ -262,7 +263,7 @@ namespace Api.Infrastructure.Services
                         Title = "Outros",
                         Type = SidebarGroupType.List,
                         Order = maxGroupOrder + 1,
-                        Icon = "Library" // Default icon
+                        Icon = "Library"
                     };
                     _context.ProjectSidebarGroups.Add(othersGroup);
                 }
