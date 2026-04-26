@@ -24,12 +24,8 @@ export function MobileToc({ headings }: MobileTocProps) {
           <TooltipTrigger asChild>
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-10 w-10 rounded-xl shadow-xl bg-background hover:bg-muted border-border/50 transition-all hover:scale-105 active:scale-95"
-                >
-                  <ListIcon className="size-5" />
+                <Button variant="default" size="icon" className="h-10 w-10 rounded-xl ">
+                  <ListIcon className="size-5 text-primary-foreground" />
                   <span className="sr-only">Sumário do Documento</span>
                 </Button>
               </SheetTrigger>

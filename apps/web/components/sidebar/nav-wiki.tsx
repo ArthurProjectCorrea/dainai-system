@@ -63,7 +63,7 @@ export function NavWiki({ sidebarConfig = [] }: NavWikiProps) {
   if (!sidebarConfig || sidebarConfig.length === 0) {
     return (
       <SidebarGroup>
-        <SidebarGroupLabel>Wiki</SidebarGroupLabel>
+        <SidebarGroupLabel>Início</SidebarGroupLabel>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === introItem.url}>
@@ -82,7 +82,7 @@ export function NavWiki({ sidebarConfig = [] }: NavWikiProps) {
     <>
       {/* Ítem fixo de Introdução no topo */}
       <SidebarGroup className="pb-0">
-        <SidebarGroupLabel>Wiki</SidebarGroupLabel>
+        <SidebarGroupLabel>Início</SidebarGroupLabel>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === introItem.url}>

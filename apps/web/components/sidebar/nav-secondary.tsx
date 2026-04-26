@@ -36,16 +36,16 @@ export function NavSecondary({
   }
 
   // Filtrar itens baseados no contexto atual para evitar redundância
-  // Se estiver em /docs, não mostrar o link para /docs, mostrar para /dashboard
-  // Se NÃO estiver em /docs, mostrar o link para /docs, não mostrar para /dashboard (Area Principal)
-  const isDocsPath = pathname?.startsWith('/docs')
+  // Se estiver em /wiki, não mostrar o link para /wiki, mostrar para /dashboard
+  // Se NÃO estiver em /wiki, mostrar o link para /wiki, não mostrar para /dashboard (Area Principal)
+  const isWikiPath = pathname?.startsWith('/wiki')
 
   const filteredItems = items.filter(item => {
-    if (isDocsPath) {
-      // No Docs, removemos o link de Documentação e mantemos Area Principal
-      return item.url !== '/docs'
+    if (isWikiPath) {
+      // Na Wiki, removemos o link de Wiki e mantemos Area Principal
+      return item.url !== '/wiki'
     } else {
-      // No Dashboard, removemos Area Principal e mantemos Documentação
+      // No Dashboard/App, removemos Area Principal e mantemos Wiki
       return item.url !== '/dashboard'
     }
   })

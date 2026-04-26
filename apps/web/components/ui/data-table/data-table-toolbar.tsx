@@ -49,7 +49,7 @@ export function DataTableToolbar<TData>({
           {onReload && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="outline" onClick={onReload} size="icon" className="h-10 w-10 p-0">
+                <Button variant="outline" onClick={onReload} size="icon" className="h-9 w-9 p-0">
                   <RefreshCw className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -62,14 +62,14 @@ export function DataTableToolbar<TData>({
           {newConfig && (
             <>
               {newConfig.url ? (
-                <Button className="h-10" asChild>
+                <Button className="h-9" asChild>
                   <Link href={newConfig.url}>
                     <Plus className="mr-2 h-4 w-4" />
                     Novo Registro
                   </Link>
                 </Button>
               ) : (
-                <Button className="h-10" onClick={newConfig.onClick}>
+                <Button className="h-9" onClick={newConfig.onClick}>
                   <Plus className="mr-2 h-4 w-4" />
                   Novo Registro
                 </Button>
